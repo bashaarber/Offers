@@ -10,10 +10,16 @@ class MaterialController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+
+    public function index(Request $request)
     {
-        $materials = Material::all();
-        return view('material.index', compact('materials'));
+        $query = $request->input('query');
+
+        $materials = Material::where('name','like','%'.$query.'%')->orderBy('id','DESC')->paginate(10);
+        $materials->appends(['query' => $query]);
+
+        return view('material.index', compact('materials', 'query'));
     }
 
     /**
@@ -31,7 +37,6 @@ class MaterialController extends Controller
     {
         $formFields = $request->validate([
             'name' => 'required',
-            'unit' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
             'z_schlosserei' => 'required',
@@ -40,6 +45,8 @@ class MaterialController extends Controller
             'z_fermacell' => 'required',
             'total' => 'required',
         ]);
+
+        $formFields['unit'] = $request->input('unit');
 
         Material::create($formFields);
 
