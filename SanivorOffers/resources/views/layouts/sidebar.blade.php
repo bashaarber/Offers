@@ -76,15 +76,16 @@
 <body>
     <div class="sidebar">
         <h4>Welcome {{ Auth::user()->username }}</h4>
-        <a href="{{ url('/dashboard') }}"><i class="fas fa-home"></i> Home</a>
+        <a href="{{ url('/') }}"><i class="fas fa-home"></i> Home</a>
         @if (Route::has('login'))
         @auth
         @if (auth()->user()->role === 'admin')
         <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i class="fa-solid fa-bars"></i> Settings</a>
         <div class="sublinks" id="home-sublinks">
-        <a href="{{ url('/material') }}">Material</a>
+        <a href="{{ url('/material') }}">Materials</a>
+        <a href="{{ url('/element') }}">Elements</a>
         </div>
-       
+
         <a href="{{ url('/users') }}"><i class="fas fa-user"></i>All Users</a>
         <!-- <a href="{{ route('register') }}"><i class="fas fa-plus"></i>Register User</a> -->
         @endif
