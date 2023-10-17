@@ -18,4 +18,10 @@ class Element extends Model
    {
        return $this->belongsToMany(Material::class);
    }
+
+   public function group_elements():BelongsToMany
+   {
+       return $this->belongsToMany(GroupElement::class);
+   }
+   
 }

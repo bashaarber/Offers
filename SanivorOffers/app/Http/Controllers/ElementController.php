@@ -16,7 +16,6 @@ class ElementController extends Controller
         $query = $request->input('query');
 
         $elements = Element::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
-        $elements->appends(['query' => $query]);
 
         return view('element.index', compact('elements', 'query'));
     }

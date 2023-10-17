@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -16,10 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -32,6 +29,11 @@ Route::middleware('auth','role:admin')->group(function () {
 Route::middleware('auth','role:admin')->group(function () {
     Route::resource('element', ElementController::class)->except(['index']);
     Route::get('/element', [ElementController::class, 'index'])->name('element.index');
+});
+
+Route::middleware('auth','role:admin')->group(function () {
+    Route::resource('group_element', GroupElementController::class)->except(['index']);
+    Route::get('/group_element', [GroupElementController::class, 'index'])->name('group_element.index');
 });
 
 Route::middleware('auth')->group(function () {
