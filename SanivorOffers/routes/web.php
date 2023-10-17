@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\CoefficientController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
-use App\Http\Controllers\Organigram;
 use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -26,21 +26,18 @@ Route::get('/', function () {
 Route::middleware('auth','role:admin')->group(function () {
     Route::resource('material', MaterialController::class)->except(['index']);
     Route::get('/material', [MaterialController::class, 'index'])->name('material.index');
-});
 
-Route::middleware('auth','role:admin')->group(function () {
     Route::resource('element', ElementController::class)->except(['index']);
     Route::get('/element', [ElementController::class, 'index'])->name('element.index');
-});
 
-Route::middleware('auth','role:admin')->group(function () {
     Route::resource('group_element', GroupElementController::class)->except(['index']);
     Route::get('/group_element', [GroupElementController::class, 'index'])->name('group_element.index');
-});
 
-Route::middleware('auth','role:admin')->group(function () {
     Route::resource('organigram', OrganigramController::class)->except(['index']);
     Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
+
+    Route::put('/coefficient/{id}', [CoefficientController::class, 'update'])->name('coefficient.update');
+    Route::get('/coefficient', [CoefficientController::class, 'index'])->name('coefficient.index');
 });
 
 Route::middleware('auth')->group(function () {
