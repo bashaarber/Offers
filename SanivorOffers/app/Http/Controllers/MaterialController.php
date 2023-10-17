@@ -11,13 +11,11 @@ class MaterialController extends Controller
      * Display a listing of the resource.
      */
 
-
     public function index(Request $request)
     {
         $query = $request->input('query');
 
-        $materials = Material::where('name','like','%'.$query.'%')->orderBy('id','DESC')->paginate(10);
-        $materials->appends(['query' => $query]);
+        $materials = Material::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
 
         return view('material.index', compact('materials', 'query'));
     }
