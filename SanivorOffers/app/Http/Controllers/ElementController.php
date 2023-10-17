@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Element;
 use App\Models\Material;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class ElementController extends Controller
 {
