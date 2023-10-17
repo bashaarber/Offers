@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class GroupElement extends Model
+class Organigram extends Model
 {
     use HasFactory;
 
@@ -14,13 +14,8 @@ class GroupElement extends Model
         'name',
     ];
 
-    public function elements():BelongsToMany
+    public function group_elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class);
-    }
-
-    public function organigrams():BelongsToMany
-    {
-        return $this->belongsToMany(Organigram::class);
+        return $this->belongsToMany(GroupElement::class);
     }
 }

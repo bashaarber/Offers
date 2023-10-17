@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('group_element_organigram', function (Blueprint $table) {
+            $table->primary(['group_element_id', 'organigram_id']);
+            $table->foreignId('group_element_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('organigram_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('group_element_organigram');
+    }
+};

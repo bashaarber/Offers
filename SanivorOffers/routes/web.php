@@ -3,6 +3,8 @@
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\Organigram;
+use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +36,11 @@ Route::middleware('auth','role:admin')->group(function () {
 Route::middleware('auth','role:admin')->group(function () {
     Route::resource('group_element', GroupElementController::class)->except(['index']);
     Route::get('/group_element', [GroupElementController::class, 'index'])->name('group_element.index');
+});
+
+Route::middleware('auth','role:admin')->group(function () {
+    Route::resource('organigram', OrganigramController::class)->except(['index']);
+    Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
 });
 
 Route::middleware('auth')->group(function () {
