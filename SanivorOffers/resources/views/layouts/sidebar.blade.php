@@ -89,7 +89,8 @@
         <a href="{{ url('/coefficient') }}">Coefficient</a>
         </div>
 
-        <a href="{{ url('/users') }}"><i class="fas fa-user"></i>All Users</a>
+        <a href="{{ url('/users') }}"><i class="fas fa-user"></i>Users</a>
+        <a href="{{ url('/client') }}"><i class="fas fa-user"></i>Clients</a>
         <!-- <a href="{{ route('register') }}"><i class="fas fa-plus"></i>Register User</a> -->
         @endif
         @endif
