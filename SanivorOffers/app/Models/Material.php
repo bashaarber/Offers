@@ -24,6 +24,6 @@ class Material extends Model
 
     public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class);
+        return $this->belongsToMany(Element::class)->withTimestamps();
     }
 }
