@@ -16,6 +16,6 @@ class Organigram extends Model
 
     public function group_elements():BelongsToMany
     {
-        return $this->belongsToMany(GroupElement::class);
+        return $this->belongsToMany(GroupElement::class)->withTimestamps();
     }
 }
