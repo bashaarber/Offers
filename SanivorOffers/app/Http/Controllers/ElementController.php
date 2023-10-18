@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Element;
 use App\Models\Material;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class ElementController extends Controller
 {
@@ -79,7 +81,7 @@ class ElementController extends Controller
         $element->name = $request->input('name');
         $element->save();
 
-        $element->materials()->sync($request->input('materials'));
+        $element->materials()->sync($request->input('added-materials'));
 
         return redirect()->route('element.index');
     }
