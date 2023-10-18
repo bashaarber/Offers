@@ -81,7 +81,7 @@ class ElementController extends Controller
         $element->name = $request->input('name');
         $element->save();
 
-        $element->materials()->sync($request->input('materials'));
+        $element->materials()->sync($request->input('added-materials'));
 
         return redirect()->route('element.index');
     }

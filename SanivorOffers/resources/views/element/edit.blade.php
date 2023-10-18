@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create</title>
+    <title>Edit</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
         #add-material {
@@ -25,25 +25,27 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="font-weight-bold">Create New Element</h3>
+                        <h3 class="font-weight-bold">Edit Element</h3>
                         <form action="{{ route('element.update', $element->id) }}" method="post">
                             @csrf
                             @method('put')
                             <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $element->name }}" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ $element->name }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="materials">Materials:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="material-search" placeholder="Search Materials">
+                                    <input type="text" class="form-control" id="material-search"
+                                        placeholder="Search Materials">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" type="button" id="clear-search">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 </div>
-                                <select class="form-control" id="materials" name="materials[]" multiple required>
+                                <select class="form-control" id="materials" name="materials[]" multiple>
                                     <!-- Options will be dynamically filtered here -->
                                     @foreach ($materials as $material)
                                         <option value="{{ $material->id }}">{{ $material->name }}</option>
@@ -62,8 +64,8 @@
                                 <label for="materials">Added Material List:</label>
                                 <select class="form-control" id="added-materials" name="added-materials[]" multiple>
                                     @foreach ($element->materials as $material)
-                                    <option value="{{ $material->id }}">{{ $material->name }}</option>
-                                @endforeach
+                                        <option value="{{ $material->id }}">{{ $material->name }}</option>
+                                    @endforeach
                                 </select>
                                 <button type="button" class="btn btn-danger" id="remove-selected">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -73,7 +75,7 @@
                                     </svg>
                                 </button>
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3">Create Element</button>
+                            <button type="submit" class="btn btn-primary mt-3">Edit Element</button>
                             <a href="{{ route('element.index') }}" class="btn btn-secondary mt-3">Back</a>
                         </form>
                     </div>
@@ -86,7 +88,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            const addedMaterials = [];
+            const addedMaterials = {!! json_encode(
+                $element->materials()->pluck('id')->all(),
+            ) !!};
 
             // Function to update the Material List options based on the search input
             function filterMaterialList(searchText) {
@@ -126,6 +130,7 @@
                 }
             });
 
+
             // Function to update the Added Material List
             function updateAddedMaterialsList() {
                 const addedMaterialsSelect = $('#added-materials');
@@ -139,18 +144,18 @@
                 });
             }
 
-            // Remove selected materials from the Added Material List
-            $('#remove-selected').click(function() {
-                const selectedMaterialOptions = $('#added-materials option:selected');
-                selectedMaterialOptions.each(function() {
-                    const materialId = $(this).val();
-                    const index = addedMaterials.indexOf(materialId);
-                    if (index !== -1) {
-                        addedMaterials.splice(index, 1);
-                    }
-                });
-                updateAddedMaterialsList();
+             // Remove selected materials from the Added Material List
+        $('#remove-selected').click(function() {
+            const selectedMaterialOptions = $('#added-materials option:selected');
+            selectedMaterialOptions.each(function() {
+                const materialId = $(this).val();
+                const index = addedMaterials.indexOf(parseInt(materialId));
+                if (index !== -1) {
+                    addedMaterials.splice(index, 1);
+                }
             });
+            updateAddedMaterialsList();
+        });
 
             // Handle double-click to add a material
             $('#materials').dblclick(function() {
@@ -165,8 +170,8 @@
             });
 
             // Submit the form with the Added Material List
-            $('#element-form').submit(function(event) {
-                $('#materials').val(addedMaterials);
+            $('form').submit(function(event) {
+                $('#added-materials option').prop('selected', true);
             });
         });
     </script>
