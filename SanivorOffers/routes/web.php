@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CoefficientController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
@@ -38,6 +39,9 @@ Route::middleware('auth','role:admin')->group(function () {
 
     Route::put('/coefficient/{id}', [CoefficientController::class, 'update'])->name('coefficient.update');
     Route::get('/coefficient', [CoefficientController::class, 'index'])->name('coefficient.index');
+
+    Route::resource('client', ClientController::class)->except(['index']);
+    Route::get('/client', [ClientController::class, 'index'])->name('client.index');
 });
 
 Route::middleware('auth')->group(function () {
