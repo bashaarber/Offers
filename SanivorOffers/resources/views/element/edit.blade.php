@@ -118,12 +118,13 @@
             });
 
             // Add material to the Added Material List
+            // Add material to the Added Material List
             $('#add-material').click(function() {
                 const selectedMaterials = $('#materials').val();
                 if (selectedMaterials) {
                     selectedMaterials.forEach(materialId => {
-                        if (!addedMaterials.includes(materialId)) {
-                            addedMaterials.push(materialId);
+                        if (!addedMaterials.includes(parseInt(materialId))) {
+                            addedMaterials.push(parseInt(materialId));
                         }
                     });
                     updateAddedMaterialsList();
@@ -144,30 +145,29 @@
                 });
             }
 
-             // Remove selected materials from the Added Material List
-        $('#remove-selected').click(function() {
-            const selectedMaterialOptions = $('#added-materials option:selected');
-            selectedMaterialOptions.each(function() {
-                const materialId = $(this).val();
-                const index = addedMaterials.indexOf(parseInt(materialId));
-                if (index !== -1) {
-                    addedMaterials.splice(index, 1);
-                }
-            });
-            updateAddedMaterialsList();
-        });
-
-            // Handle double-click to add a material
-            $('#materials').dblclick(function() {
-                const selectedMaterial = $('#materials option:selected');
-                if (selectedMaterial.length > 0) {
-                    const materialId = selectedMaterial.val();
-                    if (!addedMaterials.includes(materialId)) {
-                        addedMaterials.push(materialId);
-                        updateAddedMaterialsList();
+            // Remove selected materials from the Added Material List
+            $('#remove-selected').click(function() {
+                const selectedMaterialOptions = $('#added-materials option:selected');
+                selectedMaterialOptions.each(function() {
+                    const materialId = $(this).val();
+                    const index = addedMaterials.indexOf(parseInt(materialId));
+                    if (index !== -1) {
+                        addedMaterials.splice(index, 1);
                     }
-                }
+                });
+                updateAddedMaterialsList();
             });
+             // Handle double-click to add a material
+    $('#materials').dblclick(function() {
+        const selectedMaterial = $('#materials option:selected');
+        if (selectedMaterial.length > 0) {
+            const materialId = parseInt(selectedMaterial.val());
+            if (!addedMaterials.includes(materialId)) {
+                addedMaterials.push(materialId);
+                updateAddedMaterialsList();
+            }
+        }
+    });
 
             // Submit the form with the Added Material List
             $('form').submit(function(event) {
