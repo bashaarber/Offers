@@ -16,11 +16,11 @@ class GroupElement extends Model
 
     public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class);
+        return $this->belongsToMany(Element::class)->withTimestamps();
     }
 
     public function organigrams():BelongsToMany
     {
-        return $this->belongsToMany(Organigram::class);
+        return $this->belongsToMany(Organigram::class)->withTimestamps();
     }
 }
