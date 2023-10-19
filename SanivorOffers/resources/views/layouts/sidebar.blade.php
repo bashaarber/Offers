@@ -76,7 +76,7 @@
 <body>
     <div class="sidebar">
         <h4>Welcome {{ Auth::user()->username }}</h4>
-        <a href="{{ url('/') }}"><i class="fas fa-home"></i> Home</a>
+        <a href="{{ url('/offert') }}"><i class="fa fa-address-card"></i>Offert</a>
         @if (Route::has('login'))
         @auth
         @if (auth()->user()->role === 'admin')

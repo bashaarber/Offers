@@ -5,6 +5,7 @@ use App\Http\Controllers\CoefficientController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\OffertController;
 use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,9 @@ Route::middleware('auth','role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
+
+    Route::resource('offert', OffertController::class)->except(['index']);
+    Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
 });
 
 Route::middleware('auth')->group(function () {
