@@ -18,9 +18,4 @@ class Coefficient extends Model
         'difficulty',
         'payment_conditions',
     ];
-
-    public function offers()
-    {
-        return $this->hasMany(Offer::class);
-    }
 }

@@ -14,8 +14,10 @@ class Offert extends Model
         'type',
         'user_sign',
         'status',
+        'create_date',
         'validity',
         'client_sign',
+        'finish_date',
         'object',
         'city',
         'service',
@@ -25,22 +27,16 @@ class Offert extends Model
         'material',
         'labor_price',
         'user_id',
-        // 'coefficient_id',
     ];
 
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function clients()
+    public function client()
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function coefficients()
-    {
-        return $this->belongsTo(Coefficient::class);
     }
    
     public function positions():BelongsToMany

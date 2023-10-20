@@ -35,6 +35,10 @@ Route::middleware('auth','role:admin')->group(function () {
     Route::resource('group_element', GroupElementController::class)->except(['index']);
     Route::get('/group_element', [GroupElementController::class, 'index'])->name('group_element.index');
 
+    Route::resource('offert', OffertController::class)->except(['index','copy']);
+    Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
+    // Route::get('/{offert}', [OffertController::class, 'copy'])->name('offert.copy');
+
     Route::resource('organigram', OrganigramController::class)->except(['index']);
     Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
 
@@ -43,10 +47,8 @@ Route::middleware('auth','role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
-
-    Route::resource('offert', OffertController::class)->except(['index']);
-    Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

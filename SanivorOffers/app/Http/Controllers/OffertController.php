@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Coefficient;
-use App\Models\Offert;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Client;
+use App\Models\Offert;
+use App\Models\Coefficient;
 use Illuminate\Http\Request;
 
 class OffertController extends Controller
@@ -26,10 +27,12 @@ class OffertController extends Controller
      */
     public function create()
     {
+        $latestOffert = Offert::latest()->first();
+        $newOffertId = $latestOffert ? $latestOffert->id + 1 : 1;
         $users = User::all();
         $clients = Client::all();
         $coefficients = Coefficient::get();
-        return view('offert.create', compact('users', 'clients', 'coefficients'));
+        return view('offert.create', compact('newOffertId','users', 'clients', 'coefficients'));
     }
 
     /**
@@ -42,8 +45,10 @@ class OffertController extends Controller
         $formFields = $request->validate([
             'user_sign' => 'required',
             'status' => 'required',
+            'create_date' => 'required',
             'validity' => 'required',
             'client_sign' => 'required',
+            'finish_date' => 'nullable',
             'object' => 'required',
             'city' => 'required',
             'service' => 'required',
@@ -56,9 +61,7 @@ class OffertController extends Controller
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-
-        // dd($formFields);
-
+        
         Offert::create($formFields);
 
         return redirect()->route('offert.index');
@@ -72,12 +75,29 @@ class OffertController extends Controller
         //
     }
 
+    public function copy(Offert $offert)
+    {
+        $user = auth()->user();
+
+        $copy = $offert->replicate()->fill([
+            'user_id'=> $user->id
+        ]);
+
+        $copy->save();
+
+        return redirect()->route('offert.index');
+
+        // dd($offert->toArray());
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        //
+        $offert = Offert::find($id);
+        $clients = Client::all();
+        return view('offert.edit', compact('offert','clients'));
     }
 
     /**
@@ -85,7 +105,31 @@ class OffertController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = auth()->user();
+
+        $formFields = $request->validate([
+            'user_sign' => 'required',
+            'status' => 'required',
+            'create_date' => 'required',
+            'validity' => 'required',
+            'client_sign' => 'required',
+            'finish_date' => 'nullable',
+            'object' => 'required',
+            'city' => 'required',
+            'service' => 'required',
+            'payment_conditions' => 'required',
+            'difficulty' => 'required',
+            'material' => 'required',
+            'labor_price' => 'required',
+            'client_id' => 'required|exists:clients,id',
+        ]);
+
+        $formFields['type'] = $request->input('type');
+        $formFields['user_id'] = $user->id;
+        $offert = Offert::find($id);
+        $offert->update($formFields);
+
+        return redirect()->route('offert.index');
     }
 
     /**
@@ -93,6 +137,8 @@ class OffertController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $offert = Offert::find($id);
+        $offert->delete();
+        return redirect()->route('offert.index');
     }
 }

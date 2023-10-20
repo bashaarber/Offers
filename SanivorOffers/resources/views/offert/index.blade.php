@@ -48,32 +48,34 @@
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Datum</th>
                         <th>Kunde</th>
                         <th>Ihr Zeichen</th>
                         <th>Object</th>
                         <th>Status</th>
-                        <th>Type</th>
+                        <th>Typ</th>
                         <th>User</th>
-                        <th>Actions</th>
+                        <th>Handlungen</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($offerts as $offert)
                         <tr>
-                            <td>{{ $offert->id }}</td>
-                            <td>{{ $offert->created_at }}</td>
-                            <td>{{ $offert->client_id }}</td>
+                            <td><i class="fa fa-folder-open" aria-hidden="true"></i> {{ $offert->id }}</td>
+                            <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
+                            <td>{{ $offert->client->name }}</td>
                             <td>{{ $offert->client_sign }}</td>
                             <td>{{ $offert->object }}</td>
                             <td>{{ $offert->status }}</td>
                             <td>{{ $offert->type }}</td>
-                            <td>{{ $offert->user_id }}</td>
+                            <td>{{ $offert->user->username }}</td>
                             <td>
-                                <a href="{{ route('client.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
+                                {{-- <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
+                                        class="fa fa-clone" aria-hidden="true"></i> Copy</a> --}}
+                                <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
-                                <form action="{{ route('client.destroy', $offert->id) }}" method="post"
+                                <form action="{{ route('offert.destroy', $offert->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')

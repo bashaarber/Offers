@@ -16,8 +16,10 @@ return new class extends Migration
             $table->enum('type',['client','company'])->default('client');
             $table->string('user_sign');
             $table->enum('status',['new','finished'])->default('new');
+            $table->date('create_date');
             $table->string('validity');
             $table->string('client_sign');
+            $table->date('finish_date')->nullable();
             $table->string('object');
             $table->string('city');
             $table->string('service');
@@ -28,7 +30,6 @@ return new class extends Migration
             // $table->double('labor_cost');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            // $table->foreignId('coefficient_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
