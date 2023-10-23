@@ -7,6 +7,7 @@ use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\OffertController;
 use App\Http\Controllers\OrganigramController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +26,7 @@ Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth','role:admin')->group(function () {
+Route::middleware('auth', 'role:admin')->group(function () {
     Route::resource('material', MaterialController::class)->except(['index']);
     Route::get('/material', [MaterialController::class, 'index'])->name('material.index');
 
@@ -35,9 +36,9 @@ Route::middleware('auth','role:admin')->group(function () {
     Route::resource('group_element', GroupElementController::class)->except(['index']);
     Route::get('/group_element', [GroupElementController::class, 'index'])->name('group_element.index');
 
-    Route::resource('offert', OffertController::class)->except(['index','copy']);
+    Route::resource('offert', OffertController::class)->except(['index', 'copy']);
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
-    // Route::get('/{offert}', [OffertController::class, 'copy'])->name('offert.copy');
+    // Route::post('/{offert}', [OffertController::class, 'copy'])->name('offert.copy');
 
     Route::resource('organigram', OrganigramController::class)->except(['index']);
     Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
@@ -47,6 +48,10 @@ Route::middleware('auth','role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
+
+    Route::resource('position', PositionController::class);
+    Route::get('/client/search', [PositionController::class, 'search'])->name('position.search');
+
 });
 
 
@@ -56,6 +61,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-
-
+require __DIR__ . '/auth.php';

@@ -77,6 +77,7 @@
     <div class="sidebar">
         <h4>Welcome {{ Auth::user()->username }}</h4>
         <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>Offert</a>
+        <a href="{{ url('/position/create') }}"><i class="fa-solid fa-file-invoice"></i>Create Position</a>
         @if (Route::has('login'))
         @auth
         @if (auth()->user()->role === 'admin')
