@@ -7,6 +7,30 @@
     <title>Document</title>
 </head>
 
+<style>
+    #clientSearch {
+        width: 100%;
+        padding: 10px;
+        font-size: 18px;
+        border: 1px solid #ccc;
+    }
+
+    #searchResults {
+        margin-left: -7.5%; 
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+        border: none;
+        background-color: #f9f9f9;
+    }
+
+    .list-group-item:hover {
+        background-color: #e0e0e0;
+    }
+</style>
 <body>
     @include('layouts.sidebar')
     <div class="container mt-4">
@@ -90,14 +114,12 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="client_id">Clients</label>
-                                    <select class="form-control" id="client_id" name="client_id" required>
-                                        @foreach ($clients as $client)
-                                            <option value="{{ $client->id }}" {{ $client->id == $offert->client_id ? 'selected' : '' }}>
-                                                {{ $client->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="client_id">Kunde</label>
+                                    <div class="autocomplete">
+                                        <input type="text" id="clientSearch" value="{{ $offert->client->name }}"placeholder="Search for a client">
+                                        <input type="hidden" name="client_id" id="client_id">
+                                    </div>
+                                    <ul id="searchResults"></ul>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -128,6 +150,41 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('clientSearch').addEventListener('input', function () {
+            var searchValue = this.value.trim().toLowerCase();
+            var searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+    
+            if (searchValue.length === 0) {
+                return; // No input, don't display any results
+            }
+    
+            // Iterate through the clients and display matching results
+            @foreach ($clients as $client)
+                var clientName = "{{ $client->name }}".toLowerCase();
+                if (clientName.includes(searchValue)) {
+                    var listItem = document.createElement('a');
+                    listItem.href = "javascript:void(0)";
+                    listItem.className = "list-group-item list-group-item-action";
+                    listItem.textContent = "{{ $client->name }}";
+    
+                    // Add data attribute to store client_id
+                    listItem.setAttribute("data-client-id", "{{ $client->id }}");
+    
+                    // Add a click event listener to populate the input field and client_id
+                    listItem.addEventListener('click', function () {
+                        document.getElementById('clientSearch').value = "{{ $client->name }}";
+                        // Set the client_id value
+                        document.getElementById('client_id').value = this.getAttribute("data-client-id");
+                        searchResults.innerHTML = ''; // Clear the results
+                    });
+    
+                    searchResults.appendChild(listItem);
+                }
+            @endforeach
+        });
+    </script>
 </body>
 
 </html>
