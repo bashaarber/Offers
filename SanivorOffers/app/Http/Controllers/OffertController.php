@@ -17,8 +17,8 @@ class OffertController extends Controller
     public function index(Request $request)
     {
         $query = $request->input('query');
-
         $offerts = Offert::where('id', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+
         return view('offert.index', compact('offerts', 'query'));
     }
 
@@ -32,7 +32,8 @@ class OffertController extends Controller
         $users = User::all();
         $clients = Client::all();
         $coefficients = Coefficient::get();
-        return view('offert.create', compact('newOffertId','users', 'clients', 'coefficients'));
+
+        return view('offert.create', compact('newOffertId', 'users', 'clients', 'coefficients'));
     }
 
     /**
@@ -58,15 +59,14 @@ class OffertController extends Controller
             'labor_price' => 'required',
             'client_id' => 'required|exists:clients,id',
         ]);
-
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-        
+
         Offert::create($formFields);
 
         return redirect()->route('offert.index');
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -87,11 +87,20 @@ class OffertController extends Controller
             'user_id' => $user->id,
             'create_date' => $currentDate,
         ]);
-        
+
         $new_offert->save();
 
         return redirect()->route('offert.index');
     }
+
+    public function searchClients(Request $request)
+    {
+        $searchTerm = $request->input('searchTerm');
+        $clients = Client::where('name', 'like', '%' . $searchTerm . '%')->get();
+
+        return response()->json($clients);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -99,7 +108,8 @@ class OffertController extends Controller
     {
         $offert = Offert::find($id);
         $clients = Client::all();
-        return view('offert.edit', compact('offert','clients'));
+        
+        return view('offert.edit', compact('offert', 'clients'));
     }
 
     /**
