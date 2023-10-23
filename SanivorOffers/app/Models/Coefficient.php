@@ -18,5 +18,4 @@ class Coefficient extends Model
         'difficulty',
         'payment_conditions',
     ];
-
 }

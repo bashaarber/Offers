@@ -76,7 +76,8 @@
 <body>
     <div class="sidebar">
         <h4>Welcome {{ Auth::user()->username }}</h4>
-        <a href="{{ url('/') }}"><i class="fas fa-home"></i> Home</a>
+        <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>Offert</a>
+        <a href="{{ url('/position/create') }}"><i class="fa-solid fa-file-invoice"></i>Create Position</a>
         @if (Route::has('login'))
         @auth
         @if (auth()->user()->role === 'admin')
@@ -90,12 +91,12 @@
         </div>
 
         <a href="{{ url('/users') }}"><i class="fas fa-user"></i>Users</a>
-        <a href="{{ url('/client') }}"><i class="fas fa-user"></i>Clients</a>
+        <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i>Clients</a>
         <!-- <a href="{{ route('register') }}"><i class="fas fa-plus"></i>Register User</a> -->
         @endif
         @endif
         @endauth
-
+        
         <x-dropdown-link :href="route('profile.edit')"><i class="fa-solid fa-pen"></i>
             {{ __('Profile') }}
         </x-dropdown-link>
