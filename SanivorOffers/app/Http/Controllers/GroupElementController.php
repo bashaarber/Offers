@@ -38,7 +38,7 @@ class GroupElementController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $elements = $request->input('elements');
+        $elements = $request->input('materials');
 
         $group_elements = new GroupElement();
         $group_elements->name = $request->input('name');
@@ -79,7 +79,7 @@ class GroupElementController extends Controller
         $group_element->name = $request->input('name');
         $group_element->save();
 
-        $group_element->elements()->sync($request->input('elements'));
+        $group_element->elements()->sync($request->input('added-materials'));
 
         return redirect()->route('group_element.index');
     }

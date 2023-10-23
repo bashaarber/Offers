@@ -38,7 +38,7 @@ class OrganigramController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $group_elements = $request->input('group_elements');
+        $group_elements = $request->input('materials');
 
         $organigrams = new Organigram();
         $organigrams->name = $request->input('name');
@@ -79,7 +79,7 @@ class OrganigramController extends Controller
         $organigram->name = $request->input('name');
         $organigram->save();
 
-        $organigram->group_elements()->sync($request->input('group_elements'));
+        $organigram->group_elements()->sync($request->input('added-materials'));
 
         return redirect()->route('organigram.index');
     }

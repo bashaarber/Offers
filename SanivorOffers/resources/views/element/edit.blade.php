@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <style>
-        #add-material {
-            margin-top: 10px;
-            align-items: center;
-        }
+        <style>
+            #add-material {
+                margin-top: 10px;
+                align-items: center;
+            }
 
-        #remove-selected {
-            margin-top: 10px;
-        }
-    </style>
+            #remove-selected {
+                margin-top: 10px;
+            }
+        </style>
 </head>
 
 <body>
@@ -61,7 +61,7 @@
                                 </button>
                             </div>
                             <div class="form-group">
-                                <label for="materials">Added Material List:</label>
+                                <label for="materials">Added Element List:</label>
                                 <select class="form-control" id="added-materials" name="added-materials[]" multiple>
                                     @foreach ($element->materials as $material)
                                         <option value="{{ $material->id }}">{{ $material->name }}</option>
@@ -157,22 +157,28 @@
                 });
                 updateAddedMaterialsList();
             });
-             // Handle double-click to add a material
-    $('#materials').dblclick(function() {
-        const selectedMaterial = $('#materials option:selected');
-        if (selectedMaterial.length > 0) {
-            const materialId = parseInt(selectedMaterial.val());
-            if (!addedMaterials.includes(materialId)) {
-                addedMaterials.push(materialId);
-                updateAddedMaterialsList();
-            }
-        }
-    });
+            // Handle double-click to add a material
+            $('#materials').dblclick(function() {
+                const selectedMaterial = $('#materials option:selected');
+                if (selectedMaterial.length > 0) {
+                    const materialId = parseInt(selectedMaterial.val());
+                    if (!addedMaterials.includes(materialId)) {
+                        addedMaterials.push(materialId);
+                        updateAddedMaterialsList();
+                    }
+                }
+            });
 
             // Submit the form with the Added Material List
             $('form').submit(function(event) {
-                $('#added-materials option').prop('selected', true);
+                if (addedMaterials.length === 0) {
+                    alert('Please add at least one material to the list.');
+                    event.preventDefault(); // Prevent form submission
+                } else {
+                    $('#added-materials option').prop('selected', true);
+                }
             });
+
         });
     </script>
 
