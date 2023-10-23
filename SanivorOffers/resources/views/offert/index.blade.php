@@ -62,7 +62,7 @@
                 <tbody>
                     @foreach ($offerts as $offert)
                         <tr>
-                            <td><i class="fa fa-folder-open" aria-hidden="true"></i> {{ $offert->id }}</td>
+                            <td>{{ $offert->id }}</td>
                             <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
                             <td>{{ $offert->client->name }}</td>
                             <td>{{ $offert->client_sign }}</td>
@@ -71,8 +71,9 @@
                             <td>{{ $offert->type }}</td>
                             <td>{{ $offert->user->username }}</td>
                             <td>
-                                {{-- <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
-                                        class="fa fa-clone" aria-hidden="true"></i> Copy</a> --}}
+
+                                <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
+                                        class="fa fa-clone" aria-hidden="true"></i> Copy</a>
                                 <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
                                 <form action="{{ route('offert.destroy', $offert->id) }}" method="post"

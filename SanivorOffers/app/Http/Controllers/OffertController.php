@@ -66,6 +66,7 @@ class OffertController extends Controller
 
         return redirect()->route('offert.index');
     }
+    
 
     /**
      * Display the specified resource.
@@ -75,21 +76,22 @@ class OffertController extends Controller
         //
     }
 
-    public function copy(Offert $offert)
+    public function copy($offert_id)
     {
         $user = auth()->user();
+        $timestamp = time();
+        $currentDate = gmdate('Y-m-d', $timestamp);
+        $offert = Offert::findOrFail($offert_id);
 
-        $copy = $offert->replicate()->fill([
-            'user_id'=> $user->id
+        $new_offert = $offert->replicate()->fill([
+            'user_id' => $user->id,
+            'create_date' => $currentDate,
         ]);
-
-        $copy->save();
+        
+        $new_offert->save();
 
         return redirect()->route('offert.index');
-
-        // dd($offert->toArray());
     }
-
     /**
      * Show the form for editing the specified resource.
      */
