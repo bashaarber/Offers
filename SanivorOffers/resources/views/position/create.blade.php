@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,16 +38,16 @@
         th {
             color: black;
         }
-        .position{
-        width: 600px;
-        height: 600px;
-        overflow-x: hidden;
-        overflow-y: auto;
-        text-align: center;
+
+        .position {
+            width: 600px;
+            height: 600px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            text-align: center;
         }
     </style>
 </head>
-
 <body>
     @include('layouts.sidebar')
     <div class="content">
@@ -61,14 +60,12 @@
                             {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
                             <th scope="col">Rahmen <input> mm </th>
                             <th scope="col"> Desc. <input> </th>
-                            <th scope="col"> Blocktyp <input> cm  </th>
+                            <th scope="col"> Blocktyp <input> cm </th>
                             <th scope="col"> H <input> cm </th>
                             <th scope="col"> T<input> cm </th>
                             <th></th>
                         <tr class="table-dark">
-
                             <thead>
-
                                 <thead>
                                     <tr class="table-dark">
                                         <th></th>
@@ -154,42 +151,47 @@
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
-                    @foreach ($element->materials as $material)
-                        <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                            style="display: none">
-                            <thead>
+                    <table class="table element-materials" id="element-materials-{{ $element->id }}"
+                        style="display: none">
+                        <thead>
+                            <tr>
+                                <th scope="col">Ans.</th>
+                                <th scope="col">Name</th>
+                                <th></th>
+                                <th scope="col">PStk.</th>
+                                <th scope="col">Total CHF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-dark">
+                                <th scope="col"><input style="width: 100px"></th>
+                                <th scope="col">{{ $element->name }}</th>
+                                <th></th>
+                                <th scope="col">
+                                    @php
+                                        $totalMaterialsPrice = 0;
+                                    @endphp
+                                    @foreach ($element->materials as $material)
+                                        @php
+                                            $totalMaterialsPrice += $material->price_in * $material->pivot->quantity;
+                                        @endphp
+                                    @endforeach
+                                   CHF {{ $totalMaterialsPrice }} X
+                                </th>
+                                <th scope="col">
+                                    {{ $totalMaterialsPrice }}
+                                </th>
+                            </tr>
+                            @foreach ($element->materials as $material)
                                 <tr>
-                                    <th scope="col">Ans.</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">PStk.</th>
-                                    <th scope="col">Total CHF</th>
+                                    <td>mit <input style="width: 60px" value="{{$material->pivot->quantity}}"> {{ $material->unit }}</td>
+                                    <td>{{ $material->name }}</td>
+                                    <td>CHF {{ $material->price_in }} X {{ $material->pivot->quantity }} {{ $material->unit }}</td>
+                                    <td>{{ $material->price_in * $material->pivot->quantity }}</td>
                                 </tr>
-                                <thead>
-                                    <tr class="table-dark">
-                                        <th scope="col"><input style="width: 100px"></th>
-                                        <th scope="col">{{ $element->name }}</th>
-                                        <th scope="col">CHF 166.31 X 1</th>
-                                        <th scope="col">166.31</th>
-                                    </tr>
-                                </thead>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>mit <input style="width: 60px"> {{ $material->unit }}</td>
-                                    <td>{{ $element->name }}</td>
-                                    <td>CHF 128.75 X 1 {{ $material->unit }}</td>
-                                </tr>
-                                <tr>
-                                    <td>mit <input style="width: 60px"> {{ $material->unit }}</td>
-                                    <td>{{ $material->name }} X {{$material->pivot->quantity}} </td>
-                                    <td>CHF {{ $material->price_in }} X {{$material->pivot->quantity}} {{ $material->unit }}</td>
-                                    <td>{{ $material->price_in * $material->pivot->quantity}}</td>
-
-                                </tr>
-
-                            </tbody>
-                        </table>
-                    @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
                 @endforeach
             </div>
         </div>
@@ -229,7 +231,5 @@
             });
         });
     </script>
-
 </body>
-
 </html>

@@ -35,17 +35,15 @@ class MaterialController extends Controller
     {
         $formFields = $request->validate([
             'name' => 'required',
+            'unit' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
             'z_schlosserei' => 'required',
             'z_pe' => 'required',
             'z_montage' => 'required',
             'z_fermacell' => 'required',
-            'total' => 'required',
         ]);
-
-        $formFields['unit'] = $request->input('unit');
-
+        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
         Material::create($formFields);
 
         return redirect()->route('material.index');
@@ -83,15 +81,13 @@ class MaterialController extends Controller
             'z_pe' => 'required',
             'z_montage' => 'required',
             'z_fermacell' => 'required',
-            'total' => 'required',
         ]);
         $material = Material::find($id);
-
+        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
         $material->update($formFields);
 
         return redirect()->route('material.index');
     }
-
     /**
      * Remove the specified resource from storage.
      */

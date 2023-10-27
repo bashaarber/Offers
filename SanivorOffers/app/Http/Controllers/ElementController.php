@@ -38,14 +38,23 @@ class ElementController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'materials' => 'array',
+            'quantities' => 'array',
         ]);
 
-        $materials = $request->input('materials');
+        $element = new Element();
+        $element->name = $request->input('name');
+        $element->save();
 
-        $elements = new Element();
-        $elements->name = $request->input('name');
-        $elements->save();
-        $elements->materials()->attach($materials);
+        $materials = $request->input('materials', []);
+        $quantities = $request->input('quantities', []);
+
+        foreach ($materials as $key => $materialId) {
+            $quantity = $quantities[$key] ?? 1; // Default to 1 if no quantity provided
+
+            // Attach the material to the element with the specified quantity
+            $element->materials()->attach($materialId, ['quantity' => $quantity]);
+        }
 
         return redirect()->route('element.index');
     }
@@ -81,7 +90,16 @@ class ElementController extends Controller
         $element->name = $request->input('name');
         $element->save();
 
-        $element->materials()->sync($request->input('added-materials'));
+        $materials = $request->input('materials', []);
+        $quantities = $request->input('quantities', []);
+
+        $syncData = [];
+        foreach ($materials as $key => $materialId) {
+            $quantity = $quantities[$key] ?? 1; // Default to 1 if no quantity provided
+            $syncData[$materialId] = ['quantity' => $quantity];
+        }
+
+        $element->materials()->sync($syncData);
 
         return redirect()->route('element.index');
     }

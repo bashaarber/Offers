@@ -68,10 +68,6 @@
                                             <input type="text" class="form-control" name="z_fermacell" id="z_fermacell" value="{{ $material->z_fermacell }}" required>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="total">Total</label>
-                                        <input type="text" class="form-control" name="total" id="total" value="{{ $material->total }}" required>
-                                    </div>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary mt-3">Update Material</button>
