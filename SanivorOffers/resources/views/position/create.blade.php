@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,6 +49,7 @@
         }
     </style>
 </head>
+
 <body>
     @include('layouts.sidebar')
     <div class="content">
@@ -81,7 +83,7 @@
                                     <td><strong>Materiale Pro Typ</strong></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
-                                    <td>% <input></td>
+                                    <td>% <input value="0"></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
                                 </tr>
@@ -89,15 +91,15 @@
                                     <td><strong>Zeit Pro Typ</strong></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
-                                    <td>% <input></td>
+                                    <td>% <input value="0"></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
                                 </tr>
                                 <tr class="table-secondary">
                                     <td><strong>Total Pro Typ</strong></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                    <td>% <input></td>
+                                    <td id="total-pro-typ-price">0.00</td>
+                                    <td id="discounted-total">0.00</td>
+                                    <td>% <input id="percentage-input" value="0"></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
                                 </tr>
@@ -105,7 +107,7 @@
                                     <td>Menge <input></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
-                                    <td>% <input></td>
+                                    <td>% <input value="0"></td>
                                     <td>0.00</td>
                                     <td>0.00</td>
                                 </tr>
@@ -176,7 +178,7 @@
                                             $totalMaterialsPrice += $material->price_in * $material->pivot->quantity;
                                         @endphp
                                     @endforeach
-                                   CHF {{ $totalMaterialsPrice }} X
+                                    CHF {{ $totalMaterialsPrice }} X
                                 </th>
                                 <th scope="col">
                                     {{ $totalMaterialsPrice }}
@@ -184,9 +186,11 @@
                             </tr>
                             @foreach ($element->materials as $material)
                                 <tr>
-                                    <td>mit <input style="width: 60px" value="{{$material->pivot->quantity}}"> {{ $material->unit }}</td>
+                                    <td>mit <input style="width: 60px" value="{{ $material->pivot->quantity }}">
+                                        {{ $material->unit }}</td>
                                     <td>{{ $material->name }}</td>
-                                    <td>CHF {{ $material->price_in }} X {{ $material->pivot->quantity }} {{ $material->unit }}</td>
+                                    <td>CHF {{ $material->price_in }} X {{ $material->pivot->quantity }}
+                                        {{ $material->unit }}</td>
                                     <td>{{ $material->price_in * $material->pivot->quantity }}</td>
                                 </tr>
                             @endforeach
@@ -204,6 +208,69 @@
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
             const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
+            // Initialize the running total materials price variable
+            let runningTotalMaterialsPrice = 0;
+            let percentage = 0;
+
+            elementCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const elementId = this.getAttribute('data-element-id');
+                    const elementMaterialsTable = document.querySelector(
+                        `#element-materials-${elementId}`);
+
+                    if (elementMaterialsTable) {
+                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+
+                        // Calculate the total materials price when the checkbox is clicked
+                        const elementPrice = calculateTotalMaterialsPrice(elementId);
+
+                        // Update the running total based on the checkbox state
+                        if (this.checked) {
+                            runningTotalMaterialsPrice += elementPrice;
+                        } else {
+                            runningTotalMaterialsPrice -= elementPrice;
+                        }
+
+                        updateTotalProTypPrice();
+                    }
+                });
+            });
+            // Function to calculate the total materials price for an element
+            function calculateTotalMaterialsPrice(elementId) {
+                const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
+                let totalMaterialsPrice = 0;
+
+                materials.forEach(materialRow => {
+                    const priceCell = materialRow.querySelector('td:last-child');
+                    if (priceCell) {
+                        totalMaterialsPrice += parseFloat(priceCell.textContent);
+                    }
+                });
+
+                return totalMaterialsPrice;
+            }
+
+            // Event listener for the percentage input field
+            const percentageInput = document.getElementById('percentage-input');
+            percentageInput.addEventListener('input', function() {
+                const inputValue = this.value.trim(); // Remove leading/trailing white spaces
+                percentage = inputValue ? parseFloat(inputValue) : 0; // Use 0% if input is empty
+                updateTotalProTypPrice();
+            });
+
+            // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage
+            function updateTotalProTypPrice() {
+                const totalProTypPriceCell = document.getElementById('total-pro-typ-price');
+                const discountedTotalCell = document.getElementById('discounted-total');
+
+                if (totalProTypPriceCell && discountedTotalCell) {
+                    const totalProTypPrice = runningTotalMaterialsPrice;
+                    const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
+
+                    totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2); // Format as desired
+                    discountedTotalCell.textContent = discountedTotal.toFixed(2); // Format as desired
+                }
+            }
 
             organigramCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
@@ -232,4 +299,5 @@
         });
     </script>
 </body>
+
 </html>
