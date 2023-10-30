@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Element;
+use App\Models\Material;
 use App\Models\Organigram;
 use Illuminate\Http\Request;
 
@@ -21,19 +23,11 @@ class PositionController extends Controller
      */
     public function create()
     {
+        $materials = Material::get();
         $organigrams = Organigram::get();
+        $elements = Element::get();
 
-        return view('position.create', compact('organigrams'));
-    }
-
-    
-    public function search(Request $request)
-    {
-        $searchTerm = $request->input('q');
-    
-        $clients = Client::where('name', 'like', '%'.$searchTerm.'%')->get();
-    
-        return response()->json($clients);
+        return view('position.create', compact('materials','organigrams','elements'));
     }
 
     /**

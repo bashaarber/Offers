@@ -4,18 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit</title>
+    <title>Edit Element</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        <style>
-            #add-material {
-                margin-top: 10px;
-                align-items: center;
-            }
-
-            #remove-selected {
-                margin-top: 10px;
-            }
-        </style>
+    <link rel="stylesheet" href="https://cdn.lineicons.com/2.0/LineIcons.css">
+    <style>
+       
+    </style>
 </head>
 
 <body>
@@ -26,57 +20,35 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="font-weight-bold">Edit Element</h3>
-                        <form action="{{ route('element.update', $element->id) }}" method="post">
+                        <form method="POST" action="{{ route('element.update', $element->id) }}">
                             @csrf
-                            @method('put')
+                            @method('PUT') <!-- Use the PUT method for updating -->
+
                             <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ $element->name }}" required>
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ $element->name }}" required>
                             </div>
-                            <div class="form-group">
-                                <label for="materials">Materials:</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="material-search"
-                                        placeholder="Search Materials">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary" type="button" id="clear-search">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                            <div class="form-group" id="materials-list">
+                                @foreach ($element->materials as $material)
+                                    <div class="input-group mb-2">
+                                        <select class="form-control" name="materials[]">
+                                            @foreach ($materials as $materialOption)
+                                                <option value="{{ $materialOption->id }}" {{ $materialOption->id == $material->id ? 'selected' : '' }}>
+                                                    {{ $materialOption->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <input type="number" class="form-control quantity-input" name="quantities[]" value="{{ $material->pivot->quantity }}" placeholder="Quantity">
+                                        <div class="btn-container">
+                                            <button type="button" class="btn btn-danger remove-material"><i class="lni lni-minus"></i></button>
+                                            <!-- You may add an update button here if needed -->
+                                        </div>
                                     </div>
-                                </div>
-                                <select class="form-control" id="materials" name="materials[]" multiple>
-                                    <!-- Options will be dynamically filtered here -->
-                                    @foreach ($materials as $material)
-                                        <option value="{{ $material->id }}">{{ $material->name }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="button" class="btn btn-success" id="add-material">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        fill="currentColor" class="bi bi-plus-circle-fill">
-                                        <path
-                                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z">
-                                        </path>
-                                    </svg>
-                                </button>
+                                @endforeach
                             </div>
-                            <div class="form-group">
-                                <label for="materials">Added Element List:</label>
-                                <select class="form-control" id="added-materials" name="added-materials[]" multiple>
-                                    @foreach ($element->materials as $material)
-                                        <option value="{{ $material->id }}">{{ $material->name }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="button" class="btn btn-danger" id="remove-selected">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        fill="currentColor" class="bi bi-dash-circle-fill">
-                                        <path
-                                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-3">Edit Element</button>
-                            <a href="{{ route('element.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="button" class="btn btn-primary" id="add-material"><i class="lni lni-plus"></i></button>
+                                <button type="submit" class="btn btn-primary">Update Element</button>
+                                <a href="{{ route('element.index') }}" class="btn btn-secondary">Back</a>
                         </form>
                     </div>
                 </div>
@@ -88,100 +60,18 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            const addedMaterials = {!! json_encode(
-                $element->materials()->pluck('id')->all(),
-            ) !!};
-
-            // Function to update the Material List options based on the search input
-            function filterMaterialList(searchText) {
-                const materialsSelect = $('#materials');
-                materialsSelect.find('option').each(function() {
-                    const materialName = $(this).text();
-                    if (materialName.toLowerCase().includes(searchText.toLowerCase())) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            }
-
-            // Search for materials
-            $('#material-search').on('input', function() {
-                const searchText = $(this).val();
-                filterMaterialList(searchText);
-            });
-
-            // Clear the search input
-            $('#clear-search').click(function() {
-                $('#material-search').val('');
-                filterMaterialList('');
-            });
-
-            // Add material to the Added Material List
-            // Add material to the Added Material List
             $('#add-material').click(function() {
-                const selectedMaterials = $('#materials').val();
-                if (selectedMaterials) {
-                    selectedMaterials.forEach(materialId => {
-                        if (!addedMaterials.includes(parseInt(materialId))) {
-                            addedMaterials.push(parseInt(materialId));
-                        }
-                    });
-                    updateAddedMaterialsList();
-                }
+                const newMaterialField = $('#materials-list .input-group:first').clone();
+                newMaterialField.find('select').val('material_id_1'); // Set the default material
+                newMaterialField.find('.quantity-input').val(''); // Clear the quantity input
+                newMaterialField.appendTo('#materials-list');
             });
 
-
-            // Function to update the Added Material List
-            function updateAddedMaterialsList() {
-                const addedMaterialsSelect = $('#added-materials');
-                addedMaterialsSelect.empty();
-
-                addedMaterials.forEach(materialId => {
-                    const materialName = $(`#materials option[value='${materialId}']`).text();
-                    addedMaterialsSelect.append(
-                        new Option(materialName, materialId, false, false)
-                    );
-                });
-            }
-
-            // Remove selected materials from the Added Material List
-            $('#remove-selected').click(function() {
-                const selectedMaterialOptions = $('#added-materials option:selected');
-                selectedMaterialOptions.each(function() {
-                    const materialId = $(this).val();
-                    const index = addedMaterials.indexOf(parseInt(materialId));
-                    if (index !== -1) {
-                        addedMaterials.splice(index, 1);
-                    }
-                });
-                updateAddedMaterialsList();
+            $('#materials-list').on('click', '.remove-material', function() {
+                $(this).closest('.input-group').remove();
             });
-            // Handle double-click to add a material
-            $('#materials').dblclick(function() {
-                const selectedMaterial = $('#materials option:selected');
-                if (selectedMaterial.length > 0) {
-                    const materialId = parseInt(selectedMaterial.val());
-                    if (!addedMaterials.includes(materialId)) {
-                        addedMaterials.push(materialId);
-                        updateAddedMaterialsList();
-                    }
-                }
-            });
-
-            // Submit the form with the Added Material List
-            $('form').submit(function(event) {
-                if (addedMaterials.length === 0) {
-                    alert('Please add at least one material to the list.');
-                    event.preventDefault(); // Prevent form submission
-                } else {
-                    $('#added-materials option').prop('selected', true);
-                }
-            });
-
         });
     </script>
-
 </body>
 
 </html>

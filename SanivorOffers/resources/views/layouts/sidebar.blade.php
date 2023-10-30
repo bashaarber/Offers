@@ -40,8 +40,8 @@
         }
 
         .content {
-            margin-left: 250px;
-            padding: 15px;
+            margin-left: 260px;
+            /* padding: 15px; */
         }
 
         .sublinks {

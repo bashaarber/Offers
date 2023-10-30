@@ -63,7 +63,8 @@
                             <td>{{ $element->name }}</td>
                             <td>
                                 @foreach ($element->materials as $material)
-                                    {{ $material->name }}
+                                {{$material->pivot->quantity}}{{$material->unit}}
+                                    {{ $material->name }}<br>
                                 @endforeach
                             </td>
                             <td class="edit-delete-btns">

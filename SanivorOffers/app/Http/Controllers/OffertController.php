@@ -64,7 +64,7 @@ class OffertController extends Controller
 
         Offert::create($formFields);
 
-        return redirect()->route('offert.index');
+        return redirect()->route('position.create');
     }
 
 

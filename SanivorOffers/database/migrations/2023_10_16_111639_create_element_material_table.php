@@ -15,6 +15,7 @@ return new class extends Migration
             $table->primary(['element_id', 'material_id']);
             $table->foreignId('element_id')->constrained()->cascadeOnDelete();
             $table->foreignId('material_id')->constrained()->cascadeOnDelete();
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

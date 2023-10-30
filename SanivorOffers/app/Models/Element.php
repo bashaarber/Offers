@@ -16,7 +16,7 @@ class Element extends Model
 
    public function materials():BelongsToMany
    {
-       return $this->belongsToMany(Material::class)->withTimestamps();
+       return $this->belongsToMany(Material::class)->withPivot('quantity')->withTimestamps();
    }
 
    public function group_elements():BelongsToMany
