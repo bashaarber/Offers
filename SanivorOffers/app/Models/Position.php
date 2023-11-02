@@ -23,8 +23,8 @@ class Position extends Model
         return $this->belongsToMany(Offert::class)->withTimestamps();
     }
 
-    public function organigrams():BelongsToMany
+    public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Organigram::class)->withTimestamps();
+        return $this->belongsToMany(Element::class)->withTimestamps();
     }
 }

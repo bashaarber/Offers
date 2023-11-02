@@ -29,9 +29,9 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
-            <h1 class="mb-3">Offert List</h1>
+            <h1 class="mb-3">Positions List</h1>
 
-            <form action="{{ route('offert.index') }}" method="GET" class="search-form">
+            <form action="{{ route('position.index') }}" method="GET" class="search-form">
                 <div class="input-group">
                     <input type="search" name="query" class="form-control" placeholder="Search...">
                     <div class="input-group-append">
@@ -40,59 +40,54 @@
                 </div>
             </form>
 
-            <a href="{{ route('offert.index') }}" class="btn btn-dark mb-1">
+            <a href="{{ route('position.index') }}" class="btn btn-dark mb-1">
                 <i class="fas fa-times"></i>
             </a>
-            <a href="{{ route('offert.create') }}" class="btn btn-primary float-right mb-3">Create Offert</a>
+            <a href="{{ route('position.create') }}" class="btn btn-primary float-right mb-3">Create Position</a>
 
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Datum</th>
-                        <th>Kunde</th>
-                        <th>Ihr Zeichen</th>
-                        <th>Object</th>
-                        <th>Status</th>
-                        <th>Typ</th>
-                        <th>User</th>
+                        <th>OffertID</th>
+                        <th>Price Brutto</th>
+                        <th>Preis mit Rabbat</th>
+                        <th>Rabbat</th>
+                        <th>Kosto CHF</th>
+                        <th>Profit CHF</th>
+                        <th>Total</th>
                         <th>Handlungen</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($offerts as $offert)
+                    @foreach ($positions as $position)
                         <tr>
-                            <td>{{ $offert->id }}</td>
-                            <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
-                            <td>{{ $offert->client->name }}</td>
-                            <td>{{ $offert->client_sign }}</td>
-                            <td>{{ $offert->object }}</td>
-                            <td>{{ $offert->status }}</td>
-                            <td>{{ $offert->type }}</td>
-                            <td>{{ $offert->user->username }}</td>
+                            <td>{{ $position->id }}</td>
+                            @foreach ($position->offerts as $offert)
+                                <td>{{ $offert->id }}</td>
+                            @endforeach
+                            <td>{{ $position->price_brutto }}</td>
+                            <td>{{ $position->price_discount }}</td>
+                            <td>{{ $position->discount }}%</td>
+                            <td>{{ $position->costo }}</td>
+                            <td>{{ $position->profit }}</td>
+                            <td>{{ $position->total }}</td>
                             <td>
-
-                                <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
-                                        class="fa fa-clone" aria-hidden="true"></i> Copy</a>
-                                        <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-
-                                <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
-                                        class="fas fa-pencil"></i></a>
-                                <form action="{{ route('offert.destroy', $offert->id) }}" method="post"
+                                <a href="{{ route('position.edit', $position->id) }}" class="btn btn-primary btn-sm"><i
+                                        class="fas fa-pencil"></i> Edit</a>
+                                <form action="{{ route('position.destroy', $position->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
-                                        </button>
+                                        Delete</button>
                                 </form>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            {{ $offerts->appends(['query' => $query])->links() }}
+            {{ $positions->appends(['query' => $query])->links() }}
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

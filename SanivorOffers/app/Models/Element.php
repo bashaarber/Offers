@@ -24,4 +24,8 @@ class Element extends Model
        return $this->belongsToMany(GroupElement::class)->withTimestamps();
    }
    
+   public function positions():BelongsToMany
+    {
+        return $this->belongsToMany(Position::class)->withTimestamps();
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Offert;
@@ -67,13 +66,14 @@ class OffertController extends Controller
         return redirect()->route('position.create');
     }
 
-
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
+        $offert = Offert::find($id);
+        
+        return view('offert.show', compact('offert'));
     }
 
     public function copy($offert_id)

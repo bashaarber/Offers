@@ -55,64 +55,68 @@
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <table class="table">
-                    <thead>
-                        <tr class="table-dark">
-
-                            {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                            <th scope="col">Rahmen <input> mm </th>
-                            <th scope="col"> Desc. <input> </th>
-                            <th scope="col"> Blocktyp <input> cm </th>
-                            <th scope="col"> H <input> cm </th>
-                            <th scope="col"> T<input> cm </th>
-                            <th></th>
-                        <tr class="table-dark">
-                            <thead>
+                <form method="POST" action="{{ route('position.store') }}">
+                    @csrf
+                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
+                    <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
+                    <input type="hidden" name="percentage" id="percentageInput" value="0">
+                    <table class="table">
+                        <thead>
+                            <tr class="table-dark">
+                                {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
+                                <th scope="col">Rahmen <input> mm </th>
+                                <th scope="col"> Desc. <input> </th>
+                                <th scope="col"> Blocktyp <input> cm </th>
+                                <th scope="col"> H <input> cm </th>
+                                <th scope="col"> T<input> cm </th>
+                                <th></th>
+                            <tr class="table-dark">
                                 <thead>
-                                    <tr class="table-dark">
-                                        <th></th>
-                                        <th scope="col">Preis Brutto </th>
-                                        <th scope="col">Preis mit Rabbat</th>
-                                        <th scope="col">Rabbat</th>
-                                        <th scope="col">Kosto CHF</th>
-                                        <th scope="col">Profit CHF</th>
+                                    <thead>
+                                        <tr class="table-dark">
+                                            <th></th>
+                                            <th scope="col">Preis Brutto </th>
+                                            <th scope="col">Preis mit Rabbat</th>
+                                            <th scope="col">Rabbat</th>
+                                            <th scope="col">Kosto CHF</th>
+                                            <th scope="col">Profit CHF</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    <tr class="table-active">
+                                        <td><strong>Materiale Pro Typ</strong></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        <td>% <input value="0"></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
                                     </tr>
-                                </thead>
-                            <tbody>
-                                <tr class="table-active">
-                                    <td><strong>Materiale Pro Typ</strong></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                    <td>% <input value="0"></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                </tr>
-                                <tr class="table-active">
-                                    <td><strong>Zeit Pro Typ</strong></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                    <td>% <input value="0"></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                </tr>
-                                <tr class="table-secondary">
-                                    <td><strong>Total Pro Typ</strong></td>
-                                    <td id="total-pro-typ-price">0.00</td>
-                                    <td id="discounted-total">0.00</td>
-                                    <td>% <input id="percentage-input" value="0"></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                </tr>
-                                <tr class="table-dark">
-                                    <td>Menge <input></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                    <td>% <input value="0"></td>
-                                    <td>0.00</td>
-                                    <td>0.00</td>
-                                </tr>
-                            </tbody>
-                </table>
+                                    <tr class="table-active">
+                                        <td><strong>Zeit Pro Typ</strong></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        <td>% <input value="0"></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+                                    <tr class="table-secondary">
+                                        <td><strong>Total Pro Typ</strong></td>
+                                        <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
+                                        <td id="discounted-total">0.00</td>
+                                        <td>% <input id="percentage-input" name="percentage-input" value="0"></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+                                    <tr class="table-dark">
+                                        <td>Menge <input></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                        <td>% <input value="0"></td>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+                                </tbody>
+                    </table>
             </div>
             <div class="col-md-4">
                 <div class="card">
@@ -135,8 +139,10 @@
                                                     <div class="card">
                                                         <div class="card-body">
                                                             <h6 class="card-subtitle">
-                                                                <input type="checkbox" class="element-checkbox"
-                                                                    data-element-id="{{ $element->id }}">
+                                                                <input type="checkbox" name="selected_elements[]"
+                                                                    class="element-checkbox"
+                                                                    data-element-id="{{ $element->id }}"
+                                                                    value="{{ $element->id }}">
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -150,6 +156,8 @@
                         @endforeach
                     </div>
                 </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
@@ -166,7 +174,7 @@
                         </thead>
                         <tbody>
                             <tr class="table-dark">
-                                <th scope="col"><input style="width: 100px"></th>
+                                <th scope="col"><input style="width: 100px"  value="1"></th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
                                 <th scope="col">
@@ -178,7 +186,7 @@
                                             $totalMaterialsPrice += $material->price_in * $material->pivot->quantity;
                                         @endphp
                                     @endforeach
-                                    CHF {{ $totalMaterialsPrice }} X
+                                    CHF {{ $totalMaterialsPrice }} X 1
                                 </th>
                                 <th scope="col">
                                     {{ $totalMaterialsPrice }}
@@ -255,6 +263,10 @@
             percentageInput.addEventListener('input', function() {
                 const inputValue = this.value.trim(); // Remove leading/trailing white spaces
                 percentage = inputValue ? parseFloat(inputValue) : 0; // Use 0% if input is empty
+
+                // Update the hidden input field with the calculated percentage value
+                document.getElementById('percentageInput').value = percentage;
+
                 updateTotalProTypPrice();
             });
 
@@ -262,16 +274,22 @@
             function updateTotalProTypPrice() {
                 const totalProTypPriceCell = document.getElementById('total-pro-typ-price');
                 const discountedTotalCell = document.getElementById('discounted-total');
+                const percentageInput = document.getElementById('percentage-input');
+                const totalProTypPriceInput = document.getElementById('totalProTypPriceInput');
+                const discountedTotalInput = document.getElementById('discountedTotalInput');
 
-                if (totalProTypPriceCell && discountedTotalCell) {
+                if (totalProTypPriceCell && discountedTotalCell && percentageInput) {
                     const totalProTypPrice = runningTotalMaterialsPrice;
                     const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
 
                     totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2); // Format as desired
                     discountedTotalCell.textContent = discountedTotal.toFixed(2); // Format as desired
+
+                    // Update the hidden input fields with the calculated values
+                    totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
+                    discountedTotalInput.value = discountedTotal.toFixed(2);
                 }
             }
-
             organigramCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const groupElements = this.parentElement.nextElementSibling;
