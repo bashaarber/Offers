@@ -55,8 +55,9 @@
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <form method="POST" action="{{ route('position.store') }}">
+                <form method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
+                    @method('PUT')
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
                     <input type="hidden" name="percentage" id="percentageInput" value="0">
@@ -101,9 +102,9 @@
                                     </tr>
                                     <tr class="table-secondary">
                                         <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
-                                        <td id="discounted-total">0.00</td>
-                                        <td>% <input id="percentage-input" name="percentage-input" value="0"></td>
+                                        <td id="total-pro-typ-price" name="total-pro-typ-price">{{ $position->price_brutto }}</td>
+                                        <td id="discounted-total">{{ $position->price_discount }}</td>
+                                        <td>% <input id="percentage-input" name="percentage-input" value="{{ $position->discount }}"></td>
                                         <td>0.00</td>
                                         <td>0.00</td>
                                     </tr>
@@ -142,7 +143,7 @@
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
-                                                                    value="{{ $element->id }}">
+                                                                    value="{{ $element->id }}" {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -156,7 +157,7 @@
                         @endforeach
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Create Position</button>
+                <button type="submit" class="btn btn-primary mt-3">Update Position</button>
                 </form>
                 <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a>
             </div>
@@ -218,31 +219,30 @@
             const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
             // Initialize the running total materials price variable
-            let runningTotalMaterialsPrice = 0;
+            let runningTotalMaterialsPrice = {{ $position->price_brutto }};
             let percentage = 0;
 
             elementCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const elementId = this.getAttribute('data-element-id');
-                    const elementMaterialsTable = document.querySelector(
-                        `#element-materials-${elementId}`);
+    checkbox.addEventListener('change', function() {
+        const elementId = this.getAttribute('data-element-id');
+        const elementMaterialsTable = document.querySelector(`#element-materials-${elementId}`);
 
-                    if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+        if (elementMaterialsTable) {
+            elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
 
-                        // Calculate the total materials price when the checkbox is clicked
-                        const elementPrice = calculateTotalMaterialsPrice(elementId);
+            // Calculate the total materials price when the checkbox is clicked
+            const elementPrice = calculateTotalMaterialsPrice(elementId);
 
-                        // Update the running total based on the checkbox state
-                        if (this.checked) {
-                            runningTotalMaterialsPrice += elementPrice;
-                        } else {
-                            runningTotalMaterialsPrice -= elementPrice;
-                        }
+            // Update the running total based on the checkbox state
+            if (this.checked) {
+                runningTotalMaterialsPrice += elementPrice;
+            } else {
+                runningTotalMaterialsPrice -= elementPrice;
+            }
 
-                        updateTotalProTypPrice();
-                    }
-                });
+            updateTotalProTypPrice();
+        }
+    });
             });
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {

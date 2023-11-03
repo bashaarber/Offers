@@ -150,7 +150,13 @@ class OffertController extends Controller
     public function destroy(string $id)
     {
         $offert = Offert::find($id);
+        $positions = $offert->positions;
         $offert->delete();
+
+        foreach ($positions as $position) {
+            $position->delete();
+        }
+
         return redirect()->route('offert.index');
     }
 }

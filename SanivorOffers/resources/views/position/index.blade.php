@@ -30,21 +30,7 @@
     <div class="content">
         <div class="container">
             <h1 class="mb-3">Positions List</h1>
-
-            <form action="{{ route('position.index') }}" method="GET" class="search-form">
-                <div class="input-group">
-                    <input type="search" name="query" class="form-control" placeholder="Search...">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
-
-            <a href="{{ route('position.index') }}" class="btn btn-dark mb-1">
-                <i class="fas fa-times"></i>
-            </a>
-            <a href="{{ route('position.create') }}" class="btn btn-primary float-right mb-3">Create Position</a>
-
+            <a href="{{ route('position.create') }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3">Create Position</a>
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -87,7 +73,6 @@
                     @endforeach
                 </tbody>
             </table>
-            {{ $positions->appends(['query' => $query])->links() }}
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

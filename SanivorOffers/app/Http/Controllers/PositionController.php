@@ -17,16 +17,19 @@ class PositionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->input('query');
-        $positions = Position::where('id', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $offertId = $request->input('offert_id');
 
-        return view('position.index', compact('positions', 'query'));
+        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->get();
+
+        return view('position.index', compact('positions', 'offertId'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $materials = Material::get();
         $organigrams = Organigram::get();
@@ -59,7 +62,7 @@ class PositionController extends Controller
         $position->offerts()->attach($latestOffert);
         $position->elements()->attach($elementIds);
 
-        return redirect()->route('position.index');
+        return redirect()->route('position.create',compact('latestOffert'));
     }
 
     /**
@@ -75,7 +78,12 @@ class PositionController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $position = Position::find($id);
+        $materials = Material::get();
+        $organigrams = Organigram::get();
+        $elements = Element::get();
+
+        return view('position.edit', compact('position', 'materials', 'organigrams', 'elements'));
     }
 
     /**
@@ -83,7 +91,25 @@ class PositionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $totalProTypPrice = $request->input('totalProTypPrice');
+        $discountedTotal = $request->input('discountedTotal');
+        $percentage = $request->input('percentage');
+        $elementIds = $request->input('selected_elements');
+
+        $formFields = [
+            'price_brutto' => $totalProTypPrice,
+            'price_discount' => $discountedTotal,
+            'discount' => $percentage,
+            'costo' => '0',
+            'profit' => '0',
+            'total' => '0',
+        ];
+        $position = Position::find($id);
+        $position->update($formFields);
+
+        $position->elements()->sync($elementIds);
+
+        return redirect()->route('offert.index');
     }
 
     /**
@@ -93,7 +119,7 @@ class PositionController extends Controller
     {
         $position = Position::find($id);
         $position->delete();
-        
-        return redirect()->route('position.index');
+
+        return redirect()->route('offert.index');
     }
 }
