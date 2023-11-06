@@ -102,9 +102,11 @@
                                     </tr>
                                     <tr class="table-secondary">
                                         <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price" name="total-pro-typ-price">{{ $position->price_brutto }}</td>
+                                        <td id="total-pro-typ-price" name="total-pro-typ-price">
+                                            {{ $position->price_brutto }}</td>
                                         <td id="discounted-total">{{ $position->price_discount }}</td>
-                                        <td>% <input id="percentage-input" name="percentage-input" value="{{ $position->discount }}"></td>
+                                        <td>% <input id="percentage-input" name="percentage-input"
+                                                value="{{ $position->discount }}"></td>
                                         <td>0.00</td>
                                         <td>0.00</td>
                                     </tr>
@@ -124,7 +126,8 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-                                <input type="checkbox" class="organigram-checkbox">
+                                <input type="checkbox" class="organigram-checkbox" value="{{ $organigram->id }}"
+                                    {{ $position->organigrams->contains($organigram->id) ? 'checked' : '' }}>
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -132,7 +135,9 @@
                                     <div class="card mb-2">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
-                                                <input type="checkbox" class="group-element-checkbox">
+                                                <input type="checkbox" class="group-element-checkbox"
+                                                    value="{{ $group_element->id }}"
+                                                    {{ $position->group_elements->contains($group_element->id) ? 'checked' : '' }}>
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -143,7 +148,8 @@
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
-                                                                    value="{{ $element->id }}" {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
+                                                                    value="{{ $element->id }}"
+                                                                    {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -159,7 +165,8 @@
                 </div>
                 <button type="submit" class="btn btn-primary mt-3">Update Position</button>
                 </form>
-                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a>
+                <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
+                    class="btn btn-secondary mt-3">Back</a>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
@@ -176,7 +183,7 @@
                         </thead>
                         <tbody>
                             <tr class="table-dark">
-                                <th scope="col"><input style="width: 100px"  value="1"></th>
+                                <th scope="col"><input style="width: 100px" value="1"></th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
                                 <th scope="col">
@@ -223,26 +230,27 @@
             let percentage = 0;
 
             elementCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        const elementId = this.getAttribute('data-element-id');
-        const elementMaterialsTable = document.querySelector(`#element-materials-${elementId}`);
+                checkbox.addEventListener('change', function() {
+                    const elementId = this.getAttribute('data-element-id');
+                    const elementMaterialsTable = document.querySelector(
+                        `#element-materials-${elementId}`);
 
-        if (elementMaterialsTable) {
-            elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                    if (elementMaterialsTable) {
+                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
 
-            // Calculate the total materials price when the checkbox is clicked
-            const elementPrice = calculateTotalMaterialsPrice(elementId);
+                        // Calculate the total materials price when the checkbox is clicked
+                        const elementPrice = calculateTotalMaterialsPrice(elementId);
 
-            // Update the running total based on the checkbox state
-            if (this.checked) {
-                runningTotalMaterialsPrice += elementPrice;
-            } else {
-                runningTotalMaterialsPrice -= elementPrice;
-            }
+                        // Update the running total based on the checkbox state
+                        if (this.checked) {
+                            runningTotalMaterialsPrice += elementPrice;
+                        } else {
+                            runningTotalMaterialsPrice -= elementPrice;
+                        }
 
-            updateTotalProTypPrice();
-        }
-    });
+                        updateTotalProTypPrice();
+                    }
+                });
             });
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {
@@ -315,6 +323,23 @@
                     }
                 });
             });
+            // Function to toggle visibility for a specific checkbox type
+            function toggleCheckboxVisibility(checkboxes, className) {
+                checkboxes.forEach(checkbox => {
+                    const elements = checkbox.parentElement.nextElementSibling;
+                    if (checkbox.checked) {
+                        elements.style.display = 'block';
+                    }
+                    checkbox.addEventListener('change', function() {
+                        const elements = checkbox.parentElement.nextElementSibling;
+                        elements.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
+
+            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
+            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
+            toggleCheckboxVisibility(elementCheckboxes, 'element');
         });
     </script>
 </body>

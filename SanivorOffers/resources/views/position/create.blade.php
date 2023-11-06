@@ -123,7 +123,7 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-                                <input type="checkbox" class="organigram-checkbox">
+                                <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox" value="{{ $organigram->id }}">
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -131,7 +131,7 @@
                                     <div class="card mb-2">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
-                                                <input type="checkbox" class="group-element-checkbox">
+                                                <input type="checkbox" name="selected_group_elements[]" class="group-element-checkbox" value="{{ $group_element->id }}">
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -175,7 +175,7 @@
                         </thead>
                         <tbody>
                             <tr class="table-dark">
-                                <th scope="col"><input style="width: 100px"  value="1"></th>
+                                <th scope="col"><input style="width: 100px" value="1"></th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
                                 <th scope="col">
@@ -220,6 +220,7 @@
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
+            
 
             elementCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {

@@ -21,7 +21,7 @@ class PositionController extends Controller
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
-        })->get();
+        })->orderBy('id', 'DESC')->get();
 
         return view('position.index', compact('positions', 'offertId'));
     }
@@ -48,6 +48,8 @@ class PositionController extends Controller
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
         $elementIds = $request->input('selected_elements');
+        $groupElementIds = $request->input('selected_group_elements');
+        $organigramIds = $request->input('selected_organigrams');
 
         $formFields = [
             'price_brutto' => $totalProTypPrice,
@@ -61,8 +63,11 @@ class PositionController extends Controller
         $position = Position::create($formFields);
         $position->offerts()->attach($latestOffert);
         $position->elements()->attach($elementIds);
+        $position->group_elements()->attach($groupElementIds);
+        $position->organigrams()->attach($organigramIds);
 
-        return redirect()->route('position.create',compact('latestOffert'));
+
+        return redirect()->route('position.index', ['offert_id' => $latestOffert->id]);
     }
 
     /**
@@ -91,10 +96,13 @@ class PositionController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $position = Position::find($id);
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
         $elementIds = $request->input('selected_elements');
+        $groupElementIds = $request->input('selected_group_elements');
+        $organigramIds = $request->input('selected_organigrams');
 
         $formFields = [
             'price_brutto' => $totalProTypPrice,
@@ -108,8 +116,11 @@ class PositionController extends Controller
         $position->update($formFields);
 
         $position->elements()->sync($elementIds);
+        $position->group_elements()->sync($groupElementIds);
+        $position->organigrams()->sync($organigramIds);
+        $offertId = $position->offerts->first()->id;
 
-        return redirect()->route('offert.index');
+        return redirect()->route('position.index', ['offert_id' => $offertId]);
     }
 
     /**
