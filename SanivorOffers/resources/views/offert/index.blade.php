@@ -74,14 +74,18 @@
 
                                 <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
                                         class="fa fa-clone" aria-hidden="true"></i> Copy</a>
+                                        <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
                                 <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
-                                        class="fas fa-pencil"></i> Edit</a>
+                                        class="fas fa-pencil"></i></a>
                                 <form action="{{ route('offert.destroy', $offert->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
-                                        Delete</button>
+                                        </button>
                                 </form>
                             </td>
                         </tr>

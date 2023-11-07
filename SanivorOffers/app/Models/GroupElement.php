@@ -23,4 +23,9 @@ class GroupElement extends Model
     {
         return $this->belongsToMany(Organigram::class)->withTimestamps();
     }
+    
+    public function positions():BelongsToMany
+    {
+        return $this->belongsToMany(Position::class)->withTimestamps();
+    }
 }

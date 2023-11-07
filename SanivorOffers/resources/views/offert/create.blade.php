@@ -30,6 +30,10 @@
     .list-group-item:hover {
         background-color: #e0e0e0;
     }
+    h6{
+        background-color: skyblue;
+        padding: 10px;
+    }
 </style>
 
 <body>
@@ -39,7 +43,8 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="font-weight-bold">Create Offert</h3>
+                            <h6>Projektinformationen</h6>
+
                         <form action="{{ route('offert.store') }}" method="POST">
                             @csrf
                             <div class="form-row">
@@ -122,6 +127,7 @@
                                     <ul id="searchResults"></ul>
                                 </div>
                             </div>
+                            <h6>Koeffizienten für dieses Project</h6>
                             
                             <div class="form-row">
                                 <div class="form-group col-md-4">

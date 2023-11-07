@@ -55,16 +55,20 @@
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <form method="POST" action="{{ route('position.store') }}">
+                <form method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
-                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
-                    <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
-                    <input type="hidden" name="percentage" id="percentageInput" value="0">
+                    @method('PUT')
+                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
+                        value="{{ $position->price_brutto }}">
+                    <input type="hidden" name="discountedTotal" id="discountedTotalInput"
+                        value="{{ $position->price_discount }}">
+                    <input type="hidden" name="percentage" id="percentageInput" value="{{ $position->discount }}">
+
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
                                 {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                                <th scope="col">Rahmen <input> mm </th>
+                                <th scope="col">Rahmen <input value="Pos. {{$position->id}}"> mm </th>
                                 <th scope="col"> Desc. <input> </th>
                                 <th scope="col"> Blocktyp <input> cm </th>
                                 <th scope="col"> H <input> cm </th>
@@ -101,9 +105,11 @@
                                     </tr>
                                     <tr class="table-secondary">
                                         <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
-                                        <td id="discounted-total">0.00</td>
-                                        <td>% <input id="percentage-input" name="percentage-input" value="0"></td>
+                                        <td id="total-pro-typ-price" name="total-pro-typ-price">
+                                            {{ $position->price_brutto }}</td>
+                                        <td id="discounted-total">{{ $position->price_discount }}</td>
+                                        <td>% <input id="percentage-input" name="percentage-input"
+                                                value="{{ $position->discount }}"></td>
                                         <td>0.00</td>
                                         <td>0.00</td>
                                     </tr>
@@ -123,7 +129,11 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-                                <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox" value="{{ $organigram->id }}">
+
+                                <input type="checkbox" class="organigram-checkbox" name="selected_organigrams[]"
+                                    value="{{ $organigram->id }}"
+                                    {{ in_array($organigram->id, old('selected_organigrams', $position->organigrams->pluck('id')->toArray())) ? 'checked' : '' }}>
+
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -131,7 +141,9 @@
                                     <div class="card mb-2">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
-                                                <input type="checkbox" name="selected_group_elements[]" class="group-element-checkbox" value="{{ $group_element->id }}">
+                                                <input type="checkbox" class="group-element-checkbox"
+                                                    name="selected_group_elements[]" value="{{ $group_element->id }}"
+                                                    {{ in_array($group_element->id, old('selected_group_elements', $position->group_elements->pluck('id')->toArray())) ? 'checked' : '' }}>
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -142,7 +154,8 @@
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
-                                                                    value="{{ $element->id }}">
+                                                                    value="{{ $element->id }}"
+                                                                    {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -156,14 +169,18 @@
                         @endforeach
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Create Position</button>
+                <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
                 </form>
-                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a>
+                <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
+                    class="btn btn-secondary mt-3">Back</a>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
+                    @php
+                        $isSelected = $position->elements->contains($element->id);
+                    @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: none">
+                        style="display: {{ $isSelected ? '' : 'none' }}">
                         <thead>
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -217,10 +234,10 @@
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
             const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
+
             // Initialize the running total materials price variable
-            let runningTotalMaterialsPrice = 0;
+            let runningTotalMaterialsPrice = {{ $position->price_brutto }};
             let percentage = 0;
-            
 
             elementCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
@@ -245,6 +262,7 @@
                     }
                 });
             });
+
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {
                 const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
@@ -262,6 +280,8 @@
 
             // Event listener for the percentage input field
             const percentageInput = document.getElementById('percentage-input');
+            const discountTableCell = document.querySelector('#discounted-total');
+
             percentageInput.addEventListener('input', function() {
                 const inputValue = this.value.trim(); // Remove leading/trailing white spaces
                 percentage = inputValue ? parseFloat(inputValue) : 0; // Use 0% if input is empty
@@ -270,6 +290,8 @@
                 document.getElementById('percentageInput').value = percentage;
 
                 updateTotalProTypPrice();
+                // Update the discount value in the table
+                discountTableCell.textContent = calculateDiscountedTotal().toFixed(2);
             });
 
             // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage
@@ -282,6 +304,7 @@
 
                 if (totalProTypPriceCell && discountedTotalCell && percentageInput) {
                     const totalProTypPrice = runningTotalMaterialsPrice;
+                    const percentage = parseFloat(percentageInput.value) || 0; // Parse the percentage input value
                     const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
 
                     totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2); // Format as desired
@@ -316,6 +339,23 @@
                     }
                 });
             });
+            // Function to toggle visibility for a specific checkbox type
+            function toggleCheckboxVisibility(checkboxes, className) {
+                checkboxes.forEach(checkbox => {
+                    const elements = checkbox.parentElement.nextElementSibling;
+                    if (checkbox.checked) {
+                        elements.style.display = 'block';
+                    }
+                    checkbox.addEventListener('change', function() {
+                        const elements = checkbox.parentElement.nextElementSibling;
+                        elements.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
+
+            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
+            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
+            toggleCheckboxVisibility(elementCheckboxes, 'element');
         });
     </script>
 </body>
