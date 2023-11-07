@@ -58,14 +58,17 @@
                 <form method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
-                    <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
-                    <input type="hidden" name="percentage" id="percentageInput" value="0">
+                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
+                        value="{{ $position->price_brutto }}">
+                    <input type="hidden" name="discountedTotal" id="discountedTotalInput"
+                        value="{{ $position->price_discount }}">
+                    <input type="hidden" name="percentage" id="percentageInput" value="{{ $position->discount }}">
+
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
                                 {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                                <th scope="col">Rahmen <input> mm </th>
+                                <th scope="col">Rahmen <input value="Pos. {{$position->id}}"> mm </th>
                                 <th scope="col"> Desc. <input> </th>
                                 <th scope="col"> Blocktyp <input> cm </th>
                                 <th scope="col"> H <input> cm </th>
@@ -126,8 +129,11 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-                                <input type="checkbox" class="organigram-checkbox" value="{{ $organigram->id }}"
-                                    {{ $position->organigrams->contains($organigram->id) ? 'checked' : '' }}>
+
+                                <input type="checkbox" class="organigram-checkbox" name="selected_organigrams[]"
+                                    value="{{ $organigram->id }}"
+                                    {{ in_array($organigram->id, old('selected_organigrams', $position->organigrams->pluck('id')->toArray())) ? 'checked' : '' }}>
+
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -136,8 +142,8 @@
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
                                                 <input type="checkbox" class="group-element-checkbox"
-                                                    value="{{ $group_element->id }}"
-                                                    {{ $position->group_elements->contains($group_element->id) ? 'checked' : '' }}>
+                                                    name="selected_group_elements[]" value="{{ $group_element->id }}"
+                                                    {{ in_array($group_element->id, old('selected_group_elements', $position->group_elements->pluck('id')->toArray())) ? 'checked' : '' }}>
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -163,15 +169,18 @@
                         @endforeach
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Update Position</button>
+                <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
                 </form>
                 <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
                     class="btn btn-secondary mt-3">Back</a>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
+                    @php
+                        $isSelected = $position->elements->contains($element->id);
+                    @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: none">
+                        style="display: {{ $isSelected ? '' : 'none' }}">
                         <thead>
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -225,6 +234,7 @@
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
             const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
+
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = {{ $position->price_brutto }};
             let percentage = 0;
@@ -236,7 +246,7 @@
                         `#element-materials-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
 
                         // Calculate the total materials price when the checkbox is clicked
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
@@ -252,6 +262,7 @@
                     }
                 });
             });
+
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {
                 const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
@@ -269,6 +280,8 @@
 
             // Event listener for the percentage input field
             const percentageInput = document.getElementById('percentage-input');
+            const discountTableCell = document.querySelector('#discounted-total');
+
             percentageInput.addEventListener('input', function() {
                 const inputValue = this.value.trim(); // Remove leading/trailing white spaces
                 percentage = inputValue ? parseFloat(inputValue) : 0; // Use 0% if input is empty
@@ -277,6 +290,8 @@
                 document.getElementById('percentageInput').value = percentage;
 
                 updateTotalProTypPrice();
+                // Update the discount value in the table
+                discountTableCell.textContent = calculateDiscountedTotal().toFixed(2);
             });
 
             // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage
@@ -289,6 +304,7 @@
 
                 if (totalProTypPriceCell && discountedTotalCell && percentageInput) {
                     const totalProTypPrice = runningTotalMaterialsPrice;
+                    const percentage = parseFloat(percentageInput.value) || 0; // Parse the percentage input value
                     const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
 
                     totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2); // Format as desired
@@ -319,7 +335,7 @@
                         `#element-materials-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
                     }
                 });
             });

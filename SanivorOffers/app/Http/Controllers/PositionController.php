@@ -100,9 +100,6 @@ class PositionController extends Controller
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
-        $elementIds = $request->input('selected_elements');
-        $groupElementIds = $request->input('selected_group_elements');
-        $organigramIds = $request->input('selected_organigrams');
 
         $formFields = [
             'price_brutto' => $totalProTypPrice,
@@ -115,9 +112,13 @@ class PositionController extends Controller
         $position = Position::find($id);
         $position->update($formFields);
 
-        $position->elements()->sync($elementIds);
-        $position->group_elements()->sync($groupElementIds);
-        $position->organigrams()->sync($organigramIds);
+        $selectedOrganigramIds = $request->input('selected_organigrams', []);
+        $selectedGroupElementIds = $request->input('selected_group_elements', []);
+        $selectedElementIds = $request->input('selected_elements', []);
+
+        $position->organigrams()->sync($selectedOrganigramIds);
+        $position->group_elements()->sync($selectedGroupElementIds);
+        $position->elements()->sync($selectedElementIds);
         $offertId = $position->offerts->first()->id;
 
         return redirect()->route('position.index', ['offert_id' => $offertId]);

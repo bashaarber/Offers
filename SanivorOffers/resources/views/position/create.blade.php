@@ -229,7 +229,7 @@
                         `#element-materials-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
 
                         // Calculate the total materials price when the checkbox is clicked
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
@@ -312,7 +312,7 @@
                         `#element-materials-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
                     }
                 });
             });
