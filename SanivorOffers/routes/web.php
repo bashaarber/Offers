@@ -5,6 +5,7 @@ use App\Http\Controllers\CoefficientController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialPieceController;
 use App\Http\Controllers\OffertController;
 use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\PositionController;
@@ -27,6 +28,9 @@ Route::get('/', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth', 'role:admin')->group(function () {
+    Route::resource('material_piece', MaterialPieceController::class)->except(['index']);
+    Route::get('/material_piece', [MaterialPieceController::class, 'index'])->name('material_piece.index');
+
     Route::resource('material', MaterialController::class)->except(['index']);
     Route::get('/material', [MaterialController::class, 'index'])->name('material.index');
 
@@ -44,6 +48,7 @@ Route::middleware('auth', 'role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
+    
 });
 
 Route::middleware('auth')->group(function () {

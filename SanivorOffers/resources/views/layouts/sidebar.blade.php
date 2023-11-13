@@ -85,6 +85,7 @@
                     <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i
                             class="fa-solid fa-bars"></i> Settings</a>
                     <div class="sublinks" id="home-sublinks">
+                        <a href="{{ url('/material_piece') }}">Material Pieces</a>
                         <a href="{{ url('/material') }}">Materials</a>
                         <a href="{{ url('/element') }}">Elements</a>
                         <a href="{{ url('/group_element') }}">GroupElements</a>

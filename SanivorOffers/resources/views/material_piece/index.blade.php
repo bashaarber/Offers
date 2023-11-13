@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Material List</title>
+    <title>Material Pieces List</title>
     <style>
         .edit-delete-btns a,
         .edit-delete-btns button {
@@ -27,9 +27,9 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
-            <h1 class="mb-3">Material List</h1>
+            <h1 class="mb-3">Material Pieces List</h1>
 
-            <form action="{{ route('material.index') }}" method="GET" class="search-form">
+            <form action="{{ route('material_piece.index') }}" method="GET" class="search-form">
                 <div class="input-group">
                     <input type="search" name="query" class="form-control" placeholder="Search...">
                     <div class="input-group-append">
@@ -38,24 +38,21 @@
                 </div>
             </form>
 
-            <a href="{{ route('material.index') }}" class="btn btn-dark mb-1">
+            <a href="{{ route('material_piece.index') }}" class="btn btn-dark mb-1">
                 <i class="fas fa-times"></i>
             </a>
-            <a href="{{ route('material.create') }}" class="btn btn-primary float-right mb-3">Create Material</a>
+            <a href="{{ route('material_piece.create') }}" class="btn btn-primary float-right mb-3">Create Material Piece</a>
 
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
                         <th>Name</th>
-                        <th>E</th>
                         <th class="text-center" colspan="2">Price(CHF)</th>
                         <th class="text-center" colspan="5">Zeit(Uhr)</th>
                         <th></th>
-                        <th></th>
                     </tr>
                     <tr>
-                        <th></th>
                         <th></th>
                         <th></th>
                         <th>In</th>
@@ -65,7 +62,6 @@
                         <th>Montage</th>
                         <th>Fermacell</th>
                         <th>Total</th>
-                        <th>Material Pieces</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -74,7 +70,6 @@
                     <tr>
                         <td>{{ $material->id }}</td>
                         <td>{{ $material->name }}</td>
-                        <td>{{ $material->unit }}</td>
                         <td>{{ $material->price_in }}</td>
                         <td>{{ $material->price_out }}</td>
                         <td>{{ $material->z_schlosserei }}</td>
@@ -82,18 +77,12 @@
                         <td>{{ $material->z_montage }}</td>
                         <td>{{ $material->z_fermacell }}</td>
                         <td>{{ $material->total }}</td>
-                        <td>
-                            @foreach ($material->material_pieces as $material_piece)
-                                {{ $material_piece->name }}<br>
-                            @endforeach
-                        </td>
-                        
                         <td class="edit-delete-btns">
-                            <a href="{{ route('material.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> </a>
-                            <form action="{{ route('material.destroy', $material->id) }}" method="post" class="d-inline">
+                            <a href="{{ route('material_piece.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
+                            <form action="{{ route('material_piece.destroy', $material->id) }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> </button>
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
                             </form>
                         </td>
                     </tr>
