@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Material;
 use App\Models\MaterialPiece;
 use Illuminate\Http\Request;
 
-class MaterialController extends Controller
+class MaterialPieceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $query = $request->input('query');
 
-        $materials = Material::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $materials = MaterialPiece::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
 
-        return view('material.index', compact('materials', 'query'));
+        return view('material_piece.index', compact('materials', 'query'));
     }
 
     /**
@@ -26,8 +24,7 @@ class MaterialController extends Controller
      */
     public function create()
     {
-        $material_pieces = MaterialPiece::all();
-        return view('material.create', compact('material_pieces'));
+        return view('material_piece.create');
     }
 
     /**
@@ -37,7 +34,6 @@ class MaterialController extends Controller
     {
         $formFields = $request->validate([
             'name' => 'required',
-            'unit' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
             'z_schlosserei' => 'required',
@@ -46,12 +42,9 @@ class MaterialController extends Controller
             'z_fermacell' => 'required',
         ]);
         $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+        MaterialPiece::create($formFields);
 
-        $materials = Material::create($formFields);
-        $materials->material_pieces()->attach($request->input('materials'));
-
-
-        return redirect()->route('material.index');
+        return redirect()->route('material_piece.index');
     }
 
     /**
@@ -67,9 +60,8 @@ class MaterialController extends Controller
      */
     public function edit(string $id)
     {
-        $material = Material::find($id);
-        $material_pieces = MaterialPiece::all();
-        return view('material.edit', compact('material', 'material_pieces'));
+        $material = MaterialPiece::find($id);
+        return view('material_piece.edit', compact('material'));
     }
 
     /**
@@ -79,7 +71,6 @@ class MaterialController extends Controller
     {
         $formFields = $request->validate([
             'name' => 'required',
-            'unit' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
             'z_schlosserei' => 'required',
@@ -87,21 +78,21 @@ class MaterialController extends Controller
             'z_montage' => 'required',
             'z_fermacell' => 'required',
         ]);
-        $material = Material::find($id);
+        $material = MaterialPiece::find($id);
         $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
         $material->update($formFields);
 
-        $material->material_pieces()->sync($request->input('added-materials'));
-
-        return redirect()->route('material.index');
+        return redirect()->route('material_piece.index');
     }
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $material = Material::find($id);
+        $material = MaterialPiece::find($id);
         $material->delete();
-        return redirect()->route('material.index');
+
+        return redirect()->route('material_piece.index');
     }
 }

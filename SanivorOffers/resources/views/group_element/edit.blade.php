@@ -30,7 +30,7 @@
                                 <label for="materials">Elements:</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="material-search"
-                                        placeholder="Search Materials">
+                                        placeholder="Search Elements">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" type="button" id="clear-search">
                                             <i class="fas fa-times"></i>
@@ -52,7 +52,7 @@
                                 </button>
                             </div>
                             <div class="form-group">
-                                <label for="materials">Added GroupElements List:</label>
+                                <label for="materials">Added Elements List:</label>
                                 <select class="form-control" id="added-materials" name="added-materials[]" multiple>
                                     @foreach ($group_element->elements as $element)
                                         <option value="{{ $element->id }}">{{ $element->name }}</option>

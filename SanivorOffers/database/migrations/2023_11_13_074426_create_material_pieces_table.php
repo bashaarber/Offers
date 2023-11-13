@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('materials', function (Blueprint $table) {
+        Schema::create('material_pieces', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('unit');
             $table->double('price_in');
             $table->double('price_out');
-            $table->double('z_schlosserei');    
+            $table->double('z_schlosserei');
             $table->string('z_pe');
             $table->string('z_montage');
             $table->string('z_fermacell');
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('materials');
+        Schema::dropIfExists('material_pieces');
     }
 };

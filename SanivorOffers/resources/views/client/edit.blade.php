@@ -20,30 +20,33 @@
                             @method('put')
                             <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $client->name }}" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ $client->name }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="text" class="form-control" id="email" name="email" value="{{ $client->email }}" required>
+                                <input type="text" class="form-control" id="email" name="email"
+                                    value="{{ $client->email }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="number">Number</label>
-                                <input type="text" class="form-control" id="number" name="number" value="{{ $client->number }}" required>
+                                <input type="text" class="form-control" id="number" name="number"
+                                    value="{{ $client->number }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="address">Address</label>
-                                <input type="text" class="form-control" id="address" name="address" value="{{ $client->address }}" required>
+                                <input type="text" class="form-control" id="address" name="address"
+                                    value="{{ $client->address }}" required>
                             </div>
+                            <button type="submit" class="btn btn-primary mt-3">Update Client</button>
+                            <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">Back</a>
+                        </form>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Update Client</button>
-                <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">Back</a>
-                </form>
             </div>
         </div>
     </div>
-    </div>
-    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

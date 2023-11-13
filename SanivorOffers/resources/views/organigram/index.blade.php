@@ -63,7 +63,7 @@
                             <td>{{ $organigram->name }}</td>
                             <td>
                                 @foreach ($organigram->group_elements as $group_element)
-                                    {{ $group_element->name }}
+                                    {{ $group_element->name }}<br>
                                 @endforeach
                             </td>
                             <td class="edit-delete-btns">

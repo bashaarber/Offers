@@ -27,7 +27,7 @@
                             <div class="form-group">
                                 <label for="materials">GroupElements:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="material-search" placeholder="Search Materials">
+                                    <input type="text" class="form-control" id="material-search" placeholder="Search GroupElements">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" type="button" id="clear-search">
                                             <i class="fas fa-times"></i>

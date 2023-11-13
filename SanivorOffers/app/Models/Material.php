@@ -21,6 +21,10 @@ class Material extends Model
         'z_fermacell',
         'total'
     ];
+    public function material_pieces():BelongsToMany
+    {
+        return $this->belongsToMany(MaterialPiece::class)->withTimestamps();
+    }
 
     public function elements():BelongsToMany
     {
