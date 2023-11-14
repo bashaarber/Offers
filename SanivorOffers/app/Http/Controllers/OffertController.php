@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Offert;
 use App\Models\Coefficient;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OffertController extends Controller
 {
@@ -19,6 +20,14 @@ class OffertController extends Controller
         $offerts = Offert::where('id', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
 
         return view('offert.index', compact('offerts', 'query'));
+    }
+
+    public function exportPdf($id){
+        $offert = Offert::find($id);
+
+        $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
+        return $pdf->stream();
+        // return $pdf->download('invoice.pdf');
     }
 
     /**
