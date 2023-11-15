@@ -104,7 +104,7 @@
     @foreach ($offert->positions as $position)
         <table>
             <tr>
-                <th>Position {{ $position->id }}</th>
+                <th>Position {{ $position->position_number }}</th>
                 <th></th>
                 <th></th>
                 <th></th>

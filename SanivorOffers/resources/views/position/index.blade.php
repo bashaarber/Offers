@@ -34,7 +34,7 @@
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
-                        <th>#</th>
+                        <th>Position ID</th>
                         <th>OffertID</th>
                         <th>Price Brutto</th>
                         <th>Preis mit Rabbat</th>
@@ -48,7 +48,7 @@
                 <tbody>
                     @foreach ($positions as $position)
                         <tr>
-                            <td>{{ $position->id }}</td>
+                            <td>{{ $position->position_number }}</td>
                             @foreach ($position->offerts as $offert)
                                 <td>{{ $offert->id }}</td>
                             @endforeach

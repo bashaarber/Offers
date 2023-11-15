@@ -43,7 +43,8 @@ class PositionController extends Controller
      */
     public function store(Request $request)
     {
-        $latestOffert = Offert::where('user_id', auth()->user()->id)->latest()->first();
+        $user = auth()->user();
+        $latestOffert = Offert::where('user_id', $user->id)->latest()->first();
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
@@ -60,14 +61,20 @@ class PositionController extends Controller
             'total' => '0',
         ];
 
+        // Increment position_number for the new Position
+        $latestPosition = $latestOffert ? $latestOffert->positions()->latest()->first() : null;
+        $formFields['position_number'] = $latestPosition ? $latestPosition->position_number + 1 : 1;
+
         $position = Position::create($formFields);
-        $position->offerts()->attach($latestOffert);
+        if ($latestOffert) {
+            $position->offerts()->attach($latestOffert);
+        }
         $position->elements()->attach($elementIds);
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
 
 
-        return redirect()->route('position.index', ['offert_id' => $latestOffert->id]);
+        return redirect()->route('position.index', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
     }
 
     /**
