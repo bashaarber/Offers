@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('costo');
             $table->double('profit');
             $table->double('total');
+            $table->integer('position_number');
             $table->timestamps();
         });
     }
