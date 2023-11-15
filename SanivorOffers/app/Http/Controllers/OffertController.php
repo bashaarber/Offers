@@ -25,6 +25,10 @@ class OffertController extends Controller
     public function exportPdf($id){
         $offert = Offert::find($id);
 
+        $offert->load(['positions' => function ($query) {
+            $query->orderBy('position_number', 'ASC');
+        }]);
+
         $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
         return $pdf->stream();
         // return $pdf->download('invoice.pdf');
@@ -78,10 +82,16 @@ class OffertController extends Controller
     /**
      * Display the specified resource.
      */
+
     public function show(string $id)
     {
         $offert = Offert::find($id);
-        
+
+        // Order positions by position_number
+        $offert->load(['positions' => function ($query) {
+            $query->orderBy('position_number', 'ASC');
+        }]);
+
         return view('offert.show', compact('offert'));
     }
 
@@ -117,7 +127,7 @@ class OffertController extends Controller
     {
         $offert = Offert::find($id);
         $clients = Client::all();
-        
+
         return view('offert.edit', compact('offert', 'clients'));
     }
 
