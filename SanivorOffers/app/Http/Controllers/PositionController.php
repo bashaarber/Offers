@@ -18,11 +18,11 @@ class PositionController extends Controller
     public function index(Request $request)
     {
         $offertId = $request->input('offert_id');
-
+    
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
-        })->orderBy('id', 'DESC')->get();
-
+        })->orderBy('position_number', 'ASC')->get();
+    
         return view('position.index', compact('positions', 'offertId'));
     }
 
@@ -141,4 +141,17 @@ class PositionController extends Controller
 
         return redirect()->route('offert.index');
     }
+
+ 
+    public function updateOrder(Request $request)
+    {
+        $positionId = $request->input('position_id');
+        $newOrder = $request->input('order');
+    
+        // Update the position_number in the database
+        Position::where('id', $positionId)->update(['position_number' => $newOrder]);
+    
+        return response()->json(['success' => true]);
+    }
+
 }

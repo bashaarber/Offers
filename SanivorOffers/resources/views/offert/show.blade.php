@@ -146,8 +146,7 @@
                         <a href="{{ route('position.index', ['offert_id' => $offert->id]) }}" class="btn btn-info mt-3 float-right">Go to Position</a>
                     </div>
                     @foreach ($offert->positions as $position)<br>
-                        <h4>Position {{ $position->position_number }}:</h4>
-
+                        <h4>Position {{ $position->position_number }}:  Price {{ $position->price_discount }}</h4>
                             <div class="card">
                                 <div class="card-body">
                                     @foreach ($position->elements as $element)

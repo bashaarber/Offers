@@ -68,7 +68,7 @@
                         <thead>
                             <tr class="table-dark">
                                 {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                                <th scope="col">Rahmen <input value="Pos. {{$position->id}}"> mm </th>
+                                <th scope="col">Rahmen <input value="Pos. {{$position->position_number}}"> mm </th>
                                 <th scope="col"> Desc. <input> </th>
                                 <th scope="col"> Blocktyp <input> cm </th>
                                 <th scope="col"> H <input> cm </th>

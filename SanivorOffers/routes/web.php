@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
 
     Route::resource('position', PositionController::class);
+    Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');
 });
 
 Route::middleware('auth')->group(function () {
