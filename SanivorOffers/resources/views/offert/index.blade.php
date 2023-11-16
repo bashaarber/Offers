@@ -67,11 +67,26 @@
                             <td>{{ $offert->client->name }}</td>
                             <td>{{ $offert->client_sign }}</td>
                             <td>{{ $offert->object }}</td>
-                            <td>{{ $offert->status }}</td>
-                            <td>{{ $offert->type }}</td>
+                            <td>
+                                @if($offert->status == 'new')
+                                    Neu
+                                @elseif($offert->status == 'finished')
+                                    Finished
+                                @else
+                                    {{ $offert->status }}
+                                @endif
+                            </td>
+                            <td>
+                                @if($offert->type == 'client')
+                                    Klient
+                                @elseif($offert->type == 'company')
+                                    Company
+                                @else
+                                    {{ $offert->type }}
+                                @endif
+                            </td>
                             <td>{{ $offert->user->username }}</td>
                             <td>
-                                
                                 <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-warning btn-sm"><i class="fa-solid fa-file"></i> External</a>
                                 <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
                                         class="fa fa-clone" aria-hidden="true"></i> Copy</a>

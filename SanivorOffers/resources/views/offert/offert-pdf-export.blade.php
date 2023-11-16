@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Offert - {{ $offert->id }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        body{
+            font-size:14px;
+        }
         table {
             font-family: arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
         }
-
         td {
             text-align: center;
             padding: 8px;
         }
-
-        ,
         th {
             text-align: center;
             padding: 8px;
@@ -57,7 +58,7 @@
         <hr>
     </div>
 
-    <div style="background-color:rgb(229, 236, 238)">
+    <div style="background-color:rgb(229, 236, 238);">
         <div style="float: left;">
             <p><strong>Ihr Auftrag: </strong> vom</p>
             <p><strong>Ihre Referenz: </strong> </p>
@@ -83,9 +84,8 @@
         </div>
         <div style="clear: both;"></div>
     </div>
-    <div style="background-color:rgb(229, 236, 238)">
+    <div style="background-color:rgb(229, 236, 238);font-size:13px;">
         <hr>
-
         Folgende Leistungen sind enthalten:<br>
         - Transport<br>
         - Ausmass<br>
@@ -134,7 +134,7 @@
             @endforeach --}}
             <hr>
         @endforeach
-        <span style="font-size:13px">Rahmenprofile, Metallteile und Befestingungen grundiert, Wand-Boden und Decke
+        <span style="font-size:12px">Rahmenprofile, Metallteile und Befestingungen grundiert, Wand-Boden und Decke
             Schallentkoppelt nacht SIA 181.(Fraunhofer Institut Stuttgart)MPA gepruft,Brandschutzprufund El 120 MPA
             erfullt (VKF)Nr.22523</span>
         <hr>

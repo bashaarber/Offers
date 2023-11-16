@@ -88,7 +88,7 @@
                         <a href="{{ url('/material_piece') }}">Material Pieces</a>
                         <a href="{{ url('/material') }}">Materials</a>
                         <a href="{{ url('/element') }}">Elements</a>
-                        <a href="{{ url('/group_element') }}">GroupElements</a>
+                        <a href="{{ url('/group_element') }}">Group Elements</a>
                         <a href="{{ url('/organigram') }}">Organigram</a>
                         <a href="{{ url('/coefficient') }}">Coefficient</a>
                     </div>
