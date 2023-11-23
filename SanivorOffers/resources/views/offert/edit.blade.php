@@ -121,7 +121,7 @@
                                 <div class="form-group col-md-6">
                                     <label for="client_id">Kunde</label>
                                     <div class="autocomplete">
-                                        <input type="text" id="clientSearch" placeholder="Search for a client" value="{{$offert->client->name}}"required>
+                                        <input type="text" id="clientSearch" placeholder="Search for a client" value="{{$offert->client->name}}" autocomplete="off" required>
                                         <input type="hidden" name="client_id" id="client_id">
                                     </div>
                                     <ul id="searchResults"></ul>

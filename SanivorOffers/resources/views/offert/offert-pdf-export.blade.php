@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Offert - {{ $offert->id }}</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> --}}
     <style>
-        body{
-            font-size:14px;
-        }
         table {
             font-family: arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
+            font-size: 14px;
         }
+
         td {
             text-align: center;
             padding: 8px;
         }
+
         th {
             text-align: center;
             padding: 8px;
@@ -76,7 +77,17 @@
     <div style="background-color:rgb(229, 236, 238)">
         <div style="margin-left:65%">
             <p><strong>Total Elemente: Stk. 1 </strong></p>
-            <p><strong>Total Brutto: </strong> CHF 205.10</p>
+            @php
+                $total = 0;
+            @endphp
+
+            @foreach ($offert->positions as $position)
+                @php
+                    $total += $position->price_brutto;
+                @endphp
+            @endforeach
+
+            <p><strong>Total Brutto: </strong>{{ $total }} </p>
             <p><strong>Rabbat: </strong> CHF 205.10</p>
             <p><strong>Total Netto: CHF </strong>205.10</p>
             <p><strong>MwSt 7.7% : </strong> CHF 205.10</p>
@@ -84,7 +95,7 @@
         </div>
         <div style="clear: both;"></div>
     </div>
-    <div style="background-color:rgb(229, 236, 238);font-size:13px;">
+    <div style="background-color:rgb(229, 236, 238);font-size:14px;">
         <hr>
         Folgende Leistungen sind enthalten:<br>
         - Transport<br>
@@ -115,7 +126,17 @@
                 <th>Total</th>
             </tr>
             <tr>
-                <td></td>
+                <td style="font-weight:bold">
+                    @if ($position->blocktype && $position->b && $position->h && $position->t)
+                        {{ $position->blocktype }}<br>
+                        B:{{ $position->b }} 
+                        H:{{ $position->h }} 
+                        T:{{ $position->t }} (in cm)
+                    @else
+                        0 <br>
+                        B: x H: x T: (in cm)
+                    @endif
+                </td>
                 <td></td>
                 <td></td>
                 <td></td>
