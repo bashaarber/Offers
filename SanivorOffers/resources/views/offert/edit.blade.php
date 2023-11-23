@@ -16,7 +16,7 @@
     }
 
     #searchResults {
-        margin-left: -7.5%; 
+        margin-left: -7.5%;
         max-height: 200px;
         overflow-y: auto;
     }
@@ -31,6 +31,7 @@
         background-color: #e0e0e0;
     }
 </style>
+
 <body>
     @include('layouts.sidebar')
     <div class="container mt-4">
@@ -51,8 +52,10 @@
                                 <div class="form-group col-md-3">
                                     <label for="type">Offerte Typ</label>
                                     <select class="form-control" name="type" required>
-                                        <option value="client" @if($offert->type == 'client') selected @endif>Client</option>
-                                        <option value="company" @if($offert->type == 'company') selected @endif>Company</option>
+                                        <option value="client" @if ($offert->type == 'client') selected @endif>Client
+                                        </option>
+                                        <option value="company" @if ($offert->type == 'company') selected @endif>
+                                            Company</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
@@ -73,7 +76,8 @@
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="create_date">Angebot Datum</label>
-                                    <input type="date" class="form-control" id="create_date" name="create_date" value="{{ $offert->create_date }}" required>
+                                    <input type="date" class="form-control" id="create_date" name="create_date"
+                                        value="{{ $offert->create_date }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="validity">Angebot Gültigkeit</label>
@@ -87,7 +91,8 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="finish_date">vom</label>
-                                    <input type="date" class="form-control" id="finish_date" name="finish_date" value="{{ $offert->finish_date }}">
+                                    <input type="date" class="form-control" id="finish_date" name="finish_date"
+                                        value="{{ $offert->finish_date }}">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -116,12 +121,13 @@
                                 <div class="form-group col-md-6">
                                     <label for="client_id">Kunde</label>
                                     <div class="autocomplete">
-                                        <input type="text" id="clientSearch" placeholder="Search for a client">
+                                        <input type="text" id="clientSearch" placeholder="Search for a client" value="{{$offert->client->name}}" autocomplete="off" required>
                                         <input type="hidden" name="client_id" id="client_id">
                                     </div>
                                     <ul id="searchResults"></ul>
                                 </div>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="difficulty">Schwierigkeits-Koeff</label>
@@ -141,7 +147,8 @@
                             </div>
                             <button type="submit" class="btn btn-primary mt-3">Update Offert</button>
                             <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
-                            <a href="{{ route('position.index', ['offert_id' => $offert->id]) }}" class="btn btn-info mt-3 float-right">Go to Position</a>
+                            <a href="{{ route('position.index', ['offert_id' => $offert->id]) }}"
+                                class="btn btn-info mt-3 float-right">Go to Position</a>
                         </form>
                     </div>
                 </div>
@@ -152,38 +159,45 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
-        document.getElementById('clientSearch').addEventListener('input', function () {
-            var searchValue = this.value.trim().toLowerCase();
+        document.addEventListener("DOMContentLoaded", function () {
+            var clientSearchInput = document.getElementById('clientSearch');
             var searchResults = document.getElementById('searchResults');
-            searchResults.innerHTML = '';
     
-            if (searchValue.length === 0) {
-                return; // No input, don't display any results
-            }
+            clientSearchInput.addEventListener('input', function () {
+                var searchValue = this.value.trim().toLowerCase();
+                searchResults.innerHTML = '';
     
-            // Iterate through the clients and display matching results
-            @foreach ($clients as $client)
-                var clientName = "{{ $client->name }}".toLowerCase();
-                if (clientName.includes(searchValue)) {
-                    var listItem = document.createElement('a');
-                    listItem.href = "javascript:void(0)";
-                    listItem.className = "list-group-item list-group-item-action";
-                    listItem.textContent = "{{ $client->name }}";
-    
-                    // Add data attribute to store client_id
-                    listItem.setAttribute("data-client-id", "{{ $client->id }}");
-    
-                    // Add a click event listener to populate the input field and client_id
-                    listItem.addEventListener('click', function () {
-                        document.getElementById('clientSearch').value = "{{ $client->name }}";
-                        // Set the client_id value
-                        document.getElementById('client_id').value = this.getAttribute("data-client-id");
-                        searchResults.innerHTML = ''; // Clear the results
-                    });
-    
-                    searchResults.appendChild(listItem);
+                if (searchValue.length === 0) {
+                    return; // No input, don't display any results
                 }
-            @endforeach
+    
+                // Iterate through the clients and display matching results
+                @foreach ($clients as $client)
+                    var clientName = "{{ $client->name }}".toLowerCase();
+                    if (clientName.includes(searchValue)) {
+                        var listItem = document.createElement('a');
+                        listItem.href = "javascript:void(0)";
+                        listItem.className = "list-group-item list-group-item-action";
+                        listItem.textContent = "{{ $client->name }}";
+    
+                        // Add data attribute to store client_id
+                        listItem.setAttribute("data-client-id", "{{ $client->id }}");
+    
+                        // Add a click event listener to populate the input field and client_id
+                        listItem.addEventListener('click', function () {
+                            clientSearchInput.value = "{{ $client->name }}";
+                            // Set the client_id value
+                            document.getElementById('client_id').value = this.getAttribute("data-client-id");
+                            searchResults.innerHTML = ''; // Clear the results
+                        });
+    
+                        searchResults.appendChild(listItem);
+                    }
+                @endforeach
+            });
+    
+            // Set the client_id value when the input is pre-filled
+            document.getElementById('client_id').value = "{{ $offert->client->id }}";
         });
     </script>
 </body>

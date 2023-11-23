@@ -63,13 +63,27 @@
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                                <th scope="col">Rahmen <input> mm </th>
-                                <th scope="col"> Desc. <input> </th>
-                                <th scope="col"> Blocktyp <input> cm </th>
-                                <th scope="col"> H <input> cm </th>
-                                <th scope="col"> T<input> cm </th>
-                                <th></th>
+                                <th scope="col">Rahmen <input style="width: 150px" disabled> mm </th>
+                                <th scope="col"> Desc. <input type="text" id="description" name="description">
+                                </th>
+                                <th>
+                                    Blocktyp <select  name="blocktype" id="blocktype">
+                                        <option value="" selected> - </option>
+                                        <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
+                                        <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch
+                                        </option>
+                                        <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
+                                        <option value="Freistehend-Raumhoch">Freistehend-Raumhoch</option>
+                                        <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
+                                        <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
+                                        <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
+                                        <option value="Trennwand DeBO-System">Trennwand DeBO-System</option>
+                                    </select>
+                                </th>
+                                <th scope="col"> B <input style="width: 150px" type="text" id="b" name="b"> cm</th>
+                                <th scope="col"> H <input style="width: 150px" type="text" id="h" name="h"> cm</th>
+                                <th scope="col"> T <input style="width: 150px" type="text" id="t" name="t"> cm</th>
+                            </tr>
                             <tr class="table-dark">
                                 <thead>
                                     <thead>
@@ -116,6 +130,7 @@
                                         <td>0.00</td>
                                     </tr>
                                 </tbody>
+                        </thead>
                     </table>
             </div>
             <div class="col-md-4">
@@ -123,7 +138,8 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-                                <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox" value="{{ $organigram->id }}">
+                                <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox"
+                                    value="{{ $organigram->id }}">
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -131,7 +147,8 @@
                                     <div class="card mb-2">
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
-                                                <input type="checkbox" name="selected_group_elements[]" class="group-element-checkbox" value="{{ $group_element->id }}">
+                                                <input type="checkbox" name="selected_group_elements[]"
+                                                    class="group-element-checkbox" value="{{ $group_element->id }}">
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -140,7 +157,7 @@
                                                         <div class="card-body">
                                                             <h6 class="card-subtitle">
                                                                 <input type="checkbox" name="selected_elements[]"
-                                                                    class="element-checkbox"
+                                                                    class="element-checkbox"`
                                                                     data-element-id="{{ $element->id }}"
                                                                     value="{{ $element->id }}">
                                                                 {{ $element->name }}
@@ -164,7 +181,7 @@
                 @foreach ($elements as $element)
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: none">
-                        <thead>
+                        <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
                                 <th scope="col">Name</th>
@@ -174,33 +191,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="table-dark">
-                                <th scope="col"><input style="width: 100px" value="1"></th>
+                            <tr style="text-align: left" class="table-dark">
+                                <th scope="col"><input style="width: 130px" value="1"></th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
-                                <th scope="col">
-                                    @php
-                                        $totalMaterialsPrice = 0;
-                                    @endphp
-                                    @foreach ($element->materials as $material)
-                                        @php
-                                            $totalMaterialsPrice += $material->price_in * $material->pivot->quantity;
-                                        @endphp
-                                    @endforeach
-                                    CHF {{ $totalMaterialsPrice }} X 1
+                                <th scope="col" class="total-materials-header"
+                                    data-element-id="{{ $element->id }}">
+                                    CHF <span class="total-materials-value-header">0</span> X 1
                                 </th>
-                                <th scope="col">
-                                    {{ $totalMaterialsPrice }}
+                                <th scope="col" class="total-materials-header"
+                                    data-element-id="{{ $element->id }}">
+                                    <span class="total-materials-value-header">0</span>
                                 </th>
                             </tr>
+
                             @foreach ($element->materials as $material)
-                                <tr>
-                                    <td>mit <input style="width: 60px" value="{{ $material->pivot->quantity }}">
-                                        {{ $material->unit }}</td>
-                                    <td>{{ $material->name }}</td>
-                                    <td>CHF {{ $material->price_in }} X {{ $material->pivot->quantity }}
-                                        {{ $material->unit }}</td>
-                                    <td>{{ $material->price_in * $material->pivot->quantity }}</td>
+                                <tr style="text-align: left">
+                                    <td>
+                                        mit <input style="width: 100px" min="1" type="number"
+                                            class="quantity-input" value="{{ $material->pivot->quantity }}"
+                                            data-element-id="{{ $element->id }}"
+                                            data-material-id="{{ $material->id }}"> {{ $material->unit }}
+                                    </td>
+                                    <td>
+                                        {{ $material->name }}
+                                    </td>
+                                    <td style="text-align: right" class="price-details"
+                                        data-material-id="{{ $material->id }}"
+                                        data-material-price="{{ $material->price_in }}">
+                                        CHF <span class="price-in">{{ $material->price_in }}</span> X <span
+                                            class="quantity">{{ $material->pivot->quantity }}</span>
+                                        {{ $material->unit }}
+                                    </td>
+                                    <td class="total" data-material-id="{{ $material->id }}"
+                                        data-element-id="{{ $element->id }}">
+                                        {{ $material->price_in * $material->pivot->quantity }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -212,6 +238,7 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
@@ -220,7 +247,40 @@
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
-            
+            // Update the total materials price on document ready
+            updateTotalMaterialsPrice();
+
+            // Attach an event listener to the quantity input field
+            $('.quantity-input').on('input', function() {
+                updateMaterial($(this));
+                updateTotalMaterialsPrice();
+            });
+
+            // Function to update material details based on the quantity input
+            function updateMaterial(quantityInput) {
+                // Get the related elements
+                var priceDetails = quantityInput.closest('tr').find('.price-details');
+                var totalElement = quantityInput.closest('tr').find('.total');
+
+                // Get the current quantity value
+                var currentQuantity = parseFloat(quantityInput.val());
+
+                // Check if the quantity has changed
+                if (quantityInput.data('currentQuantity') !== currentQuantity) {
+                    // Update the quantity in the price details
+                    priceDetails.find('.quantity').text(currentQuantity);
+
+                    // Update the total based on the new quantity
+                    var priceIn = parseFloat(priceDetails.data('material-price'));
+                    var totalPrice = priceIn * currentQuantity;
+
+                    totalElement.text(totalPrice);
+
+                    // Update the currentQuantity data attribute
+                    quantityInput.data('currentQuantity', currentQuantity);
+                    updateTotalProTypPrice();
+                }
+            }
 
             elementCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
@@ -260,6 +320,17 @@
                 return totalMaterialsPrice;
             }
 
+            // Function to update the total materials price in the HTML
+            function updateTotalMaterialsPrice() {
+                $('.total-materials-header').each(function() {
+                    const elementId = $(this).data('element-id');
+                    const totalMaterialsPrice = calculateTotalMaterialsPrice(elementId);
+
+                    // Update the total in the table header
+                    $(this).find('.total-materials-value-header').text(totalMaterialsPrice);
+                });
+            }
+
             // Event listener for the percentage input field
             const percentageInput = document.getElementById('percentage-input');
             percentageInput.addEventListener('input', function() {
@@ -281,7 +352,20 @@
                 const discountedTotalInput = document.getElementById('discountedTotalInput');
 
                 if (totalProTypPriceCell && discountedTotalCell && percentageInput) {
-                    const totalProTypPrice = runningTotalMaterialsPrice;
+                    let totalProTypPrice = 0;
+
+                    // Loop through all element checkboxes
+                    elementCheckboxes.forEach(checkbox => {
+                        const elementId = checkbox.getAttribute('data-element-id');
+                        const elementMaterialsTable = document.querySelector(
+                            `#element-materials-${elementId}`);
+
+                        if (elementMaterialsTable && checkbox.checked) {
+                            // Calculate the total materials price for the selected element
+                            totalProTypPrice += calculateTotalMaterialsPrice(elementId);
+                        }
+                    });
+
                     const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
 
                     totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2); // Format as desired
@@ -292,6 +376,7 @@
                     discountedTotalInput.value = discountedTotal.toFixed(2);
                 }
             }
+
             organigramCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const groupElements = this.parentElement.nextElementSibling;
@@ -303,17 +388,6 @@
                 checkbox.addEventListener('change', function() {
                     const elements = this.parentElement.nextElementSibling;
                     elements.style.display = this.checked ? 'block' : 'none';
-                });
-            });
-            elementCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const elementId = this.getAttribute('data-element-id');
-                    const elementMaterialsTable = document.querySelector(
-                        `#element-materials-${elementId}`);
-
-                    if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
-                    }
                 });
             });
         });

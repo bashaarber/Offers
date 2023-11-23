@@ -45,6 +45,11 @@ class PositionController extends Controller
     {
         $user = auth()->user();
         $latestOffert = Offert::where('user_id', $user->id)->latest()->first();
+        $description = $request->input('description');
+        $blocktype = $request->input('blocktype');
+        $b = $request->input('b');
+        $h = $request->input('h');
+        $t = $request->input('t');
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
@@ -53,6 +58,11 @@ class PositionController extends Controller
         $organigramIds = $request->input('selected_organigrams');
 
         $formFields = [
+            'description' => $description,
+            'blocktype' => $blocktype,
+            'b' => $b,
+            'h' => $h,
+            't' => $t,
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
@@ -66,13 +76,11 @@ class PositionController extends Controller
         $formFields['position_number'] = $latestPosition ? $latestPosition->position_number + 1 : 1;
 
         $position = Position::create($formFields);
-        if ($latestOffert) {
-            $position->offerts()->attach($latestOffert);
-        }
+
+        $position->offerts()->attach($latestOffert);
         $position->elements()->attach($elementIds);
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
-
 
         return redirect()->route('position.index', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
     }
@@ -104,11 +112,21 @@ class PositionController extends Controller
     public function update(Request $request, string $id)
     {
         $position = Position::find($id);
+        $description = $request->input('description');
+        $blocktype = $request->input('blocktype');
+        $b = $request->input('b');
+        $h = $request->input('h');
+        $t = $request->input('t');
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
 
         $formFields = [
+            'description' => $description,
+            'blocktype' => $blocktype,
+            'b' => $b,
+            'h' => $h,
+            't' => $t,
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
