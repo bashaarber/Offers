@@ -67,8 +67,7 @@
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                {{-- <th> Rahmen <input> mm | Desc. <input> Blocktyp <input> B <input> cm | H <input> cm | T <input> cm --}}
-                                <th scope="col">Rahmen <input value="Pos. {{ $position->position_number }}" disabled> mm </th>
+                                <th scope="col">Rahmen <input style="width: 150px" value="Pos. {{ $position->position_number }}" disabled> mm </th>
                                 <th scope="col"> Desc. <input name="description" value="{{ $position->description }}"> </th>
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
@@ -83,9 +82,9 @@
                                         <option value="Trennwand DeBO-System" @if ($position->blocktype == 'Trennwand DeBO-System') selected @endif>Trennwand DeBO-System</option>
                                     </select>
                                 </th>
-                                <th scope="col"> B <input name="b" value="{{ $position->b }}"> cm </th>
-                                <th scope="col"> H <input name="h" value="{{ $position->h }}"> cm </th>
-                                <th scope="col"> T<input name="t" value="{{ $position->t }}"> cm </th>
+                                <th scope="col"> B <input style="width: 150px" name="b" value="{{ $position->b }}"> cm </th>
+                                <th scope="col"> H <input style="width: 150px" name="h" value="{{ $position->h }}"> cm </th>
+                                <th scope="col"> T<input style="width: 150px" name="t" value="{{ $position->t }}"> cm </th>
                                 <th></th>
                             <tr class="table-dark">
                                 <thead>
