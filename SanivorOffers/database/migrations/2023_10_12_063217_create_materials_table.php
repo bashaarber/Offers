@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('z_pe');
             $table->string('z_montage');
             $table->string('z_fermacell');
+            $table->double('z_total');
+            $table->double('zeit_cost');
             $table->double('total');
             $table->timestamps();
         });

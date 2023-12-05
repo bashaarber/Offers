@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('b')->nullable();
             $table->string('h')->nullable();
             $table->string('t')->nullable();
+            $table->integer('quantity');
             $table->double('price_brutto');
             $table->double('price_discount');
             $table->double('discount');
