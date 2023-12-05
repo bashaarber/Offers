@@ -53,9 +53,7 @@ class PositionController extends Controller
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
-        $elementIds = $request->input('selected_elements');
-        $groupElementIds = $request->input('selected_group_elements');
-        $organigramIds = $request->input('selected_organigrams');
+        $quantity = $request->input('quantity');
 
         $formFields = [
             'description' => $description,
@@ -66,6 +64,7 @@ class PositionController extends Controller
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
+            'quantity' => $quantity,
             'costo' => '0',
             'profit' => '0',
             'total' => '0',
@@ -76,6 +75,10 @@ class PositionController extends Controller
         $formFields['position_number'] = $latestPosition ? $latestPosition->position_number + 1 : 1;
 
         $position = Position::create($formFields);
+
+        $elementIds = $request->input('selected_elements');
+        $groupElementIds = $request->input('selected_group_elements');
+        $organigramIds = $request->input('selected_organigrams');
 
         $position->offerts()->attach($latestOffert);
         $position->elements()->attach($elementIds);
@@ -120,6 +123,7 @@ class PositionController extends Controller
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
+        $quantity = $request->input('quantity');
 
         $formFields = [
             'description' => $description,
@@ -130,6 +134,7 @@ class PositionController extends Controller
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
+            'quantity' => $quantity,
             'costo' => '0',
             'profit' => '0',
             'total' => '0',

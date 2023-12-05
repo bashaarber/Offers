@@ -19,7 +19,9 @@ class Material extends Model
         'z_pe',
         'z_montage',
         'z_fermacell',
-        'total'
+        'z_total',
+        'zeit_cost',
+        'total',
     ];
     public function material_pieces():BelongsToMany
     {

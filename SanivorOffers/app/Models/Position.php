@@ -18,6 +18,7 @@ class Position extends Model
         'price_brutto',
         'price_discount',
         'discount',
+        'quantity',
         'costo',
         'profit',
         'total',

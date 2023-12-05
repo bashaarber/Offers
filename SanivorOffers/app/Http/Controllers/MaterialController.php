@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
-use App\Models\MaterialPiece;
+use App\Models\Coefficient;
 use Illuminate\Http\Request;
+use App\Models\MaterialPiece;
 
 class MaterialController extends Controller
 {
@@ -45,11 +46,18 @@ class MaterialController extends Controller
             'z_montage' => 'required',
             'z_fermacell' => 'required',
         ]);
-        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
-
-        $materials = Material::create($formFields);
+        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+        $materials = new Material();
+        $materials->z_total = $z_total;
+        
+        $coefficient = Coefficient::first();
+        $zeit_cost = $z_total * $coefficient->labor_price;
+        $materials->zeit_cost = $zeit_cost;
+        $formFields['total'] = $request->input('price_out') + $zeit_cost;
+        $materials->fill($formFields);
+        $materials->save();
+        
         $materials->material_pieces()->attach($request->input('materials'));
-
 
         return redirect()->route('material.index');
     }
@@ -88,8 +96,16 @@ class MaterialController extends Controller
             'z_fermacell' => 'required',
         ]);
         $material = Material::find($id);
-        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
-        $material->update($formFields);
+
+        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+        $material->z_total = $z_total;
+        
+        $coefficient = Coefficient::first();
+        $zeit_cost = $z_total * $coefficient->labor_price;
+        $material->zeit_cost = $zeit_cost;
+        $formFields['total'] = $request->input('price_out') + $zeit_cost;
+        $material->fill($formFields);
+        $material->update();
 
         $material->material_pieces()->sync($request->input('added-materials'));
 

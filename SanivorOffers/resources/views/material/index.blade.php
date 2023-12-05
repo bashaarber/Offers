@@ -81,7 +81,7 @@
                         <td>{{ $material->z_pe }}</td>
                         <td>{{ $material->z_montage }}</td>
                         <td>{{ $material->z_fermacell }}</td>
-                        <td>{{ $material->total }}</td>
+                        <td>{{ $material->z_total }}</td>
                         <td>
                             @foreach ($material->material_pieces as $material_piece)
                                 {{ $material_piece->name }}<br>

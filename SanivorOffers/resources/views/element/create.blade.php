@@ -30,7 +30,7 @@
                                             <option value="{{ $material->id }}">{{ $material->name }}</option>
                                         @endforeach
                                     </select>
-                                    <input type="number" class="form-control" name="quantities[]" placeholder="Quantity">
+                                    <input type="text" min="0" class="form-control" name="quantities[]" placeholder="Quantity">
                                     <button type="button" class="btn btn-danger remove-material"><i class="fa-solid fa-minus"></i></button>
                                 </div>
                             </div>
