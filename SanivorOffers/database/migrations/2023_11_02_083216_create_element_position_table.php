@@ -15,6 +15,7 @@ return new class extends Migration
             $table->primary(['element_id', 'position_id']);
             $table->foreignId('element_id')->constrained()->cascadeOnDelete();
             $table->foreignId('position_id')->constrained()->cascadeOnDelete();
+            $table->double('quantity');
             $table->timestamps();
         });
     }

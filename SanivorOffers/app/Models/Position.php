@@ -19,9 +19,14 @@ class Position extends Model
         'price_discount',
         'discount',
         'quantity',
-        'costo',
-        'profit',
-        'total',
+        'material_brutto',
+        'zeit_brutto',
+        'material_costo',
+        'material_profit',
+        'ziet_costo',
+        'ziet_profit',
+        'costo_total',
+        'profit_total',
         'position_number'
     ];
    
@@ -42,6 +47,6 @@ class Position extends Model
     
     public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class)->withTimestamps();
+        return $this->belongsToMany(Element::class)->withPivot('quantity')->withTimestamps();
     }
 }

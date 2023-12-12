@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit</title>
+    <title>Update</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
         .organigram-label,
@@ -58,12 +58,17 @@
                 <form method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
-                        value="{{ $position->price_brutto }}">
-                    <input type="hidden" name="discountedTotal" id="discountedTotalInput"
-                        value="{{ $position->price_discount }}">
+                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="{{ $position->price_brutto }}">
+                    <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="{{ $position->price_discount }}">
                     <input type="hidden" name="percentage" id="percentageInput" value="{{ $position->discount }}">
-
+                    <input type="hidden" name="price-out-input" id="priceOutInput" value="{{ $position->material_brutto }}">
+                    <input type="hidden" name="zeit-cost-input" id="zeitCostInput" value="{{ $position->zeit_brutto }}">
+                    <input type="hidden" name="material-costo" id="priceInInput" value="{{ $position->material_costo }}">
+                    <input type="hidden" name="material-profit" id="priceProfit" value="{{ $position->material_profit }}">
+                    <input type="hidden" name="zeit-costo" id="zeitCosto" value="{{ $position->ziet_costo }}">
+                    <input type="hidden" name="zeit-profit" id="zeitProfit" value="{{ $position->ziet_profit }}">
+                    <input type="hidden" name="costo-total" id="costoTotal" value="{{ $position->costo_total }}">
+                    <input type="hidden" name="profit-total" id="profitTotal" value="{{ $position->profit_total }}">
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
@@ -121,38 +126,40 @@
                                 <tbody>
                                     <tr class="table-active">
                                         <td><strong>Materiale Pro Typ</strong></td>
-                                        <td id="price-out-input">0.00</td>
-                                        <td id="price-out-input2">0.00</td>
+                                        <td id="price-out-input">{{ $position->material_brutto }}</td>
+                                        <td id="price-out-input2">{{ $position->material_brutto }}</td>
                                         <td>% <input value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="price-in-input">{{ $position->material_costo }}</td>
+                                        <td id="price-profit">{{ $position->material_profit }}</td>
                                     </tr>
                                     <tr class="table-active">
                                         <td><strong>Zeit Pro Typ</strong></td>
-                                        <td id="zeit-cost-input">0.00</td>
-                                        <td id="zeit-cost-input2">0.00</td>
+                                        <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
+                                        <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
                                         <td>% <input value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="zeit-costo">{{ $position->ziet_costo }}</td>
+                                        <td id="zeit-profit">{{ $position->ziet_profit }}</td>
                                     </tr>
                                     <tr class="table-secondary">
                                         <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price2">
-                                            {{ $position->price_brutto }}</td>
+                                        <td id="total-pro-typ-price2">{{ $position->price_brutto }}</td>
                                         <td id="discounted-total2">{{ $position->price_discount }}</td>
-                                        <td>% <input id="percentage-input2" value="{{ $position->discount }}"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td>% <input id="percentage-input2" disabled value="{{ $position->discount }}">
+                                        </td>
+                                        <td id="costo-total">{{ $position->costo_total }}</td>
+                                        <td id="profit-total">{{ $position->profit_total }}</td>
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
-                                        <td>Menge <input id="menge-input" name="quantity" type="number" min="1" value="{{ $position->quantity }}"></td>
+                                        <td>Menge <input id="menge-input" type="number" name="quantity"
+                                                value="{{ $position->quantity }}" min="1">
+                                        </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">
                                             {{ $position->price_brutto }}</td>
                                         <td id="discounted-total">{{ $position->price_discount }}</td>
                                         <td>% <input id="percentage-input" name="percentage-input"
                                                 value="{{ $position->discount }}"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="costo-total2">{{ $position->costo_total }}</td>
+                                        <td id="profit-total2">{{ $position->profit_total }}</td>
                                     </tr>
                                 </tbody>
                         </thead>
@@ -163,7 +170,6 @@
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
-
                                 <input type="checkbox" class="organigram-checkbox" name="selected_organigrams[]"
                                     value="{{ $organigram->id }}"
                                     {{ in_array($organigram->id, old('selected_organigrams', $position->organigrams->pluck('id')->toArray())) ? 'checked' : '' }}>
@@ -203,16 +209,15 @@
                         @endforeach
                     </div>
                 </div>
-                <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
-                </form>
-                <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
-                    class="btn btn-secondary mt-3">Back</a>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $position->elements->contains($element->id);
                     @endphp
+                       @php
+                       $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
+                   @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: {{ $isSelected ? '' : 'none' }}">
                         <thead style="text-align: left">
@@ -229,14 +234,15 @@
                                 <th scope="col">
                                     <input type="number" min="1" style="width: 130px"
                                         class="element-quantity-input" data-element-id="{{ $element->id }}"
-                                        value="{{ $element->quantity }}">
+                                        name="element_quantity[{{ $element->id }}]"
+                                        value="{{ $pivotQuantity  }}">
                                 </th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
                                 <th scope="col" class="total-materials-header"
                                     data-element-id="{{ $element->id }}">
                                     CHF <span class="total-materials-value">0</span> X
-                                    <span class="element-quantity">{{ $element->quantity }}</span>
+                                    <span class="element-quantity">{{ $pivotQuantity  }}</span>
                                 </th>
                                 <th scope="col" class="total-materials-header"
                                     data-element-id="{{ $element->id }}">
@@ -249,6 +255,7 @@
                                     <td>
                                         mit <input style="width: 100px" min="1" type="number"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
+                                            name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
                                             data-material-id="{{ $material->id }}"> {{ $material->unit }}
                                     </td>
@@ -264,14 +271,13 @@
                                     </td>
                                     {{-- Hidden inputs --}}
                                     <td style="text-align: right;display:none" class="material-price-out">
-                                        CHF <span class="price-out">{{ $material->price_out }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
-                                        {{ $material->unit }}
+                                        CHF <span class="price-out">{{ $material->price_out }}</span>
+                                    </td>
+                                    <td style="text-align: right;display:none" class="material-price-in">
+                                        CHF <span class="price-in">{{ $material->price_in }}</span>
                                     </td>
                                     <td style="text-align: right;display:none" class="material-zeit-cost">
-                                        CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
-                                        {{ $material->unit }}
+                                        CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span>
                                     </td>
                                     {{-- Hidden inputs --}}
 
@@ -286,10 +292,15 @@
                 @endforeach
             </div>
         </div>
+        <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
+    </form>
+    <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
+        class="btn btn-secondary mt-3">Back</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
@@ -318,6 +329,10 @@
                 const currentTotalDiscount = parseFloat(totalDiscountedCell.textContent) || 0;
                 totalProTypPriceCell.textContent = (currentTotal * mengeValue).toFixed(2);
                 totalDiscountedCell.textContent = (currentTotalDiscount * mengeValue).toFixed(2);
+
+                // Update the hidden input fields
+                totalProTypPriceInput.value = (currentTotal * mengeValue).toFixed(2);
+                discountedTotalInput.value = (currentTotalDiscount * mengeValue).toFixed(2);
             });
 
             // Attach an event listener to the quantity input field
@@ -444,6 +459,20 @@
                 return totalPriceOut;
             }
 
+            function calculateTotalPriceIn(elementId) {
+                const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
+                let totalPriceIn = 0;
+
+                materials.forEach(materialRow => {
+                    const priceInCell = materialRow.querySelector('.material-price-in .price-in');
+                    if (priceInCell) {
+                        totalPriceIn += parseFloat(priceInCell.textContent);
+                    }
+                });
+
+                return totalPriceIn;
+            }
+
             function calculateTotalZeitCost(elementId) {
                 const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
                 let totalZeitCost = 0;
@@ -492,12 +521,21 @@
                 const priceOutInput2 = document.getElementById('price-out-input2');
                 const zeitCostInput = document.getElementById('zeit-cost-input');
                 const zeitCostInput2 = document.getElementById('zeit-cost-input2');
+                const priceInInput = document.getElementById('price-in-input');
+                const priceProfit = document.getElementById('price-profit');
+                const zeitCosto = document.getElementById('zeit-costo');
+                const zeitProfit = document.getElementById('zeit-profit');
+                const costoTotal = document.getElementById('costo-total');
+                const profitTotal = document.getElementById('profit-total');
+                const costoTotal2 = document.getElementById('costo-total2');
+                const profitTotal2 = document.getElementById('profit-total2');
 
                 if (totalProTypPriceCell && discountedTotalCell && percentageInput &&
                     totalProTypPriceCell2 && discountedTotalCell2 && percentageInput2) {
                     let totalProTypPrice = 0;
                     let totalPriceOut = 0;
                     let totalZeitCost = 0;
+                    let totalPriceIn = 0;
 
                     // Loop through all element checkboxes
                     elementCheckboxes.forEach(checkbox => {
@@ -511,7 +549,6 @@
                             const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
                             const elementTotalProTypPrice = calculateTotalMaterialsPrice(elementId) *
                                 elementQuantity;
-
                             totalProTypPrice += elementTotalProTypPrice;
 
                             // Fetch and accumulate price_out and zeit_cost values
@@ -520,16 +557,21 @@
                             materials.forEach(materialRow => {
                                 const priceOutCell = materialRow.querySelector(
                                     '.material-price-out .price-out');
+                                const priceInCell = materialRow.querySelector(
+                                    '.material-price-in .price-in');
                                 const zeitCostCell = materialRow.querySelector(
                                     '.material-zeit-cost .zeit-cost');
                                 const quantityInput = materialRow.querySelector('.quantity-input');
 
-                                if (priceOutCell && zeitCostCell && quantityInput) {
+                                if (priceOutCell && priceInCell && zeitCostCell && quantityInput) {
                                     const priceOutValue = parseFloat(priceOutCell.textContent);
+                                    const priceInValue = parseFloat(priceInCell.textContent);
                                     const zeitCostValue = parseFloat(zeitCostCell.textContent);
                                     const quantityValue = parseFloat(quantityInput.value) || 0;
 
                                     totalPriceOut += priceOutValue * quantityValue *
+                                        elementQuantity;
+                                    totalPriceIn += priceInValue * quantityValue *
                                         elementQuantity;
                                     totalZeitCost += zeitCostValue * quantityValue *
                                         elementQuantity;
@@ -550,11 +592,36 @@
                     totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
                     discountedTotalInput.value = discountedTotal.toFixed(2);
 
-                    // Update the displayed price_out and zeit_cost values
-                    priceOutInput.textContent = totalPriceOut.toFixed(2);
+                   // Update the displayed price_out and zeit_cost values
+                   priceOutInput.textContent = totalPriceOut.toFixed(2);
                     priceOutInput2.textContent = totalPriceOut.toFixed(2);
+
                     zeitCostInput.textContent = totalZeitCost.toFixed(2);
                     zeitCostInput2.textContent = totalZeitCost.toFixed(2);
+                    zeitCosto.textContent = (totalZeitCost / 2.5).toFixed(2);
+                    zeitProfit.textContent = totalZeitCost - (totalZeitCost / 2.5).toFixed(2);
+
+                    priceInInput.textContent = totalPriceIn.toFixed(2);
+                    priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
+
+                    costoTotal.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    profitTotal.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    costoTotal2.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    profitTotal2.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    // Update the hidden input values
+                    document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);
+
+                    document.getElementById('zeitCostInput').value = totalZeitCost.toFixed(2);
+                    document.getElementById('zeitCosto').value = (totalZeitCost / 2.5).toFixed(2);
+                    document.getElementById('zeitProfit').value = (totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    document.getElementById('priceInInput').value = totalPriceIn.toFixed(2);
+                    document.getElementById('priceProfit').value = (totalPriceOut - totalPriceIn).toFixed(2);
+
+                    document.getElementById('costoTotal').value = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    document.getElementById('profitTotal').value = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
                 }
             }
 
@@ -570,25 +637,24 @@
                     const elements = this.parentElement.nextElementSibling;
                     elements.style.display = this.checked ? 'block' : 'none';
                 });
-
-                // Function to toggle visibility for a specific checkbox type
-                function toggleCheckboxVisibility(checkboxes, className) {
-                    checkboxes.forEach(checkbox => {
-                        checkbox.addEventListener('change', function() {
-                            const elements = this.parentElement.nextElementSibling;
-                            elements.style.display = this.checked ? 'block' : 'none';
-                        });
-
-                        // Initial state
-                        const elements = checkbox.parentElement.nextElementSibling;
-                        elements.style.display = checkbox.checked ? 'block' : 'none';
-                    });
-                }
-
-                toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
-                toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
-                toggleCheckboxVisibility(elementCheckboxes, 'element');
             });
+             // Function to toggle visibility for a specific checkbox type
+             function toggleCheckboxVisibility(checkboxes, className) {
+                checkboxes.forEach(checkbox => {
+                    const elements = checkbox.parentElement.nextElementSibling;
+                    if (checkbox.checked) {
+                        elements.style.display = 'block';
+                    }
+                    checkbox.addEventListener('change', function() {
+                        const elements = checkbox.parentElement.nextElementSibling;
+                        elements.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
+            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
+            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
+            toggleCheckboxVisibility(elementCheckboxes, 'element');
+
         });
     </script>
 </body>
