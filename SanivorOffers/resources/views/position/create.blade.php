@@ -60,6 +60,15 @@
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
                     <input type="hidden" name="percentage" id="percentageInput" value="0">
+                    <input type="hidden" name="price-out-input" id="priceOutInput" value="0.00">
+                    <input type="hidden" name="zeit-cost-input" id="zeitCostInput" value="0.00">
+                    <input type="hidden" name="material-costo" id="priceInInput" value="0.00">
+                    <input type="hidden" name="material-profit" id="priceProfit" value="0.00">
+                    <input type="hidden" name="zeit-costo" id="zeitCosto" value="0.00">
+                    <input type="hidden" name="zeit-profit" id="zeitProfit" value="0.00">
+                    <input type="hidden" name="costo-total" id="costoTotal" value="0.00">
+                    <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
+
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
@@ -102,36 +111,38 @@
                                 <tbody>
                                     <tr class="table-active">
                                         <td><strong>Materiale Pro Typ</strong></td>
-                                        <td id="price-out-input">0.00</td>
+                                        <td id="price-out-input" name="price-out-input">0.00</td>
                                         <td id="price-out-input2">0.00</td>
                                         <td>% <input value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="price-in-input" name="material-costo">0.00</td>
+                                        <td id="price-profit" name="material-profit">0.00</td>
                                     </tr>
                                     <tr class="table-active">
                                         <td><strong>Zeit Pro Typ</strong></td>
-                                        <td id="zeit-cost-input">0.00</td>
+                                        <td id="zeit-cost-input" name="zeit-cost-input">0.00</td>
                                         <td id="zeit-cost-input2">0.00</td>
                                         <td>% <input value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="zeit-costo" name="zeit-costo">0.00</td>
+                                        <td id="zeit-profit" name="zeit-profit">0.00</td>
                                     </tr>
                                     <tr class="table-secondary">
                                         <td><strong>Total Pro Typ</strong></td>
                                         <td id="total-pro-typ-price2">0.00</td>
                                         <td id="discounted-total2">0.00</td>
                                         <td>% <input id="percentage-input2" disabled value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td id="costo-total2">0.00</td>
+                                        <td id="profit-total2">0.00</td>
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
-                                        <td>Menge <input id="menge-input" type="number" name="quantity" value="1" min="1">
+                                        <td>Menge <input id="menge-input" type="number" name="quantity"
+                                                value="1" min="1">
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                         <td id="discounted-total">0.00</td>
-                                        <td>% <input id="percentage-input" name="percentage-input" value="0"></td>
-                                        <td>0.00</td>
-                                        <td>0.00</td>
+                                        <td>% <input id="percentage-input" name="percentage-input" value="0">
+                                        </td>
+                                        <td id="costo-total" name="costo-total">0.00</td>
+                                        <td id="profit-total" name="profit-total">0.00</td>
                                     </tr>
                                 </tbody>
                         </thead>
@@ -177,9 +188,6 @@
                         @endforeach
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Create Position</button>
-                </form>
-                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a>
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
@@ -199,6 +207,7 @@
                                 <th scope="col">
                                     <input type="number" min="1" style="width: 130px"
                                         class="element-quantity-input" data-element-id="{{ $element->id }}"
+                                        name="element_quantity[{{ $element->id }}]"
                                         value="{{ $element->quantity }}">
                                 </th>
                                 <th scope="col">{{ $element->name }}</th>
@@ -219,6 +228,7 @@
                                     <td>
                                         mit <input style="width: 100px" min="1" type="number"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
+                                            name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
                                             data-material-id="{{ $material->id }}"> {{ $material->unit }}
                                     </td>
@@ -234,14 +244,13 @@
                                     </td>
                                     {{-- Hidden inputs --}}
                                     <td style="text-align: right;display:none" class="material-price-out">
-                                        CHF <span class="price-out">{{ $material->price_out }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
-                                        {{ $material->unit }}
+                                        CHF <span class="price-out">{{ $material->price_out }}</span>
+                                    </td>
+                                    <td style="text-align: right;display:none" class="material-price-in">
+                                        CHF <span class="price-in">{{ $material->price_in }}</span>
                                     </td>
                                     <td style="text-align: right;display:none" class="material-zeit-cost">
-                                        CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
-                                        {{ $material->unit }}
+                                        CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span>
                                     </td>
                                     {{-- Hidden inputs --}}
 
@@ -256,6 +265,9 @@
                 @endforeach
             </div>
         </div>
+        <button type="submit" class="btn btn-primary mt-3">Create Position</button>
+        </form>
+        <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -289,6 +301,10 @@
                 const currentTotalDiscount = parseFloat(totalDiscountedCell.textContent) || 0;
                 totalProTypPriceCell.textContent = (currentTotal * mengeValue).toFixed(2);
                 totalDiscountedCell.textContent = (currentTotalDiscount * mengeValue).toFixed(2);
+
+                // Update the hidden input fields
+                totalProTypPriceInput.value = (currentTotal * mengeValue).toFixed(2);
+                discountedTotalInput.value = (currentTotalDiscount * mengeValue).toFixed(2);
             });
 
             // Attach an event listener to the quantity input field
@@ -415,6 +431,20 @@
                 return totalPriceOut;
             }
 
+            function calculateTotalPriceIn(elementId) {
+                const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
+                let totalPriceIn = 0;
+
+                materials.forEach(materialRow => {
+                    const priceInCell = materialRow.querySelector('.material-price-in .price-in');
+                    if (priceInCell) {
+                        totalPriceIn += parseFloat(priceInCell.textContent);
+                    }
+                });
+
+                return totalPriceIn;
+            }
+
             function calculateTotalZeitCost(elementId) {
                 const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
                 let totalZeitCost = 0;
@@ -441,10 +471,10 @@
 
                 // Call the function to update the total based on the new percentage
                 updateTotalProTypPrice();
-                
+
                 // Update the hidden input field with the calculated percentage value
                 const percentageInputHidden = document.getElementById('percentageInput');
-    percentageInputHidden.value = inputValue;
+                percentageInputHidden.value = inputValue;
             });
 
             // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage
@@ -463,12 +493,21 @@
                 const priceOutInput2 = document.getElementById('price-out-input2');
                 const zeitCostInput = document.getElementById('zeit-cost-input');
                 const zeitCostInput2 = document.getElementById('zeit-cost-input2');
+                const priceInInput = document.getElementById('price-in-input');
+                const priceProfit = document.getElementById('price-profit');
+                const zeitCosto = document.getElementById('zeit-costo');
+                const zeitProfit = document.getElementById('zeit-profit');
+                const costoTotal = document.getElementById('costo-total');
+                const profitTotal = document.getElementById('profit-total');
+                const costoTotal2 = document.getElementById('costo-total2');
+                const profitTotal2 = document.getElementById('profit-total2');
 
                 if (totalProTypPriceCell && discountedTotalCell && percentageInput &&
                     totalProTypPriceCell2 && discountedTotalCell2 && percentageInput2) {
                     let totalProTypPrice = 0;
                     let totalPriceOut = 0;
                     let totalZeitCost = 0;
+                    let totalPriceIn = 0;
 
                     // Loop through all element checkboxes
                     elementCheckboxes.forEach(checkbox => {
@@ -482,7 +521,6 @@
                             const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
                             const elementTotalProTypPrice = calculateTotalMaterialsPrice(elementId) *
                                 elementQuantity;
-
                             totalProTypPrice += elementTotalProTypPrice;
 
                             // Fetch and accumulate price_out and zeit_cost values
@@ -491,16 +529,21 @@
                             materials.forEach(materialRow => {
                                 const priceOutCell = materialRow.querySelector(
                                     '.material-price-out .price-out');
+                                const priceInCell = materialRow.querySelector(
+                                    '.material-price-in .price-in');
                                 const zeitCostCell = materialRow.querySelector(
                                     '.material-zeit-cost .zeit-cost');
                                 const quantityInput = materialRow.querySelector('.quantity-input');
 
-                                if (priceOutCell && zeitCostCell && quantityInput) {
+                                if (priceOutCell && priceInCell && zeitCostCell && quantityInput) {
                                     const priceOutValue = parseFloat(priceOutCell.textContent);
+                                    const priceInValue = parseFloat(priceInCell.textContent);
                                     const zeitCostValue = parseFloat(zeitCostCell.textContent);
                                     const quantityValue = parseFloat(quantityInput.value) || 0;
 
                                     totalPriceOut += priceOutValue * quantityValue *
+                                        elementQuantity;
+                                    totalPriceIn += priceInValue * quantityValue *
                                         elementQuantity;
                                     totalZeitCost += zeitCostValue * quantityValue *
                                         elementQuantity;
@@ -524,8 +567,34 @@
                     // Update the displayed price_out and zeit_cost values
                     priceOutInput.textContent = totalPriceOut.toFixed(2);
                     priceOutInput2.textContent = totalPriceOut.toFixed(2);
+
                     zeitCostInput.textContent = totalZeitCost.toFixed(2);
                     zeitCostInput2.textContent = totalZeitCost.toFixed(2);
+                    zeitCosto.textContent = (totalZeitCost / 2.5).toFixed(2);
+                    zeitProfit.textContent = totalZeitCost - (totalZeitCost / 2.5).toFixed(2);
+
+                    priceInInput.textContent = totalPriceIn.toFixed(2);
+                    priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
+
+                    costoTotal.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    profitTotal.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    costoTotal2.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    profitTotal2.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    // Update the hidden input values
+                    document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);
+
+                    document.getElementById('zeitCostInput').value = totalZeitCost.toFixed(2);
+                    document.getElementById('zeitCosto').value = (totalZeitCost / 2.5).toFixed(2);
+                    document.getElementById('zeitProfit').value = (totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+
+                    document.getElementById('priceInInput').value = totalPriceIn.toFixed(2);
+                    document.getElementById('priceProfit').value = (totalPriceOut - totalPriceIn).toFixed(2);
+
+                    document.getElementById('costoTotal').value = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    document.getElementById('profitTotal').value = ((totalPriceOut - totalPriceIn) + totalZeitCost -
+                        (totalZeitCost / 2.5)).toFixed(2);
                 }
             }
 

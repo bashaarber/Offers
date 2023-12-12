@@ -58,9 +58,9 @@
                             <td>{{ $position->price_brutto }}</td>
                             <td>{{ $position->price_discount }}</td>
                             <td>{{ $position->discount }}%</td>
-                            <td>{{ $position->costo }}</td>
-                            <td>{{ $position->profit }}</td>
-                            <td>{{ $position->total }}</td>
+                            <td>{{ $position->costo_total }}</td>
+                            <td>{{ $position->profit_total }}</td>
+                            <td>{{ $position->costo_total +  $position->profit_total}}</td>
                             <td>
                                 <a href="{{ route('position.edit', $position->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
