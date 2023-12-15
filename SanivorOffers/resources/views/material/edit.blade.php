@@ -74,21 +74,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="text-center">Prise (CHF)</h5>
-                                    <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <label for="price_in">In</label>
-                                            <input type="text" class="form-control" name="price_in" id="price_in" value="{{ $material->price_in }}" required>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="price_out">Out</label>
-                                            <input type="text" class="form-control" name="price_out" id="price_out" value="{{ $material->price_out }}" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="card mt-3">
                                 <div class="card-body">
                                     <h5 class="text-center">Zeit (uhr)</h5>

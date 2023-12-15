@@ -36,12 +36,7 @@ class MaterialPieceController extends Controller
             'name' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
-            'z_schlosserei' => 'required',
-            'z_pe' => 'required',
-            'z_montage' => 'required',
-            'z_fermacell' => 'required',
         ]);
-        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
         MaterialPiece::create($formFields);
 
         return redirect()->route('material_piece.index');
@@ -73,13 +68,8 @@ class MaterialPieceController extends Controller
             'name' => 'required',
             'price_in' => 'required',
             'price_out' => 'required',
-            'z_schlosserei' => 'required',
-            'z_pe' => 'required',
-            'z_montage' => 'required',
-            'z_fermacell' => 'required',
         ]);
         $material = MaterialPiece::find($id);
-        $formFields['total'] = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
         $material->update($formFields);
 
         return redirect()->route('material_piece.index');

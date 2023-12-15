@@ -226,7 +226,7 @@
                             @foreach ($element->materials as $material)
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="0.01" type="number"
+                                        mit <input style="width: 100px" min="0" step="0.5" type="number"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
@@ -575,26 +575,35 @@
 
                     priceInInput.textContent = totalPriceIn.toFixed(2);
                     priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
+                    const costoTotalValue = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    const discountedCostoTotalValue = costoTotalValue * (1 - (percentage / 100)).toFixed(2);
+                    costoTotal.textContent = discountedCostoTotalValue.toFixed(2);
 
-                    costoTotal.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
-                    profitTotal.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+                    const profitTotalValue = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
+                        2.5)).toFixed(2);
+                    const discountedProfitTotalValue = profitTotalValue * (1 - (percentage / 100)).toFixed(2);
+                    profitTotal.textContent = discountedProfitTotalValue.toFixed(2);
 
-                    costoTotal2.textContent = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
-                    profitTotal2.textContent = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+                    const costoTotalValue2 = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    costoTotal2.textContent = costoTotalValue2 * (1 - (percentage / 100)).toFixed(2);
+
+                    const profitTotalValue2 = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
+                        2.5)).toFixed(2);
+                    profitTotal2.textContent = profitTotalValue2 * (1 - (percentage / 100)).toFixed(2);
 
                     // Update the hidden input values
                     document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);
 
                     document.getElementById('zeitCostInput').value = totalZeitCost.toFixed(2);
                     document.getElementById('zeitCosto').value = (totalZeitCost / 2.5).toFixed(2);
-                    document.getElementById('zeitProfit').value = (totalZeitCost - (totalZeitCost / 2.5)).toFixed(2);
+                    document.getElementById('zeitProfit').value = (totalZeitCost - (totalZeitCost / 2.5)).toFixed(
+                        2);
 
                     document.getElementById('priceInInput').value = totalPriceIn.toFixed(2);
                     document.getElementById('priceProfit').value = (totalPriceOut - totalPriceIn).toFixed(2);
 
-                    document.getElementById('costoTotal').value = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
-                    document.getElementById('profitTotal').value = ((totalPriceOut - totalPriceIn) + totalZeitCost -
-                        (totalZeitCost / 2.5)).toFixed(2);
+                    document.getElementById('costoTotal').value = discountedCostoTotalValue.toFixed(2);
+                    document.getElementById('profitTotal').value = discountedProfitTotalValue.toFixed(2);
                 }
             }
 
