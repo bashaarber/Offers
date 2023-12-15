@@ -77,7 +77,7 @@
                         <td>{{ $material->z_montage }}</td>
                         <td>{{ $material->z_fermacell }}</td>
                         <td>{{ $material->total }}</td>
-                        <td class="edit-delete-btns">
+                        <td class="edit-delete-btns" style="white-space: nowrap;">
                             <a href="{{ route('material_piece.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
                             <form action="{{ route('material_piece.destroy', $material->id) }}" method="post" class="d-inline">
                                 @csrf

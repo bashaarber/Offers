@@ -253,7 +253,7 @@
                             @foreach ($element->materials as $material)
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="1" type="number"
+                                        mit <input style="width: 100px" min="0" step="0.01" type="number"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"

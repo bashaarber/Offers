@@ -76,25 +76,25 @@
 
 <body>
     <div class="sidebar">
-        <h4>Welcome {{ Auth::user()->username }}</h4>
-        <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>Offert</a>
+        <h4>{{ Auth::user()->username }}</h4>
+        <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>@lang('public.offert')</a>
         {{-- <a href="{{ url('/position') }}"><i class="fa-solid fa-file-invoice"></i>Position</a> --}}
         @if (Route::has('login'))
             @auth
                 @if (auth()->user()->role === 'admin')
                     <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i
-                            class="fa-solid fa-bars"></i> Settings</a>
+                            class="fa-solid fa-bars"></i> @lang('public.settings')</a>
                     <div class="sublinks" id="home-sublinks">
-                        <a href="{{ url('/material_piece') }}">Material Pieces</a>
-                        <a href="{{ url('/material') }}">Materials</a>
-                        <a href="{{ url('/element') }}">Elements</a>
-                        <a href="{{ url('/group_element') }}">Group Elements</a>
-                        <a href="{{ url('/organigram') }}">Organigram</a>
-                        <a href="{{ url('/coefficient') }}">Coefficient</a>
+                        <a href="{{ url('/material_piece') }}">@lang('public.material_pieces')s</a>
+                        <a href="{{ url('/material') }}">@lang('public.materials')</a>
+                        <a href="{{ url('/element') }}">@lang('public.elements')</a>
+                        <a href="{{ url('/group_element') }}">@lang('public.group_elements')</a>
+                        <a href="{{ url('/organigram') }}">@lang('public.organigram')</a>
+                        <a href="{{ url('/coefficient') }}">@lang('public.coefficient')</a>
                     </div>
 
-                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i>Users</a>
-                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i>Clients</a>
+                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i> @lang('public.users')</a>
+                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i> @lang('public.clients')</a>
                     <!-- <a href="{{ route('register') }}"><i class="fas fa-plus"></i>Register User</a> -->
                 @endif
             @endif
@@ -102,20 +102,31 @@
         <div style="position: absolute; bottom: 0; width: 100%; ">
             <x-dropdown-link :href="route('profile.edit')" style="display: block; width: 100%;">
                 <i class="fa-solid fa-pen"></i>
-                {{ __('Profile') }}
+                @lang('public.profile')
             </x-dropdown-link>
-    
+
             <!-- Authentication -->
             <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
                 @csrf
-    
                 <x-dropdown-link :href="route('logout')"
                     onclick="event.preventDefault();
-                    this.closest('form').submit();" style="display: block; width: 100%;">
+                    this.closest('form').submit();"
+                    style="display: block; width: 100%;">
                     <i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>
-                    {{ __('Log Out') }}
+                    @lang('public.logout')
                 </x-dropdown-link>
             </form>
+            <div style="display: flex; justify-content: center; align-items: center; margin-top:5px;">
+                <a href="locale/en"
+                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px; ">
+                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>EN
+                </a>
+                <span style="color:white">/</span>
+                <a href="locale/de"
+                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px;">
+                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>DE
+                </a>
+            </div>
         </div>
     </div>
     <div class="content">
@@ -136,4 +147,5 @@
         });
     </script>
 </body>
+
 </html>
