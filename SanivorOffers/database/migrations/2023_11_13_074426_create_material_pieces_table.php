@@ -16,11 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->double('price_in');
             $table->double('price_out');
-            $table->double('z_schlosserei');
-            $table->string('z_pe');
-            $table->string('z_montage');
-            $table->string('z_fermacell');
-            $table->double('total');
             $table->timestamps();
         });
     }

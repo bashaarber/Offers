@@ -35,29 +35,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h5 class="text-center">Zeit (uhr)</h5>
-                                    <div class="form-row">
-                                        <div class="form-group col-md-3">
-                                            <label for="z_schlosserei">Schlosserei</label>
-                                            <input type="text" class="form-control" name="z_schlosserei" id="z_schlosserei" required>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="z_pe">Pe</label>
-                                            <input type="text" class="form-control" name="z_pe" id="z_pe" required>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="z_montage">Montage</label>
-                                            <input type="text" class="form-control" name="z_montage" id="z_montage" required>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="z_fermacell">Fermacell</label>
-                                            <input type="text" class="form-control" name="z_fermacell" id="z_fermacell" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <button type="submit" class="btn btn-primary mt-3">Create Material Piece</button>
                             <a href="{{ route('material_piece.index') }}" class="btn btn-secondary mt-3">Back</a>
                         </form>

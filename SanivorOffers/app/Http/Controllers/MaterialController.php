@@ -39,26 +39,40 @@ class MaterialController extends Controller
         $formFields = $request->validate([
             'name' => 'required',
             'unit' => 'required',
-            'price_in' => 'required',
-            'price_out' => 'required',
             'z_schlosserei' => 'required',
             'z_pe' => 'required',
             'z_montage' => 'required',
             'z_fermacell' => 'required',
         ]);
+    
         $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
-        $materials = new Material();
-        $materials->z_total = $z_total;
-        
         $coefficient = Coefficient::first();
         $zeit_cost = $z_total * $coefficient->labor_price;
-        $materials->zeit_cost = $zeit_cost;
-        $formFields['total'] = $request->input('price_out') + $zeit_cost;
+    
+        $selectedMaterialPieces = $request->input('materials');
+        $price_in = 0;
+        $price_out = 0;
+    
+        foreach ($selectedMaterialPieces as $materialPieceId) {
+            $materialPiece = MaterialPiece::find($materialPieceId);
+            if ($materialPiece) {
+                $price_in += $materialPiece->price_in;
+                $price_out += $materialPiece->price_out;
+            }
+        }
+        $total = $price_out + $zeit_cost;
+    
+        $materials = new Material();
         $materials->fill($formFields);
+        $materials->z_total = $z_total;
+        $materials->zeit_cost = $zeit_cost;
+        $materials->price_in = $price_in;
+        $materials->price_out = $price_out;
+        $materials->total = $total;
         $materials->save();
-        
-        $materials->material_pieces()->attach($request->input('materials'));
-
+    
+        $materials->material_pieces()->attach($selectedMaterialPieces);
+    
         return redirect()->route('material.index');
     }
 
@@ -84,33 +98,56 @@ class MaterialController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $formFields = $request->validate([
-            'name' => 'required',
-            'unit' => 'required',
-            'price_in' => 'required',
-            'price_out' => 'required',
-            'z_schlosserei' => 'required',
-            'z_pe' => 'required',
-            'z_montage' => 'required',
-            'z_fermacell' => 'required',
-        ]);
-        $material = Material::find($id);
+{
+    $formFields = $request->validate([
+        'name' => 'required',
+        'unit' => 'required',
+        'z_schlosserei' => 'required',
+        'z_pe' => 'required',
+        'z_montage' => 'required',
+        'z_fermacell' => 'required',
+    ]);
 
-        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
-        $material->z_total = $z_total;
-        
-        $coefficient = Coefficient::first();
-        $zeit_cost = $z_total * $coefficient->labor_price;
-        $material->zeit_cost = $zeit_cost;
-        $formFields['total'] = $request->input('price_out') + $zeit_cost;
-        $material->fill($formFields);
-        $material->update();
+    $material = Material::find($id);
 
-        $material->material_pieces()->sync($request->input('added-materials'));
+    $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+    
+    $coefficient = Coefficient::first();
+    $zeit_cost = $z_total * $coefficient->labor_price;
 
-        return redirect()->route('material.index');
+    $selectedMaterialPieces = $request->input('added-materials');
+    $price_in = 0;
+    $price_out = 0;
+    
+    foreach ($selectedMaterialPieces as $materialPieceId) {
+        $materialPiece = MaterialPiece::find($materialPieceId);
+        if ($materialPiece) {
+            $price_in += $materialPiece->price_in;
+            $price_out += $materialPiece->price_out;
+        }
     }
+    $total = $price_out + $zeit_cost;
+
+    // Update the existing material instance
+    $material->update([
+        'name' => $formFields['name'],
+        'unit' => $formFields['unit'],
+        'z_schlosserei' => $formFields['z_schlosserei'],
+        'z_pe' => $formFields['z_pe'],
+        'z_montage' => $formFields['z_montage'],
+        'z_fermacell' => $formFields['z_fermacell'],
+        'z_total' => $z_total,
+        'zeit_cost' => $zeit_cost,
+        'price_in' => $price_in,
+        'price_out' => $price_out,
+        'total' => $total,
+    ]);
+
+    // Attach the selected material_pieces without detaching existing ones
+    $material->material_pieces()->sync($selectedMaterialPieces);
+
+    return redirect()->route('material.index');
+}
     /**
      * Remove the specified resource from storage.
      */

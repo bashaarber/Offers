@@ -14,11 +14,6 @@ class MaterialPiece extends Model
         'name',
         'price_in',
         'price_out',
-        'z_schlosserei',
-        'z_pe',
-        'z_montage',
-        'z_fermacell',
-        'total'
     ];
 
     public function materials():BelongsToMany

@@ -49,7 +49,6 @@
                         <th>#</th>
                         <th>Name</th>
                         <th class="text-center" colspan="2">Price(CHF)</th>
-                        <th class="text-center" colspan="5">Zeit(Uhr)</th>
                         <th></th>
                     </tr>
                     <tr>
@@ -57,11 +56,6 @@
                         <th></th>
                         <th>In</th>
                         <th>Out</th>
-                        <th>schlosserei</th>
-                        <th>PE</th>
-                        <th>Montage</th>
-                        <th>Fermacell</th>
-                        <th>Total</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -72,11 +66,6 @@
                         <td>{{ $material->name }}</td>
                         <td>{{ $material->price_in }}</td>
                         <td>{{ $material->price_out }}</td>
-                        <td>{{ $material->z_schlosserei }}</td>
-                        <td>{{ $material->z_pe }}</td>
-                        <td>{{ $material->z_montage }}</td>
-                        <td>{{ $material->z_fermacell }}</td>
-                        <td>{{ $material->total }}</td>
                         <td class="edit-delete-btns" style="white-space: nowrap;">
                             <a href="{{ route('material_piece.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
                             <form action="{{ route('material_piece.destroy', $material->id) }}" method="post" class="d-inline">

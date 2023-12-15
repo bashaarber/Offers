@@ -12,10 +12,12 @@
         .edit-delete-btns button {
             margin-right: 5px;
         }
+
         .search-form {
             display: inline-block;
             margin-bottom: 10px;
         }
+
         .search-form input[type="search"] {
             width: 200px;
             margin-right: 5px;
@@ -71,32 +73,35 @@
                 </thead>
                 <tbody>
                     @foreach ($materials as $material)
-                    <tr>
-                        <td>{{ $material->id }}</td>
-                        <td>{{ $material->name }}</td>
-                        <td>{{ $material->unit }}</td>
-                        <td>{{ $material->price_in }}</td>
-                        <td>{{ $material->price_out }}</td>
-                        <td>{{ $material->z_schlosserei }}</td>
-                        <td>{{ $material->z_pe }}</td>
-                        <td>{{ $material->z_montage }}</td>
-                        <td>{{ $material->z_fermacell }}</td>
-                        <td>{{ $material->z_total }}</td>
-                        <td>
-                            @foreach ($material->material_pieces as $material_piece)
-                                {{ $material_piece->name }}<br>
-                            @endforeach
-                        </td>
-                        
-                        <td style="white-space: nowrap;">
-                            <a href="{{ route('material.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
-                            <form action="{{ route('material.destroy', $material->id) }}" method="post" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
-                            </form>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>{{ $material->id }}</td>
+                            <td>{{ $material->name }}</td>
+                            <td>{{ $material->unit }}</td>
+                            <td>{{ $material->price_in }}</td>
+                            <td>{{ $material->price_out }}</td>
+                            <td>{{ $material->z_schlosserei }}</td>
+                            <td>{{ $material->z_pe }}</td>
+                            <td>{{ $material->z_montage }}</td>
+                            <td>{{ $material->z_fermacell }}</td>
+                            <td>{{ $material->z_total }}</td>
+                            <td>
+                                @foreach ($material->material_pieces as $material_piece)
+                                - {{ $material_piece->name }} <br>
+                                @endforeach
+                            </td>
+                            
+                            <td style="white-space: nowrap;">
+                                <a href="{{ route('material.edit', $material->id) }}" class="btn btn-primary btn-sm"><i
+                                        class="fas fa-pencil"></i> Edit</a>
+                                <form action="{{ route('material.destroy', $material->id) }}" method="post"
+                                    class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
+                                        Delete</button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>

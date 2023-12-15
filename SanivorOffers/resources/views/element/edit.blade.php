@@ -38,7 +38,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" class="form-control quantity-input" name="quantities[]" value="{{ $material->pivot->quantity }}" placeholder="Quantity">
+                                        <input type="text" min="0" class="form-control quantity-input" name="quantities[]" value="{{ $material->pivot->quantity }}" placeholder="Quantity">
                                         <div class="btn-container">
                                             <button type="button" class="btn btn-danger remove-material"><i class="lni lni-minus"></i></button>
                                             <!-- You may add an update button here if needed -->
