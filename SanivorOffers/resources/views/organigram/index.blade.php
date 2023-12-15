@@ -66,7 +66,7 @@
                                     {{ $group_element->name }}<br>
                                 @endforeach
                             </td>
-                            <td class="edit-delete-btns">
+                            <td class="edit-delete-btns" style="white-space: nowrap;">
                                 <a href="{{ route('organigram.edit', $organigram->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
                                 <form action="{{ route('organigram.destroy', $organigram->id) }}" method="post"

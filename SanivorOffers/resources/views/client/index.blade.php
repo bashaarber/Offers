@@ -62,7 +62,7 @@
                         <td>{{ $client->email }}</td>
                         <td>{{ $client->number }}</td>
                         <td>{{ $client->address }}</td>
-                        <td>
+                        <td style="white-space: nowrap;">
                             <a href="{{ route('client.edit',$client->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
                             <form action="{{ route('client.destroy', $client->id) }}" method="post" class="d-inline">
                                 @csrf

@@ -88,12 +88,12 @@
                             @endforeach
                         </td>
                         
-                        <td class="edit-delete-btns">
-                            <a href="{{ route('material.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> </a>
+                        <td style="white-space: nowrap;">
+                            <a href="{{ route('material.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
                             <form action="{{ route('material.destroy', $material->id) }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> </button>
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
                             </form>
                         </td>
                     </tr>

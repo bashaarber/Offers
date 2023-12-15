@@ -62,7 +62,7 @@
     <div style="background-color:rgb(229, 236, 238);">
         <div style="float: left;">
             <p><strong>Ihr Auftrag: </strong> vom</p>
-            <p><strong>Ihre Referenz: </strong> </p>
+            <p><strong>Ihre Referenz: </strong>  </p>
             <p><strong>Unsere Referenz: </strong> {{ $offert->user_sign }}</p>
         </div>
 
@@ -143,13 +143,13 @@
                 <td>{{ $position->price_brutto }}</td>
                 <td>{{ $position->discount }}%</td>
                 <td>{{ $position->price_discount }}</td>
-                <td> 1 </td>
-                <td>{{ $position->price_discount }}</td>
+                <td> {{ $position->quantity }} </td>
+                <td>{{ $position->quantity * $position->price_discount }}</td>
             </tr>
         </table>
         <hr>
         @foreach ($position->elements as $element)
-            <p><strong>Enhalten: </strong> {{ $element->name }}</p>
+            <p><strong>Enhalten: </strong>  {{ $element->pivot->quantity }} x {{ $element->name }}</p>
             {{-- @foreach ($element->materials as $material)
                 <p>Installationsmodule: {{ $material->name }}</p>
             @endforeach --}}

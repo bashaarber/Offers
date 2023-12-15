@@ -67,7 +67,7 @@
                                     {{ $material->name }}<br>
                                 @endforeach
                             </td>
-                            <td class="edit-delete-btns">
+                            <td class="edit-delete-btns" style="white-space: nowrap;">
                                 <a href="{{ route('element.edit', $element->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
                                 <form action="{{ route('element.destroy', $element->id) }}" method="post"

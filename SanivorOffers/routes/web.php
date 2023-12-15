@@ -4,6 +4,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CoefficientController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\GroupElementController;
+use App\Http\Controllers\LocalizationController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialPieceController;
 use App\Http\Controllers\OffertController;
@@ -48,7 +49,6 @@ Route::middleware('auth', 'role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
-    
 });
 
 Route::middleware('auth')->group(function () {
@@ -67,5 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Localization Route
+Route::get("locale/{lange}", [LocalizationController::class, 'setLang']);
 
 require __DIR__ . '/auth.php';
