@@ -286,25 +286,11 @@
 
             // Add an event listener to the menge-input element
             const mengeInput = document.getElementById('menge-input');
-            const totalProTypPriceCell = document.getElementById('total-pro-typ-price');
-            const totalDiscountedCell = document.getElementById('discounted-total');
 
             mengeInput.addEventListener('input', function() {
-                // Get the value from menge-input
-                const mengeValue = parseFloat(this.value) || 1;
 
                 // Call the function to update the total based on the new menge value
                 updateTotalProTypPrice();
-
-                // Update the total-pro-typ-price based on menge
-                const currentTotal = parseFloat(totalProTypPriceCell.textContent) || 0;
-                const currentTotalDiscount = parseFloat(totalDiscountedCell.textContent) || 0;
-                totalProTypPriceCell.textContent = (currentTotal * mengeValue).toFixed(2);
-                totalDiscountedCell.textContent = (currentTotalDiscount * mengeValue).toFixed(2);
-
-                // Update the hidden input fields
-                totalProTypPriceInput.value = (currentTotal * mengeValue).toFixed(2);
-                discountedTotalInput.value = (currentTotalDiscount * mengeValue).toFixed(2);
             });
 
             // Attach an event listener to the quantity input field
@@ -551,12 +537,13 @@
                             });
                         }
                     });
+                    const mengeValue = parseFloat(mengeInput.value) || 1;
 
                     const percentage = parseFloat(percentageInput.value) || 0;
-                    const discountedTotal = totalProTypPrice * (1 - (percentage / 100));
+                    const discountedTotal = totalProTypPrice * (1 - (percentage / 100)) * mengeValue;
 
-                    totalProTypPriceCell.textContent = totalProTypPrice.toFixed(2);
-                    totalProTypPriceCell2.textContent = totalProTypPrice.toFixed(2);
+                    totalProTypPriceCell.textContent = (totalProTypPrice * mengeValue).toFixed(2);
+                    totalProTypPriceCell2.textContent = (totalProTypPrice * mengeValue).toFixed(2);
                     discountedTotalCell.textContent = discountedTotal.toFixed(2);
                     discountedTotalCell2.textContent = discountedTotal.toFixed(2);
 
@@ -571,7 +558,7 @@
                     zeitCostInput.textContent = totalZeitCost.toFixed(2);
                     zeitCostInput2.textContent = totalZeitCost.toFixed(2);
                     zeitCosto.textContent = (totalZeitCost / 2.5).toFixed(2);
-                    zeitProfit.textContent = totalZeitCost - (totalZeitCost / 2.5).toFixed(2);
+                    zeitProfit.textContent = totalZeitCost - (totalZeitCost / 2.5);
 
                     priceInInput.textContent = totalPriceIn.toFixed(2);
                     priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
@@ -604,6 +591,10 @@
 
                     document.getElementById('costoTotal').value = discountedCostoTotalValue.toFixed(2);
                     document.getElementById('profitTotal').value = discountedProfitTotalValue.toFixed(2);
+
+                    // Update the hidden input fields
+                    totalProTypPriceInput.value = (totalProTypPrice * mengeValue).toFixed(2);
+                    discountedTotalInput.value = discountedTotal.toFixed(2);
                 }
             }
 
