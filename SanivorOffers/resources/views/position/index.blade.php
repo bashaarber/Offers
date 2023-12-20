@@ -76,6 +76,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $positions->appends(['offert_id' => $offertId])->links() }}
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -90,10 +91,10 @@
                     rows.forEach((row, index) => {
                         // Update position_number on the front end
                         row.children[1].innerText = index + 1;
-    
+
                         // Get the position ID
                         var positionId = row.getAttribute('data-position-id');
-    
+
                         // Send the new order to the server
                         fetch('{{ route("position.updateOrder") }}', {
                             method: 'POST',

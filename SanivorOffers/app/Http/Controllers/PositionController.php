@@ -21,7 +21,7 @@ class PositionController extends Controller
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
+        })->orderBy('position_number', 'ASC')->paginate(10);;
 
         return view('position.index', compact('positions', 'offertId'));
     }
