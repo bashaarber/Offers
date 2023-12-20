@@ -205,11 +205,11 @@ class PositionController extends Controller
     public function destroy(string $id)
     {
         $position = Position::find($id);
+        $offertId = $position->offerts()->first()->id;
         $position->delete();
 
-        return redirect()->route('offert.index');
+        return redirect()->route('position.index', ['offert_id' => $offertId]);
     }
-
 
     public function updateOrder(Request $request)
     {

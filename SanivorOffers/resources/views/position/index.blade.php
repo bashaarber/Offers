@@ -31,6 +31,7 @@
     <div class="content">
         <div class="container">
             <h1 class="mb-3">Positions List</h1>
+            <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">Back to Offert</a>
             <a href="{{ route('position.create') }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3">Create Position</a>
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
