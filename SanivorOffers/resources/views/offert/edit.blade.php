@@ -151,6 +151,20 @@
                                 class="btn btn-info mt-3 float-right">Go to Position</a>
                         </form>
                     </div>
+                    @foreach ($offert->positions as $position)<br>
+                    <h4>Position {{ $position->position_number }}:  Price {{ $position->price_discount }}</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                @foreach ($position->elements as $element)
+                                    {{ $element->name }}<br>
+                                    @foreach ($element->materials as $material)
+                                        <br>
+                                        {{ $material->pivot->quantity }}{{ $material->unit }} {{ $material->name }}
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        </div>
+                @endforeach
                 </div>
             </div>
         </div>

@@ -90,9 +90,9 @@
                                 <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-warning btn-sm"><i class="fa-solid fa-file"></i> External</a>
                                 <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
                                         class="fa fa-clone" aria-hidden="true"></i> Copy</a>
-                                        <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary btn-sm">
+                                        {{-- <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
-                                        </a>
+                                        </a> --}}
 
                                 <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i></a>
