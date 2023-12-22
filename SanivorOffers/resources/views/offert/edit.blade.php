@@ -6,29 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-
 <style>
-    #clientSearch {
-        width: 100%;
+    h6 {
+        background-color: skyblue;
         padding: 10px;
-        font-size: 18px;
-        border: 1px solid #ccc;
-    }
-
-    #searchResults {
-        margin-left: -7.5%;
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .list-group-item {
-        cursor: pointer;
-        border: none;
-        background-color: #f9f9f9;
-    }
-
-    .list-group-item:hover {
-        background-color: #e0e0e0;
     }
 </style>
 
@@ -119,12 +100,14 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="client_id">Kunde</label>
-                                    <div class="autocomplete">
-                                        <input type="text" id="clientSearch" placeholder="Search for a client" value="{{$offert->client->name}}" autocomplete="off" required>
-                                        <input type="hidden" name="client_id" id="client_id">
-                                    </div>
-                                    <ul id="searchResults"></ul>
+                                    <label for="clients">Kunde</label>
+                                    <select style="width: 100%" class="select-users form-control" name="client_id" required>
+                                        @foreach ($clients as $client)
+                                            <option value="{{ $client->id }}" {{ $client->id == $offert->client_id ? 'selected' : '' }}>
+                                                {{ $client->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
@@ -151,8 +134,9 @@
                                 class="btn btn-info mt-3 float-right">Go to Position</a>
                         </form>
                     </div>
-                    @foreach ($offert->positions as $position)<br>
-                    <h4>Position {{ $position->position_number }}:  Price {{ $position->price_discount }}</h4>
+                    @foreach ($offert->positions as $position)
+                        <br>
+                        <h4>Position {{ $position->position_number }}: Price {{ $position->price_discount }}</h4>
                         <div class="card">
                             <div class="card-body">
                                 @foreach ($position->elements as $element)
@@ -164,54 +148,17 @@
                                 @endforeach
                             </div>
                         </div>
-                @endforeach
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var clientSearchInput = document.getElementById('clientSearch');
-            var searchResults = document.getElementById('searchResults');
-    
-            clientSearchInput.addEventListener('input', function () {
-                var searchValue = this.value.trim().toLowerCase();
-                searchResults.innerHTML = '';
-    
-                if (searchValue.length === 0) {
-                    return; // No input, don't display any results
-                }
-    
-                // Iterate through the clients and display matching results
-                @foreach ($clients as $client)
-                    var clientName = "{{ $client->name }}".toLowerCase();
-                    if (clientName.includes(searchValue)) {
-                        var listItem = document.createElement('a');
-                        listItem.href = "javascript:void(0)";
-                        listItem.className = "list-group-item list-group-item-action";
-                        listItem.textContent = "{{ $client->name }}";
-    
-                        // Add data attribute to store client_id
-                        listItem.setAttribute("data-client-id", "{{ $client->id }}");
-    
-                        // Add a click event listener to populate the input field and client_id
-                        listItem.addEventListener('click', function () {
-                            clientSearchInput.value = "{{ $client->name }}";
-                            // Set the client_id value
-                            document.getElementById('client_id').value = this.getAttribute("data-client-id");
-                            searchResults.innerHTML = ''; // Clear the results
-                        });
-    
-                        searchResults.appendChild(listItem);
-                    }
-                @endforeach
-            });
-    
-            // Set the client_id value when the input is pre-filled
-            document.getElementById('client_id').value = "{{ $offert->client->id }}";
+        $(document).ready(function() {
+            $('.select-users').select2();
         });
     </script>
 </body>

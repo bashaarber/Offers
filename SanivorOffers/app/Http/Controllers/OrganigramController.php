@@ -63,7 +63,9 @@ class OrganigramController extends Controller
     {
         $organigram = Organigram::find($id);
         $group_elements = GroupElement::all();
-        return view('organigram.edit', compact('organigram', 'group_elements'));
+        $selectedGroupElements = $organigram->group_elements->pluck('id')->toArray();
+
+        return view('organigram.edit', compact('organigram', 'group_elements', 'selectedGroupElements'));
     }
 
     /**
@@ -79,7 +81,7 @@ class OrganigramController extends Controller
         $organigram->name = $request->input('name');
         $organigram->save();
 
-        $organigram->group_elements()->sync($request->input('added-materials'));
+        $organigram->group_elements()->sync($request->input('materials'));
 
         return redirect()->route('organigram.index');
     }

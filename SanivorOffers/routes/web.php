@@ -55,7 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('offert', OffertController::class)->except(['index', 'copy']);
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
     Route::get('/offert/{offert_id}/copy', [OffertController::class, 'copy'])->name('offert.copy');
-    Route::get('/search_clients', [OffertController::class, 'searchClients']);
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
 
     Route::resource('position', PositionController::class);

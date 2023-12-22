@@ -13,7 +13,7 @@
     @include('layouts.sidebar')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-7 mt-5">
                 <div class="card">
                     <div class="card-body">
                         <h3 class="font-weight-bold">Create New Element</h3>

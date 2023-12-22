@@ -8,29 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <style>
-    #clientSearch {
-        width: 100%;
-        padding: 10px;
-        font-size: 18px;
-        border: 1px solid #ccc;
-    }
-
-    #searchResults {
-        margin-left: -7.5%; 
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .list-group-item {
-        cursor: pointer;
-        border: none;
-        background-color: #f9f9f9;
-    }
-
-    .list-group-item:hover {
-        background-color: #e0e0e0;
-    }
-    h6{
+    h6 {
         background-color: skyblue;
         padding: 10px;
     }
@@ -43,7 +21,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                            <h6>Projektinformationen</h6>
+                        <h6>Projektinformationen</h6>
 
                         <form action="{{ route('offert.store') }}" method="POST">
                             @csrf
@@ -116,19 +94,18 @@
                                         required>
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="client_id">Kunde</label>
-                                    <div class="autocomplete">
-                                        <input type="text" id="clientSearch" placeholder="Search for a client" autocomplete="off"required>
-                                        <input type="hidden" name="client_id" id="client_id">
-                                    </div>
-                                    <ul id="searchResults"></ul>
+                                    <label for="clients">Kunde</label>
+                                    <select style="width: 100%" class="select-users form-control" name="client_id">
+                                        @foreach ($clients as $client)
+                                            <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
-                            <h6>Koeffizienten für dieses Project</h6>
                             
+                            <h6>Koeffizienten für dieses Project</h6>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="difficulty">Schwierigkeits-Koeff.</label>
@@ -156,45 +133,14 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        document.getElementById('clientSearch').addEventListener('input', function () {
-            var searchValue = this.value.trim().toLowerCase();
-            var searchResults = document.getElementById('searchResults');
-            searchResults.innerHTML = '';
-    
-            if (searchValue.length === 0) {
-                return; // No input, don't display any results
-            }
-    
-            // Iterate through the clients and display matching results
-            @foreach ($clients as $client)
-                var clientName = "{{ $client->name }}".toLowerCase();
-                if (clientName.includes(searchValue)) {
-                    var listItem = document.createElement('a');
-                    listItem.href = "javascript:void(0)";
-                    listItem.className = "list-group-item list-group-item-action";
-                    listItem.textContent = "{{ $client->name }}";
-    
-                    // Add data attribute to store client_id
-                    listItem.setAttribute("data-client-id", "{{ $client->id }}");
-    
-                    // Add a click event listener to populate the input field and client_id
-                    listItem.addEventListener('click', function () {
-                        document.getElementById('clientSearch').value = "{{ $client->name }}";
-                        // Set the client_id value
-                        document.getElementById('client_id').value = this.getAttribute("data-client-id");
-                        searchResults.innerHTML = ''; // Clear the results
-                    });
-    
-                    searchResults.appendChild(listItem);
-                }
-            @endforeach
+        $(document).ready(function() {
+            $('.select-users').select2();
+            // Clear the selection after initialization
+            $('.select-users').val(null).trigger('change');
         });
     </script>
-    
-    
-
 </body>
-
 </html>
