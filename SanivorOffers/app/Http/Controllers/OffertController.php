@@ -112,14 +112,6 @@ class OffertController extends Controller
         return redirect()->route('offert.index');
     }
 
-    public function searchClients(Request $request)
-    {
-        $searchTerm = $request->input('searchTerm');
-        $clients = Client::where('name', 'like', '%' . $searchTerm . '%')->get();
-
-        return response()->json($clients);
-    }
-
     /**
      * Show the form for editing the specified resource.
      */

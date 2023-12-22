@@ -3,7 +3,7 @@ return[
     'localization' => 'Localization',
     'offert' => 'Offert',
     'settings' => 'Settings',
-    'material_pieces' => 'Material Pieces',
+    'material_pieces' => 'Material Piece',
     'materials' => 'Materials',
     'elements' => 'Elements',
     'group_elements' => 'Group Elements',

@@ -63,7 +63,9 @@ class GroupElementController extends Controller
     {
         $group_element = GroupElement::find($id);
         $elements = Element::all();
-        return view('group_element.edit', compact('group_element', 'elements'));
+        $selectedElements = $group_element->elements->pluck('id')->toArray();
+
+        return view('group_element.edit', compact('group_element', 'elements','selectedElements'));
     }
 
     /**
@@ -79,7 +81,7 @@ class GroupElementController extends Controller
         $group_element->name = $request->input('name');
         $group_element->save();
 
-        $group_element->elements()->sync($request->input('added-materials'));
+        $group_element->elements()->sync($request->input('materials'));
 
         return redirect()->route('group_element.index');
     }
