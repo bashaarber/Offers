@@ -7,7 +7,11 @@
     <title>Edit Element</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
-
+<style>
+    .select-material + .select2-container .select2-selection--single {
+      height: 38px;
+  }
+</style>
 <body>
     @include('layouts.sidebar')
     <div class="container mt-4">
@@ -28,7 +32,7 @@
                             <div class="form-group" id="materials-list">
                                 @foreach ($element->materials as $material)
                                     <div class="input-group mb-2">
-                                        <select class="form-control" name="materials[]">
+                                        <select class="select-material form-control" name="materials[]" required>
                                             @foreach ($materials as $materialOption)
                                                 <option value="{{ $materialOption->id }}"
                                                     {{ $materialOption->id == $material->id ? 'selected' : '' }}>
@@ -55,18 +59,31 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#add-material').click(function() {
                 const newMaterialField = $('#materials-list .input-group:first').clone();
                 newMaterialField.find('select').val('material_id_1'); // Set the default material
-                newMaterialField.find('.quantity-input').val(''); // Clear the quantity input
+                newMaterialField.find('input').val(''); // Clear the quantity input
+    
+                // Remove Select2 from the cloned select element
+                newMaterialField.find('.select-material').removeClass('select2-hidden-accessible').next().remove();
+    
                 newMaterialField.appendTo('#materials-list');
+    
+                // Reinitialize Select2 for all select elements
+                $('.select-material').select2();
             });
-
+    
             $('#materials-list').on('click', '.remove-material', function() {
                 $(this).closest('.input-group').remove();
             });
+    
+            // Initialize Select2 for the first material select element
+            $('.select-material').select2();
+    
         });
     </script>
 </body>

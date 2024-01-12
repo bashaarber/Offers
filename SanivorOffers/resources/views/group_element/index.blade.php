@@ -29,7 +29,7 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
-            <h1 class="mb-3">GroupElements List</h1>
+            <h1 class="mb-3">Group Elements List</h1>
 
             <form action="{{ route('group_element.index') }}" method="GET" class="search-form">
                 <div class="input-group">
@@ -52,9 +52,7 @@
                         <th>Name</th>
                         <th>Elements</th>
                         <th>Action</th>
-
                     </tr>
-
                 </thead>
                 <tbody>
                     @foreach ($group_elements as $group_element)

@@ -14,7 +14,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="font-weight-bold">Update GroupElement</h3>
+                        <h3 class="font-weight-bold">Update Group Element</h3>
                         <form action="{{ route('group_element.update', $group_element->id) }}" method="post">
                             @csrf
                             @method('put')

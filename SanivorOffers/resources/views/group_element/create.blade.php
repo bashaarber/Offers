@@ -15,14 +15,13 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="font-weight-bold">Create New GroupElement</h3>
+                        <h3 class="font-weight-bold">Create New Group Element</h3>
                         <form action="{{ route('group_element.store') }}" method="POST"  id="element-form">
                             @csrf
                             <div class="form-group">
                                 <label for="name">Name</label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
-
                             <div class="form-row">
                                     <label for="materials">Elements:</label>
                                     <select class="select-elements form-control"
@@ -33,7 +32,6 @@
                                         @endforeach
                                     </select>
                             </div>
-
                             <button type="submit" class="btn btn-primary mt-3">Create GroupElement</button>
                             <a href="{{ route('group_element.index') }}" class="btn btn-secondary mt-3">Back</a>
                         </form>

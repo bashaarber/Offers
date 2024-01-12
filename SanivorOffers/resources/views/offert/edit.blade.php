@@ -11,6 +11,9 @@
         background-color: skyblue;
         padding: 10px;
     }
+    .select-users + .select2-container .select2-selection--single {
+        height: 35px;
+    }
 </style>
 
 <body>

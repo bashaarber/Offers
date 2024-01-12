@@ -12,6 +12,9 @@
         background-color: skyblue;
         padding: 10px;
     }
+    .select-users + .select2-container .select2-selection--single {
+        height: 35px;
+    }
 </style>
 
 <body>
@@ -97,7 +100,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="clients">Kunde</label>
-                                    <select style="width: 100%" class="select-users form-control" name="client_id">
+                                    <select style="width: 100%" class="select-users form-control" name="client_id" required>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
