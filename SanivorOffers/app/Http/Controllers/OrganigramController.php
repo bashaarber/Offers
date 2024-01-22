@@ -15,7 +15,7 @@ class OrganigramController extends Controller
     {
         $query = $request->input('query');
 
-        $organigrams = Organigram::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $organigrams = Organigram::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
 
         return view('organigram.index', compact('organigrams', 'query'));
     }

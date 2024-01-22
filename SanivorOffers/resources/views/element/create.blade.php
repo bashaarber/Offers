@@ -28,13 +28,13 @@
                             <div class="form-group" id="materials-list">
                                 <label for="materials">Materials:</label>
                                 <div class="input-group mb-2">
-                                    <select class="select-material" name="materials[]" required>
+                                    <select class="select-material " name="materials[]" required>
                                         @foreach ($materials as $material)
                                             <option value="{{ $material->id }}">{{ $material->name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    <input type="text" min="0" class="form-control" name="quantities[]" placeholder="Quantity">
+                                    <input type="text" min="0" class="form-control" name="quantities[]" placeholder="QTY">
                                     <button type="button" class="btn btn-danger remove-material"><i class="fa-solid fa-minus"></i></button>
                                 </div>
                             </div>
@@ -66,8 +66,11 @@
                 $('.select-material').select2();
             });
     
+
             $('#materials-list').on('click', '.remove-material', function() {
-                $(this).closest('.input-group').remove();
+                if ($('#materials-list .input-group').length > 1) {
+                    $(this).closest('.input-group').remove();
+                }
             });
     
             // Initialize Select2 for the first material select element

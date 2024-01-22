@@ -24,9 +24,8 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
-            <h1 class="mb-3">Users List</h1>
             <form action="{{ route('user.index') }}" method="GET" class="search-form">
-                <div class="input-group">
+                <div class="input-group mt-3">
                     <input type="search" name="query" class="form-control" placeholder="Search...">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i></button>
@@ -36,7 +35,7 @@
             <a href="{{ url('/users') }}" class="btn btn-dark mb-1">
                 <i class="fas fa-times"></i>
             </a>
-            <a href="{{ route('register') }}" class="btn btn-primary float-right mb-3">Register User</a>
+            <a href="{{ route('register') }}" class="btn btn-primary float-right mt-3">Register User</a>
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>

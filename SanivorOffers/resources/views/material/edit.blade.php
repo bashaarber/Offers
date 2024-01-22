@@ -42,13 +42,13 @@
                                     <label for="unit">Unit</label>
                                     <select class="form-control" name="unit" aria-label="Default select example"
                                         required>
-                                        <option value="st" @if ($material->unit == 'st') selected @endif>St
+                                        <option value="St." @if ($material->unit == 'St.') selected @endif>St.
                                         </option>
                                         <option value="m" @if ($material->unit == 'm') selected @endif>m
                                         </option>
-                                        <option value="m2" @if ($material->unit == 'm2') selected @endif>m2
+                                        <option value="m²" @if ($material->unit == 'm²') selected @endif>m²
                                         </option>
-                                        <option value="std" @if ($material->unit == 'std') selected @endif>Std
+                                        <option value="Std" @if ($material->unit == 'Std') selected @endif>Std
                                         </option>
                                     </select>
                                     </select>

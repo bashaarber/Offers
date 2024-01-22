@@ -107,7 +107,7 @@
                                     <select style="width: 100%" class="select-users form-control" name="client_id" required>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}" {{ $client->id == $offert->client_id ? 'selected' : '' }}>
-                                                {{ $client->name }}
+                                                {{ $client->name ? $client->name : $client->email }}
                                             </option>
                                         @endforeach
                                     </select>
