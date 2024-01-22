@@ -35,10 +35,10 @@
                                 <div class="form-group col-md-6 mt-3">
                                     <label for="unit">Unit</label>
                                     <select class="form-control" name="unit" required>
-                                        <option value="st">St</option>
+                                        <option value="St.">St.</option>
                                         <option value="m">m</option>
-                                        <option value="m2">m2</option>
-                                        <option value="std">Std</option>
+                                        <option value="m²">m²</option>
+                                        <option value="Std">Std</option>
                                     </select>
                                 </div>
                             </div>

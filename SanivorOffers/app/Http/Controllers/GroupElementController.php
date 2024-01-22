@@ -15,7 +15,7 @@ class GroupElementController extends Controller
     {
         $query = $request->input('query');
 
-        $group_elements = GroupElement::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $group_elements = GroupElement::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(5);
 
         return view('group_element.index', compact('group_elements', 'query'));
     }

@@ -32,7 +32,7 @@
                             <div class="form-group" id="materials-list">
                                 @foreach ($element->materials as $material)
                                     <div class="input-group mb-2">
-                                        <select class="select-material form-control" name="materials[]" required>
+                                        <select class="select-material" name="materials[]" required>
                                             @foreach ($materials as $materialOption)
                                                 <option value="{{ $materialOption->id }}"
                                                     {{ $materialOption->id == $material->id ? 'selected' : '' }}>
@@ -42,7 +42,7 @@
                                         </select>
                                         <input type="text" min="0" class="form-control quantity-input"
                                             name="quantities[]" value="{{ $material->pivot->quantity }}"
-                                            placeholder="Quantity">
+                                            placeholder="QTY">
                                         <button type="button" class="btn btn-danger remove-material"><i
                                                 class="fa-solid fa-minus"></i></button>
                                     </div>
@@ -78,9 +78,11 @@
             });
     
             $('#materials-list').on('click', '.remove-material', function() {
-                $(this).closest('.input-group').remove();
+                if ($('#materials-list .input-group').length > 1) {
+                    $(this).closest('.input-group').remove();
+                }
             });
-    
+            
             // Initialize Select2 for the first material select element
             $('.select-material').select2();
     

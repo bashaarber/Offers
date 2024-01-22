@@ -42,7 +42,7 @@
 
         .position {
             width: 600px;
-            height: 600px;
+            height: 800px;
             overflow-x: hidden;
             overflow-y: auto;
             text-align: center;
@@ -172,9 +172,10 @@
                                                         <div class="card-body">
                                                             <h6 class="card-subtitle">
                                                                 <input type="checkbox" name="selected_elements[]"
-                                                                    class="element-checkbox"`
+                                                                    class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
-                                                                    value="{{ $element->id }}">
+                                                                    value="{{ $element->id }}"
+                                                                    @if ($element->isSelected) checked @endif>
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>

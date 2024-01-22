@@ -14,7 +14,7 @@ class MaterialPieceController extends Controller
     {
         $query = $request->input('query');
 
-        $materials = MaterialPiece::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $materials = MaterialPiece::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
 
         return view('material_piece.index', compact('materials', 'query'));
     }

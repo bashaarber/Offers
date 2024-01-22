@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Element;
 use App\Models\Material;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 
 class ElementController extends Controller
 {
@@ -17,7 +15,7 @@ class ElementController extends Controller
     {
         $query = $request->input('query');
 
-        $elements = Element::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $elements = Element::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
 
         return view('element.index', compact('elements', 'query'));
     }
@@ -52,7 +50,6 @@ class ElementController extends Controller
         foreach ($materials as $key => $materialId) {
             $quantity = $quantities[$key] ?? 1; // Default to 1 if no quantity provided
 
-            // Attach the material to the element with the specified quantity
             $element->materials()->attach($materialId, ['quantity' => $quantity]);
         }
 

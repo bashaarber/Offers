@@ -14,7 +14,7 @@ class ClientController extends Controller
     {
         $query = $request->input('query');
 
-        $clients = Client::where('name', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $clients = Client::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(15);
 
         return view('client.index', compact('clients', 'query'));
     }
