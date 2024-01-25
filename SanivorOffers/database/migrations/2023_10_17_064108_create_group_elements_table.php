@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('group_elements', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('isSelected')->default(0);
             $table->timestamps();
         });
     }
