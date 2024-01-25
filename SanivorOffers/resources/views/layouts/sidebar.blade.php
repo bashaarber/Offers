@@ -76,14 +76,14 @@
 
 <body>
     <div class="sidebar">
-        <h4>{{ Auth::user()->username }}</h4>
+        <h4>Sanivor AG</h4>
         <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>@lang('public.offert')</a>
         {{-- <a href="{{ url('/position') }}"><i class="fa-solid fa-file-invoice"></i>Position</a> --}}
         @if (Route::has('login'))
             @auth
                 @if (auth()->user()->role === 'admin')
                     <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i
-                            class="fa-solid fa-bars"></i> @lang('public.settings')</a>
+                            class="fa-solid fa-gear"></i>@lang('public.settings')</a>
                     <div class="sublinks" id="home-sublinks">
                         <a href="{{ url('/material_piece') }}">@lang('public.material_pieces')s</a>
                         <a href="{{ url('/material') }}">@lang('public.materials')</a>
@@ -93,8 +93,8 @@
                         <a href="{{ url('/coefficient') }}">@lang('public.coefficient')</a>
                     </div>
 
-                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i> @lang('public.users')</a>
-                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i> @lang('public.clients')</a>
+                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i>@lang('public.users')</a>
+                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i>@lang('public.clients')</a>
                     <!-- <a href="{{ route('register') }}"><i class="fas fa-plus"></i>Register User</a> -->
                 @endif
             @endif

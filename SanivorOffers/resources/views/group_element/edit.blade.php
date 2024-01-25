@@ -9,6 +9,7 @@
 
 <body>
     @include('layouts.sidebar')
+    <div class="content">
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-6">
@@ -45,6 +46,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

@@ -39,14 +39,6 @@
         th {
             color: black;
         }
-
-        .position {
-            width: 600px;
-            height: 600px;
-            overflow-x: hidden;
-            overflow-y: auto;
-            text-align: center;
-        }
     </style>
 </head>
 

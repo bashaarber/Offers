@@ -8,6 +8,7 @@
 </head>
 <body>
     @include('layouts.sidebar')
+    <div class="content">
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-6">
@@ -43,6 +44,7 @@
             </div>
         </div>
     </div>
+</div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>

@@ -39,14 +39,6 @@
         th {
             color: black;
         }
-
-        .position {
-            width: 600px;
-            height: 800px;
-            overflow-x: hidden;
-            overflow-y: auto;
-            text-align: center;
-        }
     </style>
 </head>
 
@@ -154,7 +146,8 @@
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
                                 <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox"
-                                    value="{{ $organigram->id }}">
+                                    value="{{ $organigram->id }}"
+                                    @if ($organigram->isSelected) checked @endif>
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -163,7 +156,8 @@
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
                                                 <input type="checkbox" name="selected_group_elements[]"
-                                                    class="group-element-checkbox" value="{{ $group_element->id }}">
+                                                    class="group-element-checkbox" value="{{ $group_element->id }}"
+                                                    @if ($group_element->isSelected) checked @endif>
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -192,8 +186,11 @@
             </div>
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
-                    <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: none">
+                @php
+                    $isSelected = $element->isSelected;
+                @endphp
+                <table class="table element-materials" id="element-materials-{{ $element->id }}"
+                    style="display: {{ $isSelected ? '' : 'none' }}">
                         <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -341,7 +338,36 @@
                 totalElement.text(currentQuantity);
             }
 
+             // Function to handle the visibility of the element materials table
+        function handleElementMaterialsTableVisibility(checkbox) {
+            const elementId = checkbox.getAttribute('data-element-id');
+            const elementMaterialsTable = document.querySelector(`#element-materials-${elementId}`);
+
+            if (elementMaterialsTable) {
+                // Update the total materials price when the checkbox is clicked
+                const elementPrice = calculateTotalMaterialsPrice(elementId);
+
+                // Update the running total based on the checkbox state
+                if (checkbox.checked) {
+                    runningTotalMaterialsPrice += elementPrice;
+                } else {
+                    runningTotalMaterialsPrice -= elementPrice;
+                }
+
+                updateTotalProTypPrice();
+
+                // If the element materials table is visible, trigger the calculations
+                if (checkbox.checked && elementMaterialsTable.style.display === 'block') {
+                    // Trigger calculations for the materials table
+                    updateTotalMaterialsPrice();
+                }
+            }
+        }
+
             elementCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                handleElementMaterialsTableVisibility(checkbox);
+            }
                 checkbox.addEventListener('change', function() {
                     const elementId = this.getAttribute('data-element-id');
                     const elementMaterialsTable = document.querySelector(
@@ -613,6 +639,22 @@
                     elements.style.display = this.checked ? 'block' : 'none';
                 });
             });
+             // Function to toggle visibility for a specific checkbox type
+             function toggleCheckboxVisibility(checkboxes, className) {
+                checkboxes.forEach(checkbox => {
+                    const elements = checkbox.parentElement.nextElementSibling;
+                    if (checkbox.checked) {
+                        elements.style.display = 'block';
+                    }
+                    checkbox.addEventListener('change', function() {
+                        const elements = checkbox.parentElement.nextElementSibling;
+                        elements.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
+            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
+            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
+            toggleCheckboxVisibility(elementCheckboxes, 'element');
         });
     </script>
 </body>
