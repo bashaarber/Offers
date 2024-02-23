@@ -78,7 +78,6 @@
     <div class="sidebar">
         <h4>Sanivor AG</h4>
         <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>@lang('public.offert')</a>
-        {{-- <a href="{{ url('/position') }}"><i class="fa-solid fa-file-invoice"></i>Position</a> --}}
         @if (Route::has('login'))
             @auth
                 @if (auth()->user()->role === 'admin')

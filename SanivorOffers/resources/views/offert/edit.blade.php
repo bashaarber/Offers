@@ -25,7 +25,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <h3 class="font-weight-bold">Update Offert</h3>
+                        <h6>Projektinformationen</h6>
                             <form action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
                                 @method('put')
@@ -53,10 +53,14 @@
                                     <div class="form-group col-md-3">
                                         <label for="status">Status</label>
                                         <select class="form-control" name="status" required>
-                                            <option value="new" @if ($offert->status == 'new') selected @endif>Neu
+                                            <option value="Neu" @if ($offert->status == 'Neu - In progress') selected @endif>Neu
                                                 -
                                                 In progress</option>
-                                            <option value="finished" @if ($offert->status == 'finished') selected @endif>
+                                                <option value="Zusage" @if ($offert->status == 'Zusage') selected @endif>
+                                                    Zusage</option>
+                                                    <option value="Abszage" @if ($offert->status == 'Abszage') selected @endif>
+                                                        Abszage</option>
+                                            <option value="Finished" @if ($offert->status == 'Finished') selected @endif>
                                                 Finished</option>
                                         </select>
                                     </div>
@@ -85,7 +89,7 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label for="object">Object</label>
+                                        <label for="object">Objekt</label>
                                         <input type="text" class="form-control" id="object" name="object"
                                             value="{{ $offert->object }}" required>
                                     </div>
@@ -120,6 +124,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                <h6>Koeffizienten für dieses Project</h6>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
@@ -144,7 +149,7 @@
                                     class="btn btn-info mt-3 float-right">Go to Position</a>
                             </form>
                         </div>
-                        @foreach ($offert->positions as $position)
+                        {{-- @foreach ($offert->positions as $position)
                             <br>
                             <h4>Position {{ $position->position_number }}: Price {{ $position->price_discount }}</h4>
                             <div class="card">
@@ -159,7 +164,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                        @endforeach
+                        @endforeach --}}
                     </div>
                 </div>
             </div>

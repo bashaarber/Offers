@@ -34,6 +34,18 @@ class OffertController extends Controller
         // return $pdf->download('invoice.pdf');
     }
 
+    public function exportInternalPdf($id){
+        $offert = Offert::find($id);
+
+        $offert->load(['positions' => function ($query) {
+            $query->orderBy('position_number', 'ASC');
+        }]);
+
+        $pdf = Pdf::loadView('offert.offert-pdf-internal', compact('offert'));
+        return $pdf->stream();
+        // return $pdf->download('invoice.pdf');
+    }
+
     /**
      * Show the form for creating a new resource.
      */

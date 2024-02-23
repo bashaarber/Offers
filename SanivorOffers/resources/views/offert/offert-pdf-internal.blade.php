@@ -167,6 +167,13 @@
                         $groupedGroupElements[$organigram->name][$group_element->name][] = [
                             'quantity' => $element->pivot->quantity,
                             'element_name' => $element->name,
+                            'materials' => $element->materials->map(function ($material) {
+                                return [
+                                    'quantity' => $material->pivot->quantity,
+                                    'unit' => $material->unit,
+                                    'name' => $material->name,
+                                ];
+                            }),
                         ];
                     @endphp
                 @endforeach
@@ -176,15 +183,21 @@
         <table style="width:100%">
             @foreach ($groupedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
-                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten {{ $organigramName }}:</td>
+                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten
+                        {{ $organigramName }}:</td>
                     <td colspan="2">
                         @foreach ($groupedElements as $groupName => $groupElements)
                             <table class="sub-table">
                                 <tr>
-                                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;text-align:right">{{ $groupName }}</td>
+                                    <td
+                                        style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;text-align:right">
+                                        {{ $groupName }}</td>
                                     <td style="width:50%;">
                                         @foreach ($groupElements as $groupElement)
-                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
+                                            <strong>{{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}</strong><br>
+                                            @foreach ($groupElement['materials'] as $material)
+                                                {{ $material['quantity'] }}{{ $material['unit'] }} {{ $material['name'] }}<br>
+                                            @endforeach
                                         @endforeach
                                     </td>
                                 </tr>
@@ -202,8 +215,8 @@
             </tr>
         </table>
         @if ($key < count($offert->positions) - 1)
-        <div style="page-break-after: always"></div>
-    @endif
+            <div style="page-break-after: always"></div>
+        @endif
     @endforeach
 </body>
 

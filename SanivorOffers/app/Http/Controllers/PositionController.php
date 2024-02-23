@@ -21,7 +21,7 @@ class PositionController extends Controller
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->paginate(10);;
+        })->orderBy('position_number', 'ASC')->paginate(10);
 
         return view('position.index', compact('positions', 'offertId'));
     }
@@ -31,11 +31,17 @@ class PositionController extends Controller
      */
     public function create(Request $request)
     {
+        $offertId = $request->input('offert_id');
+
+        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->orderBy('position_number', 'ASC')->get();
+
         $materials = Material::get();
         $organigrams = Organigram::get();
         $elements = Element::get();
 
-        return view('position.create', compact('materials', 'organigrams', 'elements'));
+        return view('position.create', compact('positions','materials', 'organigrams', 'elements'));
     }
 
     /**
@@ -83,7 +89,6 @@ class PositionController extends Controller
             'profit_total' => $profit_total,
         ];
 
-
         // Increment position_number for the new Position
         $latestPosition = $latestOffert ? $latestOffert->positions()->latest()->first() : null;
         $formFields['position_number'] = $latestPosition ? $latestPosition->position_number + 1 : 1;
@@ -105,7 +110,7 @@ class PositionController extends Controller
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
 
-        return redirect()->route('position.index', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
+        return redirect()->route('position.create', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
     }
 
     /**
@@ -119,16 +124,23 @@ class PositionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request,string $id)
     {
+        // $offertId = $request->input('offert_id');
         $position = Position::find($id);
+        $offertId = $position->offerts()->first()->id;
+
+        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->orderBy('position_number', 'ASC')->get();
+
         $materials = Material::get();
         $organigrams = Organigram::get();
         $elements = Element::with(['positions' => function ($query) use ($id) {
             $query->where('position_id', $id);
         }])->get();
 
-        return view('position.edit', compact('position', 'materials', 'organigrams', 'elements'));
+        return view('position.edit', compact('positions','offertId', 'position', 'materials', 'organigrams', 'elements'));
     }
 
     /**
@@ -194,9 +206,7 @@ class PositionController extends Controller
         $position->organigrams()->sync($selectedOrganigramIds);
         $position->group_elements()->sync($selectedGroupElementIds);
 
-        $offertId = $position->offerts->first()->id;
-
-        return redirect()->route('position.index', ['offert_id' => $offertId]);
+        return back();
     }
 
     /**
@@ -208,7 +218,17 @@ class PositionController extends Controller
         $offertId = $position->offerts()->first()->id;
         $position->delete();
 
-        return redirect()->route('position.index', ['offert_id' => $offertId]);
+         // Redirect to the latest position related to the offert_id
+    $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+        $query->where('id', $offertId);
+    })->latest()->first();
+
+    if ($latestPosition) {
+        return redirect()->route('position.edit', $latestPosition->id);
+    } else {
+        // If no positions left, redirect to position.create with offert_id
+        return redirect()->route('position.create', ['offert_id' => $offertId]);
+    }
     }
 
     public function updateOrder(Request $request)

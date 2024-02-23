@@ -65,13 +65,13 @@
                             <td>
                                 <a href="{{ route('position.edit', $position->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
-                                <form action="{{ route('position.destroy', $position->id) }}" method="post"
+                                {{-- <form action="{{ route('position.destroy', $position->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
                                         Delete</button>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
                     @endforeach

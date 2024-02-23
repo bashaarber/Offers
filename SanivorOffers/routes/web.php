@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
     Route::get('/offert/{offert_id}/copy', [OffertController::class, 'copy'])->name('offert.copy');
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
+    Route::get('/pdf-export-internal/{id}', [OffertController::class, 'exportInternalPdf'])->name('offert.pdf-internal');
 
     Route::resource('position', PositionController::class);
     Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');

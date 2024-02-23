@@ -51,7 +51,7 @@
                         <th>Datum</th>
                         <th>Kunde</th>
                         <th>Ihr Zeichen</th>
-                        <th>Object</th>
+                        <th>Objekt</th>
                         <th>Status</th>
                         <th>Typ</th>
                         <th>User</th>
@@ -85,14 +85,11 @@
                                 @endif
                             </td>
                             <td>{{ $offert->user->username }}</td>
-                            <td>
+                            <td style="white-space: nowrap;">
+                                <a href="{{ route('offert.pdf-internal', $offert->id) }}" class="btn btn-warning btn-sm"><i class="fa-solid fa-file"></i> Internal</a>
                                 <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-warning btn-sm"><i class="fa-solid fa-file"></i> External</a>
                                 <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm"><i
                                         class="fa fa-clone" aria-hidden="true"></i> Copy</a>
-                                        {{-- <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a> --}}
-
                                 <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i></a>
                                 <form action="{{ route('offert.destroy', $offert->id) }}" method="post"

@@ -6,7 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #454d55;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .content {
+            margin-left: 260px;
+            /* padding: 15px; */
+        }
+
+        .sublinks {
+            display: none;
+            padding-left: 30px;
+        }
+
+        h4 {
+            text-align: center;
+            color: burlywood;
+            margin-bottom: 30px;
+        }
+
+        .dropdown-link {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .dropdown-link:hover {
+            background-color: #454d55;
+        }
+
+        .dropdown-link i {
+            margin-right: 10px;
+        }
+
         .organigram-label,
         .group-element-label,
         .element-label {
@@ -43,24 +109,107 @@
 </head>
 
 <body>
-    @include('layouts.sidebar')
+    <div class="sidebar">
+        <h4>Sanivor AG</h4>
+        <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>@lang('public.offert')</a>
+        @if (Route::has('login'))
+            @auth
+                @if (auth()->user()->role === 'admin')
+                    <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i
+                            class="fa-solid fa-gear"></i>@lang('public.settings')</a>
+                    <div class="sublinks" id="home-sublinks">
+                        <a href="{{ url('/material_piece') }}">@lang('public.material_pieces')s</a>
+                        <a href="{{ url('/material') }}">@lang('public.materials')</a>
+                        <a href="{{ url('/element') }}">@lang('public.elements')</a>
+                        <a href="{{ url('/group_element') }}">@lang('public.group_elements')</a>
+                        <a href="{{ url('/organigram') }}">@lang('public.organigram')</a>
+                        <a href="{{ url('/coefficient') }}">@lang('public.coefficient')</a>
+                    </div>
+
+                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i>@lang('public.users')</a>
+                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i>@lang('public.clients')</a>
+                @endif
+            @endif
+        @endauth
+        <div style="max-height: 300px; overflow-y: auto;margin-top:70px;">
+        <table>
+                <a style="padding: 0;float:right;position:sticky;top:0;z-index:1;" href="{{ route('position.create') }}?offert_id={{ $offertId }}"><i
+                        class="fa-solid fa-plus"></i></a>
+            @foreach ($positions as $pos)
+                <tr>
+                    <td style="color: white">
+                        <a href="{{ route('position.edit', $pos->id) }}" style="padding: 0;">
+                            Pos. {{ $pos->position_number }}
+                        </a>
+                    </td>
+                    <td>
+                        <form action="{{ route('position.destroy', $pos->id) }}" method="post" class="btn">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"><i class="fa-solid fa-minus"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </table>
+    </div>
+        <div style="position: absolute; bottom: 0; width: 100%; ">
+            <a href="{{ route('offert.pdf', $offertId) }}"><i class="fa-solid fa-file"></i> External</a>
+            <a href="{{ route('offert.pdf-internal', $offertId) }}"><i class="fa-solid fa-file"></i> Internal</a>
+
+            <x-dropdown-link :href="route('profile.edit')" style="display: block; width: 100%;">
+                <i class="fa-solid fa-pen"></i>
+                @lang('public.profile')
+            </x-dropdown-link>
+
+            <!-- Authentication -->
+            <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
+                @csrf
+                <x-dropdown-link :href="route('logout')"
+                    onclick="event.preventDefault();
+                    this.closest('form').submit();"
+                    style="display: block; width: 100%;">
+                    <i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>
+                    @lang('public.logout')
+                </x-dropdown-link>
+            </form>
+            <div style="display: flex; justify-content: center; align-items: center; margin-top:5px;">
+                <a href="locale/en"
+                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px; ">
+                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>EN
+                </a>
+                <span style="color:white">/</span>
+                <a href="locale/de"
+                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px;">
+                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>DE
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="content">
         <div class="row">
             <div class="col-12">
                 <form method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="{{ $position->price_brutto }}">
-                    <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="{{ $position->price_discount }}">
+                    <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
+                        value="{{ $position->price_brutto }}">
+                    <input type="hidden" name="discountedTotal" id="discountedTotalInput"
+                        value="{{ $position->price_discount }}">
                     <input type="hidden" name="percentage" id="percentageInput" value="{{ $position->discount }}">
-                    <input type="hidden" name="price-out-input" id="priceOutInput" value="{{ $position->material_brutto }}">
-                    <input type="hidden" name="zeit-cost-input" id="zeitCostInput" value="{{ $position->zeit_brutto }}">
-                    <input type="hidden" name="material-costo" id="priceInInput" value="{{ $position->material_costo }}">
-                    <input type="hidden" name="material-profit" id="priceProfit" value="{{ $position->material_profit }}">
+                    <input type="hidden" name="price-out-input" id="priceOutInput"
+                        value="{{ $position->material_brutto }}">
+                    <input type="hidden" name="zeit-cost-input" id="zeitCostInput"
+                        value="{{ $position->zeit_brutto }}">
+                    <input type="hidden" name="material-costo" id="priceInInput"
+                        value="{{ $position->material_costo }}">
+                    <input type="hidden" name="material-profit" id="priceProfit"
+                        value="{{ $position->material_profit }}">
                     <input type="hidden" name="zeit-costo" id="zeitCosto" value="{{ $position->ziet_costo }}">
                     <input type="hidden" name="zeit-profit" id="zeitProfit" value="{{ $position->ziet_profit }}">
                     <input type="hidden" name="costo-total" id="costoTotal" value="{{ $position->costo_total }}">
-                    <input type="hidden" name="profit-total" id="profitTotal" value="{{ $position->profit_total }}">
+                    <input type="hidden" name="profit-total" id="profitTotal"
+                        value="{{ $position->profit_total }}">
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
@@ -136,7 +285,8 @@
                                         <td><strong>Total Pro Typ</strong></td>
                                         <td id="total-pro-typ-price2">{{ $position->price_brutto }}</td>
                                         <td id="discounted-total2">{{ $position->price_discount }}</td>
-                                        <td>% <input id="percentage-input2" disabled value="{{ $position->discount }}">
+                                        <td>% <input id="percentage-input2" disabled
+                                                value="{{ $position->discount }}">
                                         </td>
                                         <td id="costo-total">{{ $position->costo_total }}</td>
                                         <td id="profit-total">{{ $position->profit_total }}</td>
@@ -207,9 +357,9 @@
                     @php
                         $isSelected = $position->elements->contains($element->id);
                     @endphp
-                       @php
-                       $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
-                   @endphp
+                    @php
+                        $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
+                    @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: {{ $isSelected ? '' : 'none' }}">
                         <thead style="text-align: left">
@@ -226,15 +376,14 @@
                                 <th scope="col">
                                     <input type="number" min="1" style="width: 130px"
                                         class="element-quantity-input" data-element-id="{{ $element->id }}"
-                                        name="element_quantity[{{ $element->id }}]"
-                                        value="{{ $pivotQuantity  }}">
+                                        name="element_quantity[{{ $element->id }}]" value="{{ $pivotQuantity }}">
                                 </th>
                                 <th scope="col">{{ $element->name }}</th>
                                 <th></th>
                                 <th scope="col" class="total-materials-header"
                                     data-element-id="{{ $element->id }}">
                                     CHF <span class="total-materials-value">0</span> X
-                                    <span class="element-quantity">{{ $pivotQuantity  }}</span>
+                                    <span class="element-quantity">{{ $pivotQuantity }}</span>
                                 </th>
                                 <th scope="col" class="total-materials-header"
                                     data-element-id="{{ $element->id }}">
@@ -285,9 +434,9 @@
             </div>
         </div>
         <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
-    </form>
-    <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
-        class="btn btn-secondary mt-3">Back</a>
+        </form>
+        <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
+            class="btn btn-secondary mt-3">Back</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -571,8 +720,8 @@
                     totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
                     discountedTotalInput.value = discountedTotal.toFixed(2);
 
-                   // Update the displayed price_out and zeit_cost values
-                   priceOutInput.textContent = totalPriceOut.toFixed(2);
+                    // Update the displayed price_out and zeit_cost values
+                    priceOutInput.textContent = totalPriceOut.toFixed(2);
                     priceOutInput2.textContent = totalPriceOut.toFixed(2);
 
                     zeitCostInput.textContent = totalZeitCost.toFixed(2);
@@ -582,7 +731,7 @@
 
                     priceInInput.textContent = totalPriceIn.toFixed(2);
                     priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
-                    
+
                     const costoTotalValue = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
                     costoTotal.textContent = costoTotalValue;
 
@@ -632,8 +781,8 @@
                     elements.style.display = this.checked ? 'block' : 'none';
                 });
             });
-             // Function to toggle visibility for a specific checkbox type
-             function toggleCheckboxVisibility(checkboxes, className) {
+            // Function to toggle visibility for a specific checkbox type
+            function toggleCheckboxVisibility(checkboxes, className) {
                 checkboxes.forEach(checkbox => {
                     const elements = checkbox.parentElement.nextElementSibling;
                     if (checkbox.checked) {
@@ -649,6 +798,17 @@
             toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
             toggleCheckboxVisibility(elementCheckboxes, 'element');
 
+        });
+        // Add an event listener to toggle sublinks
+        document.querySelectorAll('.toggle-sublinks').forEach(link => {
+            link.addEventListener('click', () => {
+                const targetId = link.getAttribute('data-target');
+                const targetSublinks = document.getElementById(`${targetId}-sublinks`);
+                if (targetSublinks) {
+                    targetSublinks.style.display = (targetSublinks.style.display === 'none' ||
+                        targetSublinks.style.display === '') ? 'block' : 'none';
+                }
+            });
         });
     </script>
 </body>

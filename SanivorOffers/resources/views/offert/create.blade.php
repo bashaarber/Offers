@@ -43,13 +43,15 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="user_sign">Unser Zeichen</label>
-                                    <input type="text" class="form-control" id="user_sign" name="user_sign" required>
+                                    <input type="text" class="form-control" id="user_sign" name="user_sign" value="Izet Kqiku" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="status">Status</label>
                                     <select class="form-control" name="status" required>
-                                        <option value="new">Neu - In progress</option>
-                                        <option value="finished">Finished</option>
+                                        <option value="Neu">Neu - In progress</option>
+                                        <option value="Zusage">Zusage</option>
+                                        <option value="Abszage">Abszage</option>
+                                        <option value="Finished">Finished</option>
                                     </select>
                                 </div>
                             </div>
@@ -146,6 +148,21 @@
             // Clear the selection after initialization
             $('.select-users').val(null).trigger('change');
         });
+
+        document.addEventListener("DOMContentLoaded", function() {
+        // Get today's date
+        var today = new Date();
+
+        // Format date as YYYY-MM-DD
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+        var yyyy = today.getFullYear();
+
+        today = yyyy + '-' + mm + '-' + dd;
+
+        // Set input value to today's date
+        document.getElementById('create_date').value = today;
+    });
     </script>
 </body>
 </html>

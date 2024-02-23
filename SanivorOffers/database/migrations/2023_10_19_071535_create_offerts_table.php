@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('offerts', function (Blueprint $table) {
             $table->id();
-            $table->enum('type',['client','company'])->default('client');
+            $table->string('type');
             $table->string('user_sign');
-            $table->enum('status',['new','finished'])->default('new');
+            $table->string('status');
             $table->date('create_date');
             $table->string('validity');
             $table->string('client_sign');
