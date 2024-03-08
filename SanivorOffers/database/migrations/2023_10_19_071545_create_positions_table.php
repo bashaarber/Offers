@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
             $table->string('description')->nullable();
+            $table->string('description2')->nullable();
             $table->enum('blocktype', [
                 'Vorwand-Raumhoch', 'Vorwand-Raumhoch und Teilhoch', 'Vorwand-Teilhoch',
                 'Freistehend-Raumhoch', 'Vorwand-Freistehend', 'Freistehend-Teilhoch', 'Vorwand DeBO-System', 'Trennwand DeBO-System'

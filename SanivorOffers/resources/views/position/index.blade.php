@@ -32,7 +32,8 @@
         <div class="container">
             <h1 class="mb-3">Positions List</h1>
             <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">Back to Offert</a>
-            <a href="{{ route('position.create') }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3">Create Position</a>
+            <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3">Create Position</a>
+
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -40,10 +41,9 @@
                         <th>Position ID</th>
                         <th>OffertID</th>
                         <th>Price Brutto</th>
-                        <th>Preis mit Rabbat</th>
                         <th>Rabbat</th>
-                        <th>Kosto CHF</th>
-                        <th>Profit CHF</th>
+                        <th>Preis mit Rabbat</th>
+                        <th>Stk.</th>
                         <th>Total</th>
                         <th>Handlungen</th>
                     </tr>
@@ -53,31 +53,20 @@
                         <tr data-position-id="{{ $position->id }}">
                             <td><span class="drag-handle">&#9776;</span></td>
                             <td>{{ $position->position_number }}</td>
-                            @foreach ($position->offerts as $offert)
-                                <td>{{ $offert->id }}</td>
-                            @endforeach
-                            <td>{{ $position->price_brutto }}</td>
-                            <td>{{ $position->price_discount }}</td>
+                                <td>{{ $offertId}}</td>
+                            <td>{{ number_format($position->material_brutto + $position->zeit_brutto, 2) }}</td>
                             <td>{{ $position->discount }}%</td>
-                            <td>{{ $position->costo_total }}</td>
-                            <td>{{ $position->profit_total }}</td>
-                            <td>{{ $position->costo_total +  $position->profit_total}}</td>
+                            <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100), 2) }}</td>
+                            <td>{{$position->quantity}}</td>
+                            <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100) * $position->quantity, 2) }}</td>
                             <td>
                                 <a href="{{ route('position.edit', $position->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>
-                                {{-- <form action="{{ route('position.destroy', $position->id) }}" method="post"
-                                    class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
-                                        Delete</button>
-                                </form> --}}
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            {{ $positions->appends(['offert_id' => $offertId])->links() }}
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

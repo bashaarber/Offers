@@ -133,35 +133,58 @@
                 @endif
             @endif
         @endauth
-        <div style="max-height: 300px; overflow-y: auto;margin-top:70px">
-            <table>
-                <a style="padding: 0;float:right;position:sticky;top:0;z-index:1;" href="#"
-                    onclick="document.getElementById('createPositionForm').submit(); return false;">
-                    <i class="fa-solid fa-plus"></i>
-                </a>
-                @foreach ($positions as $position)
-                    @php
-                        $latestPositionNumber = $positions->max('position_number');
-                        $nextPositionNumber = $latestPositionNumber + 1;
-                    @endphp
-                    <tr>
-                        <td style="color: white">
-                            <a href="{{ route('position.edit', $position->id) }}" style="padding: 0;">
-                                Pos. {{ $position->position_number }}
-                            </a>
-                        </td>
-                        <td>
-                            <form action="{{ route('position.destroy', $position->id) }}" method="post"
-                                class="btn">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"><i class="fa-solid fa-minus"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
+        <div style="text-align: center">
+            <hr style="background-color:white">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '0'; document.getElementById('createPositionForm').submit(); return false;">
+                    Typ 0
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '1'; document.getElementById('createPositionForm').submit(); return false;">
+                    Typ 1
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '2'; document.getElementById('createPositionForm').submit(); return false;">
+                    Typ 2
+                </button>
+            </div>
+            <div style="margin-top:4px">
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '3'; document.getElementById('createPositionForm').submit(); return false;">
+                    Typ 3
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '4'; document.getElementById('createPositionForm').submit(); return false;">
+                    Typ 4
+                </button>
+            </div>
+            <hr style="background-color:white">
         </div>
+       <div style="max-height: 280px; overflow-y: auto; padding: 3px;">
+    <table style="width: 100%;">
+        @foreach ($positions as $position)
+        @php
+        $latestPositionNumber = $positions->max('position_number');
+        $nextPositionNumber = $latestPositionNumber + 1;
+    @endphp
+            <tr>
+                <td style="width: 80%;">
+                    <a href="{{ route('position.edit', $position->id) }}" style="padding: 0;">
+                        <strong>Pos. {{ $position->position_number }}</strong>
+                    </a>
+                </td>
+                <td style="text-align: right;">
+                    <form action="{{ route('position.destroy', $position->id) }}" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+</div>
         <div style="position: absolute; bottom: 0; width: 100%; ">
             @if (request()->has('offert_id'))
                 <a href="{{ route('offert.pdf', request()->query('offert_id')) }}"><i class="fa-solid fa-file"></i>
@@ -205,6 +228,7 @@
             <div class="col-12">
                 <form id="createPositionForm" method="POST" action="{{ route('position.store') }}">
                     @csrf
+                    <input type="hidden" name="index" id="index" value="">
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
                     <input type="hidden" name="percentage" id="percentageInput" value="0">
@@ -219,18 +243,18 @@
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                <th scope="col">Rahmen <input value="Pos. {{ $nextPositionNumber ?? 1}}"
+                                <th scope="col">Rahmen <input value="Pos. {{ $nextPositionNumber ?? 1 }}"
                                         style="width: 150px" disabled> mm </th>
                                 <th scope="col"> Desc. <input type="text" id="description" name="description">
                                 </th>
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
                                         <option value="" selected> - </option>
-                                        <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
-                                        <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch
+                                        <option value="Vorwand-Raumhoch" {{ $index == 1 ? 'selected' : '' }}>Vorwand-Raumhoch</option>
+                                        <option value="Vorwand-Raumhoch und Teilhoch" {{ $index == 3 ? 'selected' : '' }}>Vorwand-Raumhoch und Teilhoch
                                         </option>
                                         <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
-                                        <option value="Freistehend-Raumhoch">Freistehend-Raumhoch</option>
+                                        <option value="Freistehend-Raumhoch"{{ $index == 2 ? 'selected' : '' }}>Freistehend-Raumhoch</option>
                                         <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
                                         <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
                                         <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
@@ -298,11 +322,12 @@
             </div>
             <div class="col-md-4">
                 <div class="card">
+                    <textarea name="description2" rows="3"></textarea>
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
                                 <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox"
-                                    value="{{ $organigram->id }}" @if ($organigram->isSelected) checked @endif>
+                                    value="{{ $organigram->id }}" @if ($organigram->{"isSelected$index"}) checked @endif>
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -312,7 +337,7 @@
                                             <h6 class="card-subtitle mb-2">
                                                 <input type="checkbox" name="selected_group_elements[]"
                                                     class="group-element-checkbox" value="{{ $group_element->id }}"
-                                                    @if ($group_element->isSelected) checked @endif>
+                                                    @if ($group_element->{"isSelected$index"}) checked @endif>
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -324,7 +349,7 @@
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
                                                                     value="{{ $element->id }}"
-                                                                    @if ($element->isSelected) checked @endif>
+                                                                    @if ($element->{"isSelected$index"}) checked @endif>
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -342,7 +367,7 @@
             <div class="col-md-8 position">
                 @foreach ($elements as $element)
                     @php
-                        $isSelected = $element->isSelected;
+                        $isSelected = $element->{"isSelected$index"};
                     @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: {{ $isSelected ? '' : 'none' }}">
@@ -379,7 +404,7 @@
                             @foreach ($element->materials as $material)
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="0.5" type="number"
+                                        mit <input style="width: 100px" min="0" step="any" type="number"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"

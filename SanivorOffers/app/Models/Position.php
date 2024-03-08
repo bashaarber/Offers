@@ -11,6 +11,7 @@ class Position extends Model
     use HasFactory;
     protected $fillable = [
         'description',
+        'description2',
         'blocktype',
         'b',
         'h',

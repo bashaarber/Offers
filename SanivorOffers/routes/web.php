@@ -58,8 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
     Route::get('/pdf-export-internal/{id}', [OffertController::class, 'exportInternalPdf'])->name('offert.pdf-internal');
 
-    Route::resource('position', PositionController::class);
+    Route::resource('position', PositionController::class)->except('create');
+    Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');
     Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');
+    Route::post('position/{id}/copy', [PositionController::class, 'copy'])->name('position.copy');
+
 });
 
 Route::middleware('auth')->group(function () {

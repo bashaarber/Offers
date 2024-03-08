@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Offert;
 use App\Models\Element;
 use App\Models\Material;
-use App\Models\Offert;
-use App\Models\Organigram;
 use App\Models\Position;
+use App\Models\Organigram;
+use App\Models\GroupElement;
 use Illuminate\Http\Request;
+use App\Models\PositionMaterial;
 
 class PositionController extends Controller
 {
@@ -21,15 +23,51 @@ class PositionController extends Controller
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->paginate(10);
+        })->orderBy('position_number', 'ASC')->get();
 
         return view('position.index', compact('positions', 'offertId'));
+    }
+
+    public function copy($id)
+    {
+        $position = Position::findOrFail($id);
+        $latestOffert = Offert::where('user_id', auth()->id())->latest()->first();
+
+        $latestPositionNumber = Position::max('position_number');
+
+        $newPosition = $position->replicate()->fill([
+            'offert_id' => $latestOffert->id,
+            'position_number' => $latestPositionNumber + 1,
+        ]);
+        $newPosition->save();
+
+        $newPosition->group_elements()->sync($position->group_elements->pluck('id')->toArray());
+        $newPosition->organigrams()->sync($position->organigrams->pluck('id')->toArray());
+        $newPosition->offerts()->attach($latestOffert);
+
+        foreach ($position->elements()->withPivot('quantity')->get() as $element) {
+            $newElement = $newPosition->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
+            foreach ($element->materials as $material) {
+                $materialQuantity = PositionMaterial::where([
+                    'position_id' => $position->id,
+                    'element_id' => $element->id,
+                    'material_id' => $material->id
+                ])->first()->quantity;
+                PositionMaterial::create([
+                    'position_id' => $newPosition->id,
+                    'element_id' => $element->id,
+                    'material_id' => $material->id,
+                    'quantity' => $materialQuantity
+                ]);
+            }
+        }
+        return redirect()->back();
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(Request $request, $index)
     {
         $offertId = $request->input('offert_id');
 
@@ -41,7 +79,7 @@ class PositionController extends Controller
         $organigrams = Organigram::get();
         $elements = Element::get();
 
-        return view('position.create', compact('positions','materials', 'organigrams', 'elements'));
+        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index'));
     }
 
     /**
@@ -52,6 +90,7 @@ class PositionController extends Controller
         $user = auth()->user();
         $latestOffert = Offert::where('user_id', $user->id)->latest()->first();
         $description = $request->input('description');
+        $description2 = $request->input('description2');
         $blocktype = $request->input('blocktype');
         $b = $request->input('b');
         $h = $request->input('h');
@@ -71,6 +110,7 @@ class PositionController extends Controller
 
         $formFields = [
             'description' => $description,
+            'description2' => $description2,
             'blocktype' => $blocktype,
             'b' => $b,
             'h' => $h,
@@ -100,9 +140,22 @@ class PositionController extends Controller
         $selectedElementIds = $request->input('selected_elements', []);
         $elementIdsWithQuantities = $request->input('element_quantity', []);
 
+        $elements = Element::all();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
                 $position->elements()->attach([$elementId => ['quantity' => $quantity]]);
+
+                // Store material_id, element_id, and quantity in the new table
+                foreach ($elements->find($elementId)->materials as $material) {
+                    $materialQuantityKey = "material_quantity.{$elementId}.{$material->id}";
+                    $materialQuantity = $request->input($materialQuantityKey, $material->pivot->quantity);
+                    PositionMaterial::create([
+                        'position_id' => $position->id,
+                        'element_id' => $elementId,
+                        'material_id' => $material->id,
+                        'quantity' => $materialQuantity,
+                    ]);
+                }
             }
         }
 
@@ -110,7 +163,8 @@ class PositionController extends Controller
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
 
-        return redirect()->route('position.create', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
+        // return redirect()->route('position.create', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
+        return redirect()->route('position.create', ['index' => $request->input('index'), 'offert_id' => $latestOffert ? $latestOffert->id : null]);
     }
 
     /**
@@ -124,7 +178,7 @@ class PositionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request,string $id)
+    public function edit(Request $request, string $id)
     {
         // $offertId = $request->input('offert_id');
         $position = Position::find($id);
@@ -140,7 +194,9 @@ class PositionController extends Controller
             $query->where('position_id', $id);
         }])->get();
 
-        return view('position.edit', compact('positions','offertId', 'position', 'materials', 'organigrams', 'elements'));
+        $positionMaterials = PositionMaterial::where('position_id', $id)->get();
+
+        return view('position.edit', compact('positions', 'offertId', 'position', 'materials', 'organigrams', 'elements', 'positionMaterials'));
     }
 
     /**
@@ -149,6 +205,7 @@ class PositionController extends Controller
     public function update(Request $request, string $id)
     {
         $description = $request->input('description');
+        $description2 = $request->input('description2');
         $blocktype = $request->input('blocktype');
         $b = $request->input('b');
         $h = $request->input('h');
@@ -168,6 +225,7 @@ class PositionController extends Controller
 
         $formFields = [
             'description' => $description,
+            'description2' => $description2,
             'blocktype' => $blocktype,
             'b' => $b,
             'h' => $h,
@@ -200,13 +258,45 @@ class PositionController extends Controller
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
                 $position->elements()->attach([$elementId => ['quantity' => $quantity]]);
+
+                // Store material_id, element_id, and quantity in the new table
+                $elements = Element::find($elementId);
+                foreach ($elements->materials as $material) {
+                    $materialQuantityKey = "material_quantity.{$elementId}.{$material->id}";
+                    $materialQuantity = $request->input($materialQuantityKey, $material->pivot->quantity);
+
+                    // Check if the record exists
+                    $existingRecord = PositionMaterial::where([
+                        'position_id' => $position->id,
+                        'element_id' => $elementId,
+                        'material_id' => $material->id
+                    ])->first();
+
+                    if ($existingRecord) {
+                        // Update the existing record
+                        PositionMaterial::where([
+                            'position_id' => $position->id,
+                            'element_id' => $elementId,
+                            'material_id' => $material->id
+                        ])->update(['quantity' => $materialQuantity]);
+                    } else {
+                        // Create a new record
+                        PositionMaterial::create([
+                            'position_id' => $position->id,
+                            'element_id' => $elementId,
+                            'material_id' => $material->id,
+                            'quantity' => $materialQuantity,
+                        ]);
+                    }
+                }
             }
         }
 
         $position->organigrams()->sync($selectedOrganigramIds);
         $position->group_elements()->sync($selectedGroupElementIds);
-
-        return back();
+        $offertId = $request->input('offert_id');
+        
+        return redirect()->route('position.create', ['index' => $request->input('index'), 'offert_id' => $offertId]);
     }
 
     /**
@@ -218,17 +308,17 @@ class PositionController extends Controller
         $offertId = $position->offerts()->first()->id;
         $position->delete();
 
-         // Redirect to the latest position related to the offert_id
-    $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-        $query->where('id', $offertId);
-    })->latest()->first();
+        // Redirect to the latest position related to the offert_id
+        $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->latest()->first();
 
-    if ($latestPosition) {
-        return redirect()->route('position.edit', $latestPosition->id);
-    } else {
-        // If no positions left, redirect to position.create with offert_id
-        return redirect()->route('position.create', ['offert_id' => $offertId]);
-    }
+        if ($latestPosition) {
+            return redirect()->route('position.edit', $latestPosition->id);
+        } else {
+            // If no positions left, redirect to position.create with offert_id
+            return redirect()->route('position.create', ['offert_id' => $offertId]);
+        }
     }
 
     public function updateOrder(Request $request)
@@ -236,7 +326,6 @@ class PositionController extends Controller
         $positionId = $request->input('position_id');
         $newOrder = $request->input('order');
 
-        // Update the position_number in the database
         Position::where('id', $positionId)->update(['position_number' => $newOrder]);
 
         return response()->json(['success' => true]);
