@@ -13,7 +13,7 @@
             font-family: arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .sub-table {
@@ -181,8 +181,8 @@
                         @foreach ($groupedElements as $groupName => $groupElements)
                             <table class="sub-table">
                                 <tr>
-                                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;text-align:right">{{ $groupName }}</td>
-                                    <td style="width:50%;">
+                                    <td style="font-weight:bold;width:25%;vertical-align: top;text-align:right;padding: 3px;">{{ $groupName }}</td>
+                                    <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
                                             {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
                                         @endforeach
@@ -195,6 +195,9 @@
             @endforeach
             <tr style="border:0.25px solid black;">
                 <td colspan="3" style="padding: 10px;">
+                    @if($position->description2)
+                    {{$position->description2}}<br><hr>
+                    @endif
                     Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
                     SIA 181. (Fraunhofer Institut Stuttgart)<br>
                     MPA geprüft, Brandschutzprüfung und El 120 MPA erfüllt (VKF) Nr. 22523

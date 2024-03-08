@@ -32,10 +32,6 @@
             transition: 0.3s;
         }
 
-        .sidebar a:hover {
-            background-color: #454d55;
-        }
-
         .sidebar a i {
             margin-right: 10px;
         }
@@ -131,28 +127,68 @@
                 @endif
             @endif
         @endauth
-        <div style="max-height: 300px; overflow-y: auto;margin-top:70px;">
-        <table>
-                <a style="padding: 0;float:right;position:sticky;top:0;z-index:1;" href="{{ route('position.create') }}?offert_id={{ $offertId }}"><i
-                        class="fa-solid fa-plus"></i></a>
-            @foreach ($positions as $pos)
-                <tr>
-                    <td style="color: white">
-                        <a href="{{ route('position.edit', $pos->id) }}" style="padding: 0;">
-                            Pos. {{ $pos->position_number }}
-                        </a>
-                    </td>
-                    <td>
-                        <form action="{{ route('position.destroy', $pos->id) }}" method="post" class="btn">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"><i class="fa-solid fa-minus"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </table>
-    </div>
+
+        <div style="text-align: center">
+            <hr style="background-color:white">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '0'; document.getElementById('updatePositionForm').submit(); return false;">
+                    Typ 0
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '1'; document.getElementById('updatePositionForm').submit(); return false;">
+                    Typ 1
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '2'; document.getElementById('updatePositionForm').submit(); return false;">
+                    Typ 2
+                </button>
+            </div>
+            <div style="margin-top:4px">
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '3'; document.getElementById('updatePositionForm').submit(); return false;">
+                    Typ 3
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning"
+                    onclick="document.getElementById('index').value = '4'; document.getElementById('updatePositionForm').submit(); return false;">
+                    Typ 4
+                </button>
+            </div>
+            <hr style="background-color:white">
+        </div>
+
+        <div style="max-height: 280px; overflow-y: auto; padding: 3px;">
+            <table style="width: 100%;">
+                @foreach ($positions as $pos)
+                    <tr>
+                        <td style="width: 80%;">
+                            <a href="{{ route('position.edit', $pos->id) }}" style="padding: 0;">
+                                <strong style="{{ request()->segment(2) == $pos->id ? 'color: orange;' : '' }}">Pos. {{ $pos->position_number }}</strong>
+                            </a>
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{{ route('position.copy', $pos->id) }}" method="post">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary"><i
+                                        class="fa-solid fa-copy"></i></button>
+                            </form>
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{{ route('position.destroy', $pos->id) }}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger"><i
+                                        class="fa-solid fa-trash-can"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+        {{-- <button style="margin-left:50px;margin-top:5px" type="button" class="btn btn-md btn-primary" onclick="document.getElementById('updatePositionForm').submit(); return false;">
+        Update Position
+    </button> --}}
+
         <div style="position: absolute; bottom: 0; width: 100%; ">
             <a href="{{ route('offert.pdf', $offertId) }}"><i class="fa-solid fa-file"></i> External</a>
             <a href="{{ route('offert.pdf-internal', $offertId) }}"><i class="fa-solid fa-file"></i> Internal</a>
@@ -189,8 +225,10 @@
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <form method="POST" action="{{ route('position.update', $position->id) }}">
+                <form id="updatePositionForm" method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
+                    <input type="hidden" name="index" id="index" value="">
+                    <input type="hidden" name="offert_id" value="{{ $offertId }}">
                     @method('PUT')
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
                         value="{{ $position->price_brutto }}">
@@ -309,6 +347,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card">
+                    <textarea name="description2" rows="3">{{ $position->description2 }}</textarea>
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
@@ -392,10 +431,17 @@
                             </tr>
 
                             @foreach ($element->materials as $material)
+                                @php
+                                    $positionMaterial = $positionMaterials
+                                        ->where('element_id', $element->id)
+                                        ->where('material_id', $material->id)
+                                        ->first();
+                                    $quantity = $positionMaterial ? $positionMaterial->quantity : $material->pivot->quantity;
+                                @endphp
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="0.5" type="number"
-                                            class="quantity-input" value="{{ $material->pivot->quantity }}"
+                                        mit <input style="width: 100px" min="0" step="any" type="number"
+                                            class="quantity-input" value="{{ $quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
                                             data-material-id="{{ $material->id }}"> {{ $material->unit }}
@@ -407,7 +453,7 @@
                                         data-material-id="{{ $material->id }}"
                                         data-material-price="{{ $material->total }}">
                                         CHF <span class="price-in">{{ $material->total }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
+                                            class="quantity">{{ $quantity }}</span>
                                         {{ $material->unit }}
                                     </td>
                                     {{-- Hidden inputs --}}
@@ -421,27 +467,24 @@
                                         CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span>
                                     </td>
                                     {{-- Hidden inputs --}}
-
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ $material->total * $material->pivot->quantity }}
+                                        {{ $material->total * $quantity }}
                                     </td>
                                 </tr>
                             @endforeach
+
                         </tbody>
                     </table>
                 @endforeach
             </div>
         </div>
-        <button type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
+        <button hidden type="submit" id="update-button" class="btn btn-primary mt-3">Update Position</button>
         </form>
-        <a href="{{ route('position.index', ['offert_id' => $position->offerts->first()->id]) }}"
-            class="btn btn-secondary mt-3">Back</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');

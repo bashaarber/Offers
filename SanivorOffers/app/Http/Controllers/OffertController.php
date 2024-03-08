@@ -8,6 +8,7 @@ use App\Models\Offert;
 use App\Models\Coefficient;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PositionMaterial;
 
 class OffertController extends Controller
 {
@@ -17,7 +18,19 @@ class OffertController extends Controller
     public function index(Request $request)
     {
         $query = $request->input('query');
-        $offerts = Offert::where('id', 'like', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(10);
+        $status = $request->input('status');
+
+    if ($status) {
+        $offerts = Offert::where('status', $status)
+            ->orderBy('id', 'DESC')
+            ->paginate(10);
+
+        return view('offert.index', compact('offerts', 'query', 'status'));
+    }
+        $offerts = Offert::where('id', 'like', '%' . $query . '%')
+        ->orWhere('client_sign', 'like', '%' . $query . '%')
+        ->orderBy('id', 'DESC')
+        ->paginate(10);
 
         return view('offert.index', compact('offerts', 'query'));
     }
@@ -88,7 +101,7 @@ class OffertController extends Controller
 
         Offert::create($formFields);
 
-        return redirect()->route('position.create');
+        return redirect()->route('position.create', ['index' => 1]);
     }
 
     /**
@@ -121,6 +134,48 @@ class OffertController extends Controller
 
         $new_offert->save();
 
+    // Copy positions
+    foreach ($offert->positions as $position) {
+        $new_position = $position->replicate();
+        $new_position->save();
+
+        // Attach the new position to the new Offert
+        $new_offert->positions()->attach($new_position->id);
+
+         // Copy the values from PositionMaterial table based on the previous position IDs
+         $positionMaterials = PositionMaterial::where('position_id', $position->id)->get();
+         foreach ($positionMaterials as $material) {
+             // Check if a record with the same element_id, material_id, and position_id already exists
+             $existingRecord = PositionMaterial::where([
+                 'element_id' => $material->element_id,
+                 'material_id' => $material->material_id,
+                 'position_id' => $new_position->id,
+             ])->first();
+ 
+             // If no record exists, create a new one
+             if (!$existingRecord) {
+                 PositionMaterial::create([
+                     'position_id' => $new_position->id,
+                     'element_id' => $material->element_id,
+                     'material_id' => $material->material_id,
+                     'quantity' => $material->quantity,
+                 ]);
+             }
+         }
+
+        // Attach the existing relationships to the new position
+        foreach ($position->organigrams as $organigram) {
+            $new_position->organigrams()->attach($organigram->id);
+        }
+
+        foreach ($position->group_elements as $group_element) {
+            $new_position->group_elements()->attach($group_element->id);
+        }
+
+        foreach ($position->elements as $element) {
+            $new_position->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
+        }
+    }
         return redirect()->route('offert.index');
     }
 

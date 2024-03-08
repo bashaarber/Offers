@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('quantity')->default(1);
-            $table->boolean('isSelected')->default(0);
+            $table->boolean('isSelected0')->default(0);
+            $table->boolean('isSelected1')->default(0);
+            $table->boolean('isSelected2')->default(0);
+            $table->boolean('isSelected3')->default(0);
+            $table->boolean('isSelected4')->default(0);
             $table->timestamps();
         });
     }

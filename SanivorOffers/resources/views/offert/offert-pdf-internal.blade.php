@@ -13,7 +13,7 @@
             font-family: arial, sans-serif;
             border-collapse: collapse;
             width: 100%;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .sub-table {
@@ -160,39 +160,45 @@
             $groupedGroupElements = [];
         @endphp
 
-        @foreach ($position->elements as $element)
-            @foreach ($element->group_elements as $group_element)
-                @foreach ($group_element->organigrams as $organigram)
-                    @php
-                        $groupedGroupElements[$organigram->name][$group_element->name][] = [
-                            'quantity' => $element->pivot->quantity,
-                            'element_name' => $element->name,
-                            'materials' => $element->materials->map(function ($material) {
-                                return [
-                                    'quantity' => $material->pivot->quantity,
-                                    'unit' => $material->unit,
-                                    'name' => $material->name,
-                                ];
-                            }),
+@foreach ($position->elements as $element)
+    @foreach ($element->group_elements as $group_element)
+        @foreach ($group_element->organigrams as $organigram)
+            @php
+                $groupedGroupElements[$organigram->name][$group_element->name][] = [
+                    'quantity' => $element->pivot->quantity,
+                    'element_name' => $element->name,
+                    'materials' => $element->materials->map(function ($material) use ($element, $position) {
+                        $positionMaterial = DB::table('position_materials')
+                            ->where('position_id', $position->id)
+                            ->where('element_id', $element->id)
+                            ->where('material_id', $material->id)
+                            ->first();
+
+                        return [
+                            'quantity' => $positionMaterial ? $positionMaterial->quantity : null,
+                            'unit' => $material->unit,
+                            'name' => $material->name,
                         ];
-                    @endphp
-                @endforeach
-            @endforeach
+                    }),
+                ];
+            @endphp
         @endforeach
+    @endforeach
+@endforeach
 
         <table style="width:100%">
             @foreach ($groupedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
-                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten
+                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 4px;">Enthalten
                         {{ $organigramName }}:</td>
                     <td colspan="2">
                         @foreach ($groupedElements as $groupName => $groupElements)
                             <table class="sub-table">
                                 <tr>
                                     <td
-                                        style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;text-align:right">
+                                        style="font-weight:bold;width:25%;vertical-align: top;padding: 2px;text-align:right">
                                         {{ $groupName }}</td>
-                                    <td style="width:50%;">
+                                    <td style="width:50%;padding: 2px;">
                                         @foreach ($groupElements as $groupElement)
                                             <strong>{{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}</strong><br>
                                             @foreach ($groupElement['materials'] as $material)
