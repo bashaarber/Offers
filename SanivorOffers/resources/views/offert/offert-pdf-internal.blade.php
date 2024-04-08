@@ -145,12 +145,12 @@
                         T:{{ $position->t }} (in cm)
                     </td>
                     <td></td>
-                    <td>{{ number_format($position->material_brutto + $position->zeit_brutto, 2) }}</td>
+                    <td>{{ number_format($position->price_brutto, 2) }}</td>
                     <td>{{ $position->discount }}%</td>
-                    <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100), 2) }}
+                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
                     </td>
                     <td> {{ $position->quantity }} </td>
-                    <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
                     </td>
                 </tr>
             </tbody>

@@ -32,8 +32,11 @@
         <div class="container">
             <h1 class="mb-3">Positions List</h1>
             <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">Back to Offert</a>
-            <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3">Create Position</a>
-
+            <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 4</a>
+            <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 3</a>
+            <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 2</a>
+            <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 1</a>
+            <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 0</a>
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -54,11 +57,11 @@
                             <td><span class="drag-handle">&#9776;</span></td>
                             <td>{{ $position->position_number }}</td>
                                 <td>{{ $offertId}}</td>
-                            <td>{{ number_format($position->material_brutto + $position->zeit_brutto, 2) }}</td>
+                            <td>{{ number_format($position->price_brutto, 2) }}</td>
                             <td>{{ $position->discount }}%</td>
-                            <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100), 2) }}</td>
+                            <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
                             <td>{{$position->quantity}}</td>
-                            <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100) * $position->quantity, 2) }}</td>
+                            <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}</td>
                             <td>
                                 <a href="{{ route('position.edit', $position->id) }}" class="btn btn-primary btn-sm"><i
                                         class="fas fa-pencil"></i> Edit</a>

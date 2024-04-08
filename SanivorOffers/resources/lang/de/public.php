@@ -6,7 +6,7 @@ return[
     'materials' => 'Materialien',
     'elements' => 'Elemente',
     'group_elements' => 'Gruppenelemente',
-    'organigram' => 'Organigramm',
+    'organigram' => 'Organigram',
     'coefficient' => 'Koeffizient',
     'users' => 'Benutzer',
     'clients' => 'Kunden',

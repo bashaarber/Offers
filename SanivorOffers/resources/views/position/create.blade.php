@@ -135,56 +135,60 @@
         @endauth
         <div style="text-align: center">
             <hr style="background-color:white">
-            <div>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '0'; document.getElementById('createPositionForm').submit(); return false;">
-                    Typ 0
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '1'; document.getElementById('createPositionForm').submit(); return false;">
-                    Typ 1
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '2'; document.getElementById('createPositionForm').submit(); return false;">
-                    Typ 2
-                </button>
-            </div>
-            <div style="margin-top:4px">
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '3'; document.getElementById('createPositionForm').submit(); return false;">
-                    Typ 3
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '4'; document.getElementById('createPositionForm').submit(); return false;">
-                    Typ 4
-                </button>
-            </div>
+            <button type="button" class="btn btn-md btn-outline-warning"
+                onclick="document.getElementById('index').value = '0'; document.getElementById('createPositionForm').submit(); return false;">
+                Typ 0
+            </button>
+            <button type="button" class="btn btn-md btn-outline-warning"
+                onclick="document.getElementById('index').value = '1'; document.getElementById('createPositionForm').submit(); return false;">
+                Typ 1
+            </button>
+            <button type="button" class="btn btn-md btn-outline-warning"
+                onclick="document.getElementById('index').value = '2'; document.getElementById('createPositionForm').submit(); return false;">
+                Typ 2
+            </button>
+            <button type="button" class="btn btn-md btn-outline-warning"
+                onclick="document.getElementById('index').value = '3'; document.getElementById('createPositionForm').submit(); return false;">
+                Typ 3
+            </button>
+            <button type="button" class="btn btn-md btn-outline-warning"
+                onclick="document.getElementById('index').value = '4'; document.getElementById('createPositionForm').submit(); return false;">
+                Typ 4
+            </button>
             <hr style="background-color:white">
         </div>
-       <div style="max-height: 280px; overflow-y: auto; padding: 3px;">
-    <table style="width: 100%;">
-        @foreach ($positions as $position)
-        @php
-        $latestPositionNumber = $positions->max('position_number');
-        $nextPositionNumber = $latestPositionNumber + 1;
-    @endphp
-            <tr>
-                <td style="width: 80%;">
-                    <a href="{{ route('position.edit', $position->id) }}" style="padding: 0;">
-                        <strong>Pos. {{ $position->position_number }}</strong>
-                    </a>
-                </td>
-                <td style="text-align: right;">
-                    <form action="{{ route('position.destroy', $position->id) }}" method="post">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </table>
-</div>
+        <div style="max-height: 250px; overflow-y: auto; padding: 3px;">
+            <table style="width: 100%;">
+                @foreach ($positions as $position)
+                    @php
+                        $latestPositionNumber = $positions->max('position_number');
+                        $nextPositionNumber = $latestPositionNumber + 1;
+                    @endphp
+                    <tr>
+                        <td style="width: 80%;">
+                            <a href="{{ route('position.edit', $position->id) }}" style="padding: 0;">
+                                <strong>Pos. {{ $position->position_number }}</strong>
+                            </a>
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{{ route('position.copy', $position->id) }}" method="post">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary"><i
+                                        class="fa-solid fa-copy"></i></button>
+                            </form>
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{{ route('position.destroy', $position->id) }}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger"><i
+                                        class="fa-solid fa-trash-can"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
         <div style="position: absolute; bottom: 0; width: 100%; ">
             @if (request()->has('offert_id'))
                 <a href="{{ route('offert.pdf', request()->query('offert_id')) }}"><i class="fa-solid fa-file"></i>
@@ -250,11 +254,14 @@
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
                                         <option value="" selected> - </option>
-                                        <option value="Vorwand-Raumhoch" {{ $index == 1 ? 'selected' : '' }}>Vorwand-Raumhoch</option>
-                                        <option value="Vorwand-Raumhoch und Teilhoch" {{ $index == 3 ? 'selected' : '' }}>Vorwand-Raumhoch und Teilhoch
+                                        <option value="Vorwand-Raumhoch" {{ $index == 1 ? 'selected' : '' }}>
+                                            Vorwand-Raumhoch</option>
+                                        <option value="Vorwand-Raumhoch und Teilhoch"
+                                            {{ $index == 3 ? 'selected' : '' }}>Vorwand-Raumhoch und Teilhoch
                                         </option>
                                         <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
-                                        <option value="Freistehend-Raumhoch"{{ $index == 2 ? 'selected' : '' }}>Freistehend-Raumhoch</option>
+                                        <option value="Freistehend-Raumhoch"{{ $index == 2 ? 'selected' : '' }}>
+                                            Freistehend-Raumhoch</option>
                                         <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
                                         <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
                                         <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
@@ -365,9 +372,19 @@
                 </div>
             </div>
             <div class="col-md-8 position">
+                @php
+    $totalZTotal = 0; // Initialize the variable to store the sum
+@endphp
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $element->{"isSelected$index"};
+                        $isRahmeElement = $element
+                            ->group_elements()
+                            ->whereHas('organigrams', function ($query) {
+                                $query->where('name', 'Rahme');
+                            })
+                            ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
+                            ->exists();
                     @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: {{ $isSelected ? '' : 'none' }}">
@@ -416,8 +433,9 @@
                                     <td style="text-align: right" class="price-details"
                                         data-material-id="{{ $material->id }}"
                                         data-material-price="{{ $material->total }}">
-                                        CHF <span class="price-in">{{ $material->total }}</span> X <span
-                                            class="quantity">{{ $material->pivot->quantity }}</span>
+                                        CHF <span
+                                            class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span>
+                                        X <span class="quantity">{{ $material->pivot->quantity }}</span>
                                         {{ $material->unit }}
                                     </td>
                                     {{-- Hidden inputs --}}
@@ -434,7 +452,15 @@
 
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ $material->total * $material->pivot->quantity }}
+                                        {{-- {{ $material->total * $material->pivot->quantity }} --}}
+                                        {{ number_format(
+                                            $isRahmeElement
+                                                ? ($material->total / $offert->difficulty) * $material->pivot->quantity
+                                                : $material->total * $material->pivot->quantity,
+                                            2,
+                                            '.',
+                                            '',
+                                        ) }}
                                     </td>
                                 </tr>
                             @endforeach

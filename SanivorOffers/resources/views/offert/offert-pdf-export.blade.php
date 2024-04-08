@@ -145,12 +145,14 @@
                         T:{{ $position->t }} (in cm)
                     </td>
                     <td></td>
-                    <td>{{ number_format($position->material_brutto + $position->zeit_brutto, 2) }}</td>
+                    <td>{{ number_format($position->price_brutto, 2) }}</td>
                     <td>{{ $position->discount }}%</td>
-                    <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100), 2) }}
+                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
                     </td>
                     <td> {{ $position->quantity }} </td>
-                    <td>{{ number_format(($position->material_brutto + $position->zeit_brutto) * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                    </td>
+
                     </td>
                 </tr>
             </tbody>
@@ -176,12 +178,15 @@
         <table style="width:100%">
             @foreach ($groupedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
-                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten {{ $organigramName }}:</td>
+                    <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten
+                        {{ $organigramName }}:</td>
                     <td colspan="2">
                         @foreach ($groupedElements as $groupName => $groupElements)
                             <table class="sub-table">
                                 <tr>
-                                    <td style="font-weight:bold;width:25%;vertical-align: top;text-align:right;padding: 3px;">{{ $groupName }}</td>
+                                    <td
+                                        style="font-weight:bold;width:25%;vertical-align: top;text-align:right;padding: 3px;">
+                                        {{ $groupName }}</td>
                                     <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
                                             {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
@@ -195,8 +200,9 @@
             @endforeach
             <tr style="border:0.25px solid black;">
                 <td colspan="3" style="padding: 10px;">
-                    @if($position->description2)
-                    {{$position->description2}}<br><hr>
+                    @if ($position->description2)
+                        {{ $position->description2 }}<br>
+                        <hr>
                     @endif
                     Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
                     SIA 181. (Fraunhofer Institut Stuttgart)<br>
@@ -205,8 +211,8 @@
             </tr>
         </table>
         @if ($key < count($offert->positions) - 1)
-        <div style="page-break-after: always"></div>
-    @endif
+            <div style="page-break-after: always"></div>
+        @endif
     @endforeach
 </body>
 

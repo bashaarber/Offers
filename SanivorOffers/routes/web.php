@@ -62,7 +62,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');
     Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');
     Route::post('position/{id}/copy', [PositionController::class, 'copy'])->name('position.copy');
-
 });
 
 Route::middleware('auth')->group(function () {

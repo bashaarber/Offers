@@ -76,7 +76,7 @@
                             <td>{{ $material->name }}</td>
                             <td>{{ $material->unit }}</td>
                             <td>{{ $material->price_in }}</td>
-                            <td>{{ $material->price_out }}</td>
+                            <td>{{ $material->total }}</td>
                             <td>{{ $material->z_schlosserei }}</td>
                             <td>{{ $material->z_pe }}</td>
                             <td>{{ $material->z_montage }}</td>

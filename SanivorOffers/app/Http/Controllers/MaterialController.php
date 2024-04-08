@@ -60,14 +60,15 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total = $price_out + $zeit_cost;
+        $total_neto = $price_in + ($price_in * $coefficient->material);
+        $total = $total_neto + $zeit_cost;
 
         $materials = new Material();
         $materials->fill($formFields);
         $materials->z_total = $z_total;
         $materials->zeit_cost = $zeit_cost;
         $materials->price_in = $price_in;
-        $materials->price_out = $price_out;
+        $materials->price_out = $total;
         $materials->total = $total;
         $materials->save();
 
@@ -128,7 +129,8 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total = $price_out + $zeit_cost;
+        $total_neto = $price_in + ($price_in * $coefficient->material);
+        $total = $total_neto + $zeit_cost;
 
         // Update the existing material instance
         $material->update([
@@ -141,7 +143,7 @@ class MaterialController extends Controller
             'z_total' => $z_total,
             'zeit_cost' => $zeit_cost,
             'price_in' => $price_in,
-            'price_out' => $price_out,
+            'price_out' => $total,
             'total' => $total,
         ]);
 

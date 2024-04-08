@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Models\Offert;
 use App\Models\Element;
 use App\Models\Material;
 use App\Models\Position;
 use App\Models\Organigram;
-use App\Models\GroupElement;
 use Illuminate\Http\Request;
 use App\Models\PositionMaterial;
 
@@ -70,7 +68,7 @@ class PositionController extends Controller
     public function create(Request $request, $index)
     {
         $offertId = $request->input('offert_id');
-
+        $offert = Offert::find($offertId);
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
@@ -79,7 +77,7 @@ class PositionController extends Controller
         $organigrams = Organigram::get();
         $elements = Element::get();
 
-        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index'));
+        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index','offert'));
     }
 
     /**
@@ -183,6 +181,7 @@ class PositionController extends Controller
         // $offertId = $request->input('offert_id');
         $position = Position::find($id);
         $offertId = $position->offerts()->first()->id;
+        $offert = Offert::find($offertId);
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
@@ -196,7 +195,7 @@ class PositionController extends Controller
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
-        return view('position.edit', compact('positions', 'offertId', 'position', 'materials', 'organigrams', 'elements', 'positionMaterials'));
+        return view('position.edit', compact('positions', 'offertId', 'position', 'materials', 'organigrams', 'elements', 'positionMaterials','offert'));
     }
 
     /**
@@ -294,9 +293,8 @@ class PositionController extends Controller
 
         $position->organigrams()->sync($selectedOrganigramIds);
         $position->group_elements()->sync($selectedGroupElementIds);
-        $offertId = $request->input('offert_id');
         
-        return redirect()->route('position.create', ['index' => $request->input('index'), 'offert_id' => $offertId]);
+        return redirect()->back();
     }
 
     /**
@@ -316,8 +314,7 @@ class PositionController extends Controller
         if ($latestPosition) {
             return redirect()->route('position.edit', $latestPosition->id);
         } else {
-            // If no positions left, redirect to position.create with offert_id
-            return redirect()->route('position.create', ['offert_id' => $offertId]);
+            return redirect()->route('offert.index');
         }
     }
 

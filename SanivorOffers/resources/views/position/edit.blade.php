@@ -130,34 +130,15 @@
 
         <div style="text-align: center">
             <hr style="background-color:white">
-            <div>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '0'; document.getElementById('updatePositionForm').submit(); return false;">
-                    Typ 0
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '1'; document.getElementById('updatePositionForm').submit(); return false;">
-                    Typ 1
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '2'; document.getElementById('updatePositionForm').submit(); return false;">
-                    Typ 2
-                </button>
-            </div>
-            <div style="margin-top:4px">
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '3'; document.getElementById('updatePositionForm').submit(); return false;">
-                    Typ 3
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning"
-                    onclick="document.getElementById('index').value = '4'; document.getElementById('updatePositionForm').submit(); return false;">
-                    Typ 4
-                </button>
-            </div>
+                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 0</a>
+                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 1</a>
+                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 2</a>
+                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 3</a>
+                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 4</a>
             <hr style="background-color:white">
         </div>
 
-        <div style="max-height: 280px; overflow-y: auto; padding: 3px;">
+        <div style="max-height: 250px; overflow-y: auto; padding: 3px;">
             <table style="width: 100%;">
                 @foreach ($positions as $pos)
                     <tr>
@@ -185,9 +166,9 @@
                 @endforeach
             </table>
         </div>
-        {{-- <button style="margin-left:50px;margin-top:5px" type="button" class="btn btn-md btn-primary" onclick="document.getElementById('updatePositionForm').submit(); return false;">
+        <button style="margin-left:50px;margin-top:5px" type="button" class="btn btn-md btn-outline-warning" onclick="document.getElementById('updatePositionForm').submit(); return false;">
         Update Position
-    </button> --}}
+    </button>
 
         <div style="position: absolute; bottom: 0; width: 100%; ">
             <a href="{{ route('offert.pdf', $offertId) }}"><i class="fa-solid fa-file"></i> External</a>
@@ -395,6 +376,13 @@
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $position->elements->contains($element->id);
+                        $isRahmeElement = $element
+                            ->group_elements()
+                            ->whereHas('organigrams', function ($query) {
+                                $query->where('name', 'Rahme');
+                            })
+                            ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
+                            ->exists();
                     @endphp
                     @php
                         $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
@@ -452,7 +440,7 @@
                                     <td style="text-align: right" class="price-details"
                                         data-material-id="{{ $material->id }}"
                                         data-material-price="{{ $material->total }}">
-                                        CHF <span class="price-in">{{ $material->total }}</span> X <span
+                                        CHF <span class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span> X <span
                                             class="quantity">{{ $quantity }}</span>
                                         {{ $material->unit }}
                                     </td>
@@ -469,7 +457,15 @@
                                     {{-- Hidden inputs --}}
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ $material->total * $quantity }}
+                                        {{-- {{ $material->total * $quantity }} --}}
+                                        {{ number_format(
+                                            $isRahmeElement
+                                                ? ($material->total / $offert->difficulty) * $quantity
+                                                : $material->total * $quantity,
+                                            2,
+                                            '.',
+                                            '',
+                                        ) }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -495,7 +491,6 @@
             let percentage = 0;
             // Update the total materials price on document ready
             updateTotalMaterialsPrice();
-
             // Add an event listener to the menge-input element
             const mengeInput = document.getElementById('menge-input');
 
@@ -840,7 +835,6 @@
             toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
             toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
             toggleCheckboxVisibility(elementCheckboxes, 'element');
-
         });
         // Add an event listener to toggle sublinks
         document.querySelectorAll('.toggle-sublinks').forEach(link => {

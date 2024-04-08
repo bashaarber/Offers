@@ -99,9 +99,9 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
 
-        Offert::create($formFields);
+        $offert = Offert::create($formFields);
 
-        return redirect()->route('position.create', ['index' => 1]);
+        return redirect()->route('position.create', ['index' => 1,'offert_id' => $offert->id]);
     }
 
     /**
