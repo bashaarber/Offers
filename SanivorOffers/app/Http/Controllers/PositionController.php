@@ -327,4 +327,120 @@ class PositionController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Auto-save position for specific type
+     */
+    public function autoSave(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $offertId = $data['offert_id'];
+            $offert = Offert::find($offertId);
+            
+            if (!$offert) {
+                return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+            }
+
+            // Check if position already exists for this type
+            $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+                $query->where('id', $offertId);
+            })
+            ->where('description', $data['description'] ?? '')
+            ->where('blocktype', $data['blocktype'] ?? null)
+            ->first();
+
+            if ($existingPosition) {
+                // Update existing position
+                $position = $existingPosition;
+                $position->update([
+                    'description' => $data['description'] ?? '',
+                    'description2' => $data['description2'] ?? '',
+                    'blocktype' => $data['blocktype'] ?? null,
+                    'b' => $data['b'] ?? null,
+                    'h' => $data['h'] ?? null,
+                    't' => $data['t'] ?? null,
+                    'quantity' => $data['quantity'] ?? 1,
+                ]);
+            } else {
+                // Create new position
+                $latestPosition = $offert->positions()->latest()->first();
+                $positionNumber = $latestPosition ? $latestPosition->position_number + 1 : 1;
+
+                $position = Position::create([
+                    'description' => $data['description'] ?? '',
+                    'description2' => $data['description2'] ?? '',
+                    'blocktype' => $data['blocktype'] ?? null,
+                    'b' => $data['b'] ?? null,
+                    'h' => $data['h'] ?? null,
+                    't' => $data['t'] ?? null,
+                    'quantity' => $data['quantity'] ?? 1,
+                    'position_number' => $positionNumber,
+                    'price_brutto' => 0,
+                    'price_discount' => 0,
+                    'discount' => 0,
+                    'material_brutto' => 0,
+                    'zeit_brutto' => 0,
+                    'material_costo' => 0,
+                    'material_profit' => 0,
+                    'ziet_costo' => 0,
+                    'ziet_profit' => 0,
+                    'costo_total' => 0,
+                    'profit_total' => 0,
+                ]);
+
+                $position->offerts()->attach($offert);
+            }
+
+            // Sync relationships
+            if (isset($data['selected_organigrams'])) {
+                $position->organigrams()->sync($data['selected_organigrams']);
+            }
+            if (isset($data['selected_group_elements'])) {
+                $position->group_elements()->sync($data['selected_group_elements']);
+            }
+            if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
+                $elementsToAttach = [];
+                foreach ($data['selected_elements'] as $elementId) {
+                    $quantity = $data['element_quantity'][$elementId] ?? 1;
+                    $elementsToAttach[$elementId] = ['quantity' => $quantity];
+                }
+                $position->elements()->sync($elementsToAttach);
+
+                // Update PositionMaterial records
+                if (isset($data['material_quantity'])) {
+                    foreach ($data['selected_elements'] as $elementId) {
+                        if (isset($data['material_quantity'][$elementId])) {
+                            $element = Element::find($elementId);
+                            if ($element) {
+                                foreach ($element->materials as $material) {
+                                    $materialQuantity = $data['material_quantity'][$elementId][$material->id] ?? $material->pivot->quantity;
+                                    
+                                    PositionMaterial::updateOrCreate(
+                                        [
+                                            'position_id' => $position->id,
+                                            'element_id' => $elementId,
+                                            'material_id' => $material->id,
+                                        ],
+                                        ['quantity' => $materialQuantity]
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Position auto-saved successfully',
+                'position_id' => $position->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error auto-saving: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

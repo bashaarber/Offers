@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Create</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -135,26 +136,34 @@
         @endauth
         <div style="text-align: center">
             <hr style="background-color:white">
-            <button type="button" class="btn btn-md btn-outline-warning"
-                onclick="document.getElementById('index').value = '0'; document.getElementById('createPositionForm').submit(); return false;">
-                Typ 0
+            <div id="type-buttons-container">
+                <button type="button" class="btn btn-md btn-outline-warning type-btn" data-type="0"
+                    onclick="switchType(0)">
+                    Typ 0
+                </button>
+                <button type="button" class="btn btn-md btn-outline-warning type-btn" data-type="1"
+                    onclick="switchType(1)">
+                    Typ 1
+                </button>
+                <button type="button" class="btn btn-md btn-outline-warning type-btn" data-type="2"
+                    onclick="switchType(2)">
+                    Typ 2
+                </button>
+                <button type="button" class="btn btn-md btn-outline-warning type-btn" data-type="3"
+                    onclick="switchType(3)">
+                    Typ 3
+                </button>
+                <button type="button" class="btn btn-md btn-outline-warning type-btn" data-type="4"
+                    onclick="switchType(4)">
+                    Typ 4
+                </button>
+            </div>
+            <button type="button" class="btn btn-sm btn-success mt-2" onclick="addNewType()" style="width: 100%;">
+                <i class="fa-solid fa-plus"></i> Create New Typ
             </button>
-            <button type="button" class="btn btn-md btn-outline-warning"
-                onclick="document.getElementById('index').value = '1'; document.getElementById('createPositionForm').submit(); return false;">
-                Typ 1
-            </button>
-            <button type="button" class="btn btn-md btn-outline-warning"
-                onclick="document.getElementById('index').value = '2'; document.getElementById('createPositionForm').submit(); return false;">
-                Typ 2
-            </button>
-            <button type="button" class="btn btn-md btn-outline-warning"
-                onclick="document.getElementById('index').value = '3'; document.getElementById('createPositionForm').submit(); return false;">
-                Typ 3
-            </button>
-            <button type="button" class="btn btn-md btn-outline-warning"
-                onclick="document.getElementById('index').value = '4'; document.getElementById('createPositionForm').submit(); return false;">
-                Typ 4
-            </button>
+            <div id="auto-save-status" class="mt-2" style="color: #28a745; font-size: 12px; display: none;">
+                <i class="fa-solid fa-check-circle"></i> Auto-saving...
+            </div>
             <hr style="background-color:white">
         </div>
         <div style="max-height: 250px; overflow-y: auto; padding: 3px;">
@@ -232,7 +241,9 @@
             <div class="col-12">
                 <form id="createPositionForm" method="POST" action="{{ route('position.store') }}">
                     @csrf
-                    <input type="hidden" name="index" id="index" value="">
+                    <input type="hidden" name="index" id="index" value="{{ $index ?? '' }}">
+                    <input type="hidden" name="offert_id" id="offert_id" value="{{ request()->query('offert_id') }}">
+                    <input type="hidden" name="auto_save" id="auto_save" value="0">
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
                     <input type="hidden" name="percentage" id="percentageInput" value="0">
@@ -334,7 +345,7 @@
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
                                 <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox"
-                                    value="{{ $organigram->id }}" @if ($organigram->{"isSelected$index"}) checked @endif>
+                                    value="{{ $organigram->id }}">
                                 {{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
@@ -343,8 +354,7 @@
                                         <div class="card-body">
                                             <h6 class="card-subtitle mb-2">
                                                 <input type="checkbox" name="selected_group_elements[]"
-                                                    class="group-element-checkbox" value="{{ $group_element->id }}"
-                                                    @if ($group_element->{"isSelected$index"}) checked @endif>
+                                                    class="group-element-checkbox" value="{{ $group_element->id }}">
                                                 {{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
@@ -355,8 +365,7 @@
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
-                                                                    value="{{ $element->id }}"
-                                                                    @if ($element->{"isSelected$index"}) checked @endif>
+                                                                    value="{{ $element->id }}">
                                                                 {{ $element->name }}
                                                             </h6>
                                                         </div>
@@ -377,7 +386,6 @@
 @endphp
                 @foreach ($elements as $element)
                     @php
-                        $isSelected = $element->{"isSelected$index"};
                         $isRahmeElement = $element
                             ->group_elements()
                             ->whereHas('organigrams', function ($query) {
@@ -387,7 +395,7 @@
                             ->exists();
                     @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: {{ $isSelected ? '' : 'none' }}">
+                        style="display: none">
                         <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -571,9 +579,6 @@
             }
 
             elementCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    handleElementMaterialsTableVisibility(checkbox);
-                }
                 checkbox.addEventListener('change', function() {
                     const elementId = this.getAttribute('data-element-id');
                     const elementMaterialsTable = document.querySelector(
@@ -861,6 +866,185 @@
             toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
             toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
             toggleCheckboxVisibility(elementCheckboxes, 'element');
+
+            // Highlight current type button
+            const currentIndex = {{ $index ?? 'null' }};
+            if (currentIndex !== null) {
+                document.querySelectorAll('.type-btn').forEach(btn => {
+                    if (parseInt(btn.dataset.type) === currentIndex) {
+                        btn.classList.add('active');
+                        btn.style.backgroundColor = '#ffc107';
+                        btn.style.color = '#000';
+                    }
+                });
+            }
+
+            // Auto-save functionality - create Typ 0 and Typ 1 when selections are made
+            let autoSaveTimeout;
+            const autoSaveDelay = 2000; // 2 seconds delay after last change
+
+            function triggerAutoSave() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                        .map(cb => cb.value);
+                    const selectedGroupElements = Array.from(document.querySelectorAll('.group-element-checkbox:checked'))
+                        .map(cb => cb.value);
+                    const selectedOrganigrams = Array.from(document.querySelectorAll('.organigram-checkbox:checked'))
+                        .map(cb => cb.value);
+
+                    // Only auto-save if there are selections
+                    if (selectedElements.length > 0 || selectedGroupElements.length > 0 || selectedOrganigrams.length > 0) {
+                        autoSaveForTypes([0, 1]);
+                    }
+                }, autoSaveDelay);
+            }
+
+            // Listen to all checkbox changes
+            document.querySelectorAll('.organigram-checkbox, .group-element-checkbox, .element-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateTotalProTypPrice();
+                    triggerAutoSave();
+                });
+            });
+
+            // Listen to quantity and other input changes
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t').forEach(input => {
+                input.addEventListener('input', function() {
+                    updateTotalProTypPrice();
+                    triggerAutoSave();
+                });
+            });
+
+            function autoSaveForTypes(types) {
+                const statusDiv = document.getElementById('auto-save-status');
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Auto-saving...';
+
+                types.forEach((typeIndex, index) => {
+                    setTimeout(() => {
+                        const formData = collectFormData(typeIndex);
+                        if (formData.selected_elements && formData.selected_elements.length > 0) {
+                            savePositionForType(formData, typeIndex, index === types.length - 1);
+                        }
+                    }, index * 500); // Stagger the requests
+                });
+            }
+
+            function collectFormData(typeIndex) {
+                const form = document.getElementById('createPositionForm');
+                const formData = new FormData(form);
+                
+                // Collect selected values
+                const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.value);
+                const selectedGroupElements = Array.from(document.querySelectorAll('.group-element-checkbox:checked'))
+                    .map(cb => cb.value);
+                const selectedOrganigrams = Array.from(document.querySelectorAll('.organigram-checkbox:checked'))
+                    .map(cb => cb.value);
+
+                // Collect element quantities
+                const elementQuantities = {};
+                selectedElements.forEach(elementId => {
+                    const quantityInput = document.querySelector(`.element-quantity-input[data-element-id="${elementId}"]`);
+                    if (quantityInput) {
+                        elementQuantities[elementId] = quantityInput.value || 1;
+                    }
+                });
+
+                // Collect material quantities
+                const materialQuantities = {};
+                selectedElements.forEach(elementId => {
+                    materialQuantities[elementId] = {};
+                    document.querySelectorAll(`#element-materials-${elementId} .quantity-input`).forEach(input => {
+                        const materialId = input.dataset.materialId;
+                        if (materialId) {
+                            materialQuantities[elementId][materialId] = input.value;
+                        }
+                    });
+                });
+
+                return {
+                    index: typeIndex,
+                    description: document.getElementById('description').value,
+                    description2: document.querySelector('textarea[name="description2"]').value,
+                    blocktype: document.getElementById('blocktype').value,
+                    b: document.getElementById('b').value,
+                    h: document.getElementById('h').value,
+                    t: document.getElementById('t').value,
+                    selected_elements: selectedElements,
+                    selected_group_elements: selectedGroupElements,
+                    selected_organigrams: selectedOrganigrams,
+                    element_quantity: elementQuantities,
+                    material_quantity: materialQuantities,
+                    quantity: document.getElementById('menge-input').value || 1,
+                    auto_save: 1
+                };
+            }
+
+            function savePositionForType(formData, typeIndex, isLast) {
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || 
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        offert_id: document.getElementById('offert_id').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (isLast) {
+                        const statusDiv = document.getElementById('auto-save-status');
+                        if (data.success) {
+                            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Auto-saved Typ ' + typeIndex;
+                            statusDiv.style.color = '#28a745';
+                            setTimeout(() => {
+                                statusDiv.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error saving';
+                            statusDiv.style.color = '#dc3545';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Auto-save error:', error);
+                    if (isLast) {
+                        const statusDiv = document.getElementById('auto-save-status');
+                        statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error saving';
+                        statusDiv.style.color = '#dc3545';
+                    }
+                });
+            }
+
+            function switchType(typeIndex) {
+                const offertId = document.getElementById('offert_id').value;
+                const baseUrl = '{{ route("position.create", ["index" => 0]) }}';
+                window.location.href = baseUrl.replace('/0', '/' + typeIndex) + '?offert_id=' + offertId;
+            }
+
+            function addNewType() {
+                const typeButtons = document.querySelectorAll('.type-btn');
+                const maxType = Math.max(...Array.from(typeButtons).map(btn => parseInt(btn.dataset.type)));
+                const newType = maxType + 1;
+                
+                // Add new button
+                const container = document.getElementById('type-buttons-container');
+                const newButton = document.createElement('button');
+                newButton.type = 'button';
+                newButton.className = 'btn btn-md btn-outline-warning type-btn';
+                newButton.dataset.type = newType;
+                newButton.textContent = 'Typ ' + newType;
+                newButton.onclick = () => switchType(newType);
+                container.appendChild(newButton);
+                
+                // Switch to new type
+                switchType(newType);
+            }
         });
         // Add an event listener to toggle sublinks
         document.querySelectorAll('.toggle-sublinks').forEach(link => {

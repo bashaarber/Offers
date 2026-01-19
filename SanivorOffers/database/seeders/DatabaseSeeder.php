@@ -12,14 +12,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed admin user first (always needed)
         $this->call(UserSeeder::class);
-        $this->call(CoefficientSeeder::class);
         
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Import all data from JSON file
+        // This will clear existing data and import from JSON
+        $this->call(JsonImportSeeder::class);
     }
 }
