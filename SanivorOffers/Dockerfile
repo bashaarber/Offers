@@ -3,7 +3,7 @@ FROM php:8.2-cli
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Node.js
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -24,14 +26,23 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /app
 
-# Set permissions
-RUN chmod -R 755 /app/storage /app/bootstrap/cache
-
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Install Node.js dependencies and build assets
+RUN npm install && npm run build
+
+# Copy and set permissions for entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Set permissions for storage and cache
+RUN chmod -R 775 /app/storage /app/bootstrap/cache || true
+RUN mkdir -p /app/storage/framework/{sessions,views,cache} || true
+RUN mkdir -p /app/storage/logs || true
 
 # Expose port (Render will provide PORT env variable)
 EXPOSE 8000
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Use entrypoint script
+ENTRYPOINT ["docker-entrypoint.sh"]
