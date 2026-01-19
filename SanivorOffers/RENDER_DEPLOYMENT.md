@@ -64,8 +64,13 @@ git push origin main  # or master, depending on your branch
 - **Region**: Same as your database
 - **Branch**: `main` (or `master`)
 - **Root Directory**: `SanivorOffers` (important! Your Laravel app is in this folder)
-- **Runtime**: `PHP`
+- **Runtime**: **Scroll down and select `PHP`** (NOT Node, NOT Python, NOT Ruby - must be PHP!)
 - **Plan**: **Free**
+
+**⚠️ IMPORTANT:** If you don't see "PHP" in the dropdown:
+- Scroll down in the dropdown menu
+- Look for "PHP" option
+- If still not visible, try selecting "Docker" and we'll configure it differently
 
 **Build & Deploy:**
 - **Build Command**: 
