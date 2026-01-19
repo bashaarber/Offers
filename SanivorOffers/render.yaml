@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: sanivor-offers
+    env: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader && php artisan migrate --force && php artisan db:seed --force
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+    healthCheckPath: /
+
+databases:
+  - name: sanivor-db
+    plan: free
+    databaseName: sanivor
+    user: sanivor_user
