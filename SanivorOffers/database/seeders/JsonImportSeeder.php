@@ -23,12 +23,27 @@ class JsonImportSeeder extends Seeder
         // Clear all existing data
         $this->clearAllData();
 
-        // Load JSON file
-        $jsonPath = '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json';
-        $jsonData = json_decode(File::get($jsonPath), true);
+        // Load JSON file - try multiple possible locations
+        $jsonPaths = [
+            '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json', // Local development
+            base_path('database/seeders/DB___proj_98_2026-01-19 18_03_10.json'), // In repository
+            storage_path('app/DB___proj_98_2026-01-19 18_03_10.json'), // In storage
+        ];
+        
+        $jsonData = null;
+        $jsonPath = null;
+        
+        foreach ($jsonPaths as $path) {
+            if (File::exists($path)) {
+                $jsonPath = $path;
+                $jsonData = json_decode(File::get($path), true);
+                break;
+            }
+        }
 
         if (!$jsonData) {
-            $this->command->error('Failed to parse JSON file');
+            $this->command->warn('JSON file not found. Skipping JSON import. Using default seeders instead.');
+            // Don't return - let other seeders run
             return;
         }
 
