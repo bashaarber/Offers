@@ -40,17 +40,19 @@ RUN mkdir -p /app/storage/logs || true
 # Expose port (Render will provide PORT env variable)
 EXPOSE 8000
 
-# Run migrations, seeders, caching, and start server directly (avoids entrypoint script issues)
+# Run migrations, seeders, caching, and start server
 CMD ["sh", "-c", "\
-  php artisan config:clear || true && \
-  php artisan cache:clear || true && \
-  php artisan route:clear || true && \
-  php artisan view:clear || true && \
-  chmod -R 775 storage bootstrap/cache || true && \
-  php artisan migrate --force || echo 'Migration failed, continuing...' && \
-  php artisan db:seed --force || echo 'Seeding failed, continuing...' && \
-  php artisan config:cache || true && \
-  php artisan route:cache || true && \
-  php artisan view:cache || true && \
+  chmod -R 777 storage bootstrap/cache && \
+  mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs && \
+  php artisan config:clear 2>/dev/null; \
+  php artisan cache:clear 2>/dev/null; \
+  php artisan route:clear 2>/dev/null; \
+  php artisan view:clear 2>/dev/null; \
+  echo 'Running fresh migrations...' && \
+  php artisan migrate:fresh --force --seed && \
+  echo 'Migrations and seeding complete!' && \
+  php artisan config:cache && \
+  php artisan route:cache && \
+  php artisan view:cache && \
   echo 'Starting PHP server on port ${PORT:-8000}...' && \
   php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
