@@ -32,10 +32,6 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Install Node.js dependencies and build assets
 RUN npm install && npm run build
 
-# Copy and set permissions for entrypoint script (fix line endings + make executable)
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Set permissions for storage and cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache || true
 RUN mkdir -p /app/storage/framework/{sessions,views,cache} || true
@@ -44,5 +40,17 @@ RUN mkdir -p /app/storage/logs || true
 # Expose port (Render will provide PORT env variable)
 EXPOSE 8000
 
-# Use entrypoint script
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Run migrations, seeders, caching, and start server directly (avoids entrypoint script issues)
+CMD ["sh", "-c", "\
+  php artisan config:clear || true && \
+  php artisan cache:clear || true && \
+  php artisan route:clear || true && \
+  php artisan view:clear || true && \
+  chmod -R 775 storage bootstrap/cache || true && \
+  php artisan migrate --force || echo 'Migration failed, continuing...' && \
+  php artisan db:seed --force || echo 'Seeding failed, continuing...' && \
+  php artisan config:cache || true && \
+  php artisan route:cache || true && \
+  php artisan view:cache || true && \
+  echo 'Starting PHP server on port ${PORT:-8000}...' && \
+  php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
