@@ -9,34 +9,265 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 32px 16px;
+                background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* Animated background orbs */
+            body::before, body::after {
+                content: '';
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(80px);
+                opacity: 0.15;
+                animation: float 8s ease-in-out infinite;
+            }
+            body::before {
+                width: 400px; height: 400px;
+                background: #3b82f6;
+                top: -100px; right: -100px;
+            }
+            body::after {
+                width: 300px; height: 300px;
+                background: #6366f1;
+                bottom: -80px; left: -80px;
+                animation-delay: 4s;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-20px); }
+            }
+
+            .login-wrapper {
+                position: relative;
+                z-index: 1;
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .logo-section {
+                text-align: center;
+                margin-bottom: 36px;
+            }
+
+            .logo-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 72px;
+                height: 72px;
+                background: linear-gradient(135deg, #3b82f6, #6366f1);
+                border-radius: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+            }
+
+            .logo-icon svg { width: 36px; height: 36px; color: #fff; }
+
+            .logo-title {
+                font-size: 28px;
+                font-weight: 800;
+                color: #fff;
+                letter-spacing: -0.5px;
+            }
+
+            .logo-title span { color: #60a5fa; }
+
+            .logo-subtitle {
+                margin-top: 6px;
+                font-size: 14px;
+                color: #94a3b8;
+            }
+
+            .login-card {
+                background: rgba(255, 255, 255, 0.07);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 36px 32px;
+                box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+            }
+
+            .form-group { margin-bottom: 20px; }
+
+            .form-label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #cbd5e1;
+                margin-bottom: 8px;
+            }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+            .input-icon {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #64748b;
+                pointer-events: none;
+            }
+
+            .input-icon svg { width: 18px; height: 18px; }
+
+            .form-input {
+                width: 100%;
+                padding: 12px 16px 12px 44px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1.5px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                color: #fff;
+                font-size: 14px;
+                font-family: inherit;
+                transition: all 0.2s ease;
+                outline: none;
+            }
+
+            .form-input::placeholder { color: #64748b; }
+
+            .form-input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .remember-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 24px;
+            }
+
+            .remember-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+            }
+
+            .remember-label input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                border: 1.5px solid rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.05);
+                accent-color: #3b82f6;
+                cursor: pointer;
+            }
+
+            .remember-label span {
+                font-size: 13px;
+                color: #94a3b8;
+            }
+
+            .forgot-link {
+                font-size: 13px;
+                color: #60a5fa;
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+
+            .forgot-link:hover { color: #93c5fd; }
+
+            .login-btn {
+                width: 100%;
+                padding: 13px 24px;
+                background: linear-gradient(135deg, #3b82f6, #6366f1);
+                color: #fff;
+                border: none;
+                border-radius: 12px;
+                font-size: 15px;
+                font-weight: 600;
+                font-family: inherit;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+            }
+
+            .login-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+            }
+
+            .login-btn:active { transform: translateY(0); }
+
+            .footer-text {
+                text-align: center;
+                margin-top: 32px;
+                font-size: 12px;
+                color: #475569;
+            }
+
+            .error-text {
+                color: #f87171;
+                font-size: 13px;
+                margin-top: 6px;
+            }
+
+            .status-msg {
+                background: rgba(34, 197, 94, 0.1);
+                border: 1px solid rgba(34, 197, 94, 0.2);
+                color: #4ade80;
+                padding: 10px 16px;
+                border-radius: 10px;
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .toggle-password {
+                position: absolute;
+                right: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: #64748b;
+                cursor: pointer;
+                padding: 4px;
+                transition: color 0.2s;
+            }
+            .toggle-password:hover { color: #94a3b8; }
+            .toggle-password svg { width: 18px; height: 18px; }
+        </style>
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
-
-            <!-- Logo & Title -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30 mb-6" style="width:80px;height:80px;flex-shrink:0;">
-                    <svg class="w-10 h-10 text-white" width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <body>
+        <div class="login-wrapper">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight">
-                    Sanivor <span class="text-blue-400">Offers</span>
-                </h1>
-                <p class="mt-2 text-sm text-slate-400">Offer Management System</p>
+                <h1 class="logo-title">Sanivor <span>Offers</span></h1>
+                <p class="logo-subtitle">Offer Management System</p>
             </div>
 
             <!-- Card -->
-            <div class="w-full sm:max-w-md px-6 py-8 bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl sm:rounded-2xl" style="max-width:448px;">
+            <div class="login-card">
                 {{ $slot }}
             </div>
 
             <!-- Footer -->
-            <p class="mt-8 text-xs text-slate-500">&copy; {{ date('Y') }} Sanivor. All rights reserved.</p>
+            <p class="footer-text">&copy; {{ date('Y') }} Sanivor AG. All rights reserved.</p>
         </div>
     </body>
 </html>
