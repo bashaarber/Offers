@@ -5,70 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-
-        .sidebar a i {
-            margin-right: 10px;
-        }
-
-        .content {
-            margin-left: 260px;
-            /* padding: 15px; */
-        }
-
-        .sublinks {
-            display: none;
-            padding-left: 30px;
-        }
-
-        h4 {
-            text-align: center;
-            color: burlywood;
-            margin-bottom: 30px;
-        }
-
-        .dropdown-link {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-
-        .dropdown-link:hover {
-            background-color: #454d55;
-        }
-
-        .dropdown-link i {
-            margin-right: 10px;
-        }
-
         .organigram-label,
         .group-element-label,
         .element-label {
@@ -101,108 +38,77 @@
         th {
             color: black;
         }
+
+        .type-btn {
+            margin: 3px;
+            border-radius: 6px !important;
+            font-size: 12px !important;
+            padding: 4px 12px !important;
+            font-weight: 600 !important;
+        }
+
+        .pos-list-container {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 4px 8px;
+        }
+
+        .pos-list-container a {
+            padding: 4px 8px !important;
+            font-size: 13px !important;
+        }
+
+        .pos-list-container .btn {
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+        }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <h4>Sanivor AG</h4>
-        <a href="{{ url('/offert') }}"><i class="fa-solid fa-file-invoice"></i>@lang('public.offert')</a>
-        @if (Route::has('login'))
-            @auth
-                @if (auth()->user()->role === 'admin')
-                    <a href="javascript:void(0);" class="toggle-sublinks" data-target="home"><i
-                            class="fa-solid fa-gear"></i>@lang('public.settings')</a>
-                    <div class="sublinks" id="home-sublinks">
-                        <a href="{{ url('/material_piece') }}">@lang('public.material_pieces')s</a>
-                        <a href="{{ url('/material') }}">@lang('public.materials')</a>
-                        <a href="{{ url('/element') }}">@lang('public.elements')</a>
-                        <a href="{{ url('/group_element') }}">@lang('public.group_elements')</a>
-                        <a href="{{ url('/organigram') }}">@lang('public.organigram')</a>
-                        <a href="{{ url('/coefficient') }}">@lang('public.coefficient')</a>
-                    </div>
+    @include('layouts.sidebar')
 
-                    <a href="{{ url('/users') }}"><i class="fas fa-user"></i>@lang('public.users')</a>
-                    <a href="{{ url('/client') }}"><i class="fa fa-address-card"></i>@lang('public.clients')</a>
-                @endif
-            @endif
-        @endauth
+    {{-- Position-specific sidebar content --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.querySelector('.sidebar');
+            var footer = sidebar.querySelector('.sidebar-footer');
 
-        <div style="text-align: center">
-            <hr style="background-color:white">
-                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 0</a>
-                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 1</a>
-                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 2</a>
-                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 3</a>
-                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning d-inline-block px-2 py-2" style="color:#ffc107">Typ 4</a>
-            <hr style="background-color:white">
-        </div>
+            var extras = document.createElement('div');
+            extras.style.cssText = 'padding:0 12px;';
+            extras.innerHTML = `
+                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
+                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Types</div>
+                <div style="text-align:center;padding:4px 0;">
+                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 0</a>
+                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 1</a>
+                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 2</a>
+                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 3</a>
+                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 4</a>
+                </div>
+                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
+                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
+            `;
 
-        <div style="max-height: 250px; overflow-y: auto; padding: 3px;">
-            <table style="width: 100%;">
-                @foreach ($positions as $pos)
-                    <tr>
-                        <td style="width: 80%;">
-                            <a href="{{ route('position.edit', $pos->id) }}" style="padding: 0;">
-                                <strong style="{{ request()->segment(2) == $pos->id ? 'color: orange;' : '' }}">Pos. {{ $pos->position_number }}</strong>
-                            </a>
-                        </td>
-                        <td style="text-align: right;">
-                            <form action="{{ route('position.copy', $pos->id) }}" method="post">
-                                @csrf
-                                <button type="submit" class="btn btn-secondary"><i
-                                        class="fa-solid fa-copy"></i></button>
-                            </form>
-                        </td>
-                        <td style="text-align: right;">
-                            <form action="{{ route('position.destroy', $pos->id) }}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger"><i
-                                        class="fa-solid fa-trash-can"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
-        </div>
-        <button style="margin-left:50px;margin-top:5px" type="button" class="btn btn-md btn-outline-warning" onclick="document.getElementById('updatePositionForm').submit(); return false;">
-        Update Position
-    </button>
+            var posList = document.createElement('div');
+            posList.className = 'pos-list-container';
+            posList.innerHTML = `@foreach ($positions as $pos)<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:13px;font-weight:500;"><strong>Pos. {{ $pos->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            extras.appendChild(posList);
 
-        <div style="position: absolute; bottom: 0; width: 100%; ">
-            <a href="{{ route('offert.pdf', $offertId) }}"><i class="fa-solid fa-file"></i> External</a>
-            <a href="{{ route('offert.pdf-internal', $offertId) }}"><i class="fa-solid fa-file"></i> Internal</a>
+            // Update button
+            var updateDiv = document.createElement('div');
+            updateDiv.style.cssText = 'padding:8px 0;text-align:center;';
+            updateDiv.innerHTML = `<button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('updatePositionForm').submit();" style="width:100%;border-radius:8px;font-weight:600;"><i class="fa-solid fa-save" style="margin-right:6px;"></i>Update Position</button>`;
+            extras.appendChild(updateDiv);
 
-            <x-dropdown-link :href="route('profile.edit')" style="display: block; width: 100%;">
-                <i class="fa-solid fa-pen"></i>
-                @lang('public.profile')
-            </x-dropdown-link>
+            // PDF links
+            var pdfLinks = document.createElement('div');
+            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a><a href="{{ route('offert.pdf-internal', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-lines" style="margin-right:8px;"></i>Internal PDF</a>`;
+            extras.appendChild(pdfLinks);
 
-            <!-- Authentication -->
-            <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
-                @csrf
-                <x-dropdown-link :href="route('logout')"
-                    onclick="event.preventDefault();
-                    this.closest('form').submit();"
-                    style="display: block; width: 100%;">
-                    <i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>
-                    @lang('public.logout')
-                </x-dropdown-link>
-            </form>
-            <div style="display: flex; justify-content: center; align-items: center; margin-top:5px;">
-                <a href="locale/en"
-                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px; ">
-                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>EN
-                </a>
-                <span style="color:white">/</span>
-                <a href="locale/de"
-                    style="display: flex; align-items: center; padding: 5px; text-decoration: none; font-size: 14px;">
-                    <i class="fa-solid fa-flag" style="margin-right: 5px;"></i>DE
-                </a>
-            </div>
-        </div>
-    </div>
+            sidebar.insertBefore(extras, footer);
+        });
+    </script>
     <div class="content">
         <div class="row">
             <div class="col-12">
