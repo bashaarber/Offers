@@ -32,9 +32,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # Install Node.js dependencies and build assets
 RUN npm install && npm run build
 
-# Copy and set permissions for entrypoint script
+# Copy and set permissions for entrypoint script (fix line endings + make executable)
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Set permissions for storage and cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache || true
