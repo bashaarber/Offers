@@ -1,5 +1,12 @@
-@include('layouts.sidebar')
-<section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register User</title>
+</head>
+<body>
+    @include('layouts.sidebar')
     <div class="content">
         <div class="container mt-4">
             <div class="row justify-content-center">
@@ -44,13 +51,13 @@
                                     <input id="password_confirmation" class="form-control" type="password"
                                         name="password_confirmation" required autocomplete="new-password">
                                     @if ($errors->has('password_confirmation'))
-                                        <div class="text-danger mt-2">{{ $errors->first('password_confirmation') }}
-                                        </div>
+                                        <div class="text-danger mt-2">{{ $errors->first('password_confirmation') }}</div>
                                     @endif
                                 </div>
 
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary">{{ __('Register') }}</button>
+                                    <a href="{{ url('/users') }}" class="btn btn-secondary ml-2">Back</a>
                                 </div>
                             </form>
                         </div>
@@ -59,5 +66,5 @@
             </div>
         </div>
     </div>
-
-</section>
+</body>
+</html>
