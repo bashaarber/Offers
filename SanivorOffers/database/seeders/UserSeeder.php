@@ -14,14 +14,32 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = DB::table('users')->where('email', 'admin@admin.com')->first();
-        
-        if (!$user) {
+        // Create admin user
+        $admin = DB::table('users')->where('email', 'admin@admin.com')->first();
+
+        if (!$admin) {
             DB::table('users')->insert([
                 'username' => 'Admin',
                 'email' => 'admin@admin.com',
                 'role' => 'admin',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('Zuri0ch2026$'),
+            ]);
+        } else {
+            // Update existing admin password
+            DB::table('users')->where('email', 'admin@admin.com')->update([
+                'password' => Hash::make('Zuri0ch2026$'),
+            ]);
+        }
+
+        // Create seller user
+        $seller = DB::table('users')->where('email', 'seller@seller.com')->first();
+
+        if (!$seller) {
+            DB::table('users')->insert([
+                'username' => 'Seller',
+                'email' => 'seller@seller.com',
+                'role' => 'seller',
+                'password' => Hash::make('Zuri0ch2026$'),
             ]);
         }
     }
