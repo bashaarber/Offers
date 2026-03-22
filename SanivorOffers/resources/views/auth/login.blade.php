@@ -49,6 +49,9 @@
                     class="w-4 h-4 rounded bg-white/5 border-white/20 text-blue-500 focus:ring-blue-500 focus:ring-offset-0">
                 <span class="ml-2 text-sm text-slate-400">{{ __('Remember me') }}</span>
             </label>
+            <a href="{{ route('password.request') }}" class="text-sm text-blue-400 hover:text-blue-300 transition duration-200">
+                {{ __('Forgot your password?') }}
+            </a>
         </div>
 
         <!-- Login Button -->
