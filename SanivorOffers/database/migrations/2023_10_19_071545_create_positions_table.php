@@ -15,10 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description')->nullable();
             $table->string('description2')->nullable();
-            $table->enum('blocktype', [
-                'Vorwand-Raumhoch', 'Vorwand-Raumhoch und Teilhoch', 'Vorwand-Teilhoch',
-                'Freistehend-Raumhoch', 'Vorwand-Freistehend', 'Freistehend-Teilhoch', 'Vorwand DeBO-System', 'Trennwand DeBO-System'
-            ])->nullable();
+            $table->string('blocktype')->nullable();
             $table->string('b')->nullable();
             $table->string('h')->nullable();
             $table->string('t')->nullable();
