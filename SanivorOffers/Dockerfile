@@ -48,6 +48,8 @@ CMD ["sh", "-c", "\
   php artisan cache:clear 2>/dev/null; \
   php artisan route:clear 2>/dev/null; \
   php artisan view:clear 2>/dev/null; \
+  echo 'Cleaning up PostgreSQL enum types...' && \
+  php cleanup-enums.php 2>/dev/null; \
   echo 'Running fresh migrations...' && \
   php artisan migrate:fresh --force --seed && \
   echo 'Migrations and seeding complete!' && \
