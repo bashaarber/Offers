@@ -22,7 +22,16 @@
 </head>
 
 <body>
-    <img src="{{ public_path('images/sanivor.jpg') }}" style="width: 350px; height: 70px"><br>
+    @php
+        $logoPath = public_path('images/sanivor.jpg');
+        $logoSrc = null;
+        if (file_exists($logoPath)) {
+            $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+        }
+    @endphp
+    @if ($logoSrc)
+        <img src="{{ $logoSrc }}" style="width: 350px; height: 70px"><br>
+    @endif
     <div style="float: left;">
         <br>
         <span style="font-size:18px"><strong>Sanivor AG</strong></span><br>

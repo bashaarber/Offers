@@ -9,6 +9,7 @@ use App\Models\Coefficient;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PositionMaterial;
+use Illuminate\Support\Facades\Log;
 
 class OffertController extends Controller
 {
@@ -52,7 +53,13 @@ class OffertController extends Controller
             $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
             return $pdf->stream();
         } catch (\Throwable $e) {
-            abort(500, 'PDF generation failed: ' . $e->getMessage());
+            Log::error('External PDF generation failed', [
+                'offert_id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response('PDF generation failed: ' . $e->getMessage(), 500);
         }
         // return $pdf->download('invoice.pdf');
     }
