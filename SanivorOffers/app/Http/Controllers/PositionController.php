@@ -9,9 +9,19 @@ use App\Models\Position;
 use App\Models\Organigram;
 use Illuminate\Http\Request;
 use App\Models\PositionMaterial;
+use Illuminate\Support\Facades\Schema;
 
 class PositionController extends Controller
 {
+    private function hasElementPivotOptionalColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('element_position', 'is_optional');
+        }
+
+        return $hasColumn;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -43,11 +53,13 @@ class PositionController extends Controller
         $newPosition->organigrams()->sync($position->organigrams->pluck('id')->toArray());
         $newPosition->offerts()->attach($latestOffert);
 
-        foreach ($position->elements()->withPivot('quantity', 'is_optional')->get() as $element) {
-            $newPosition->elements()->attach($element->id, [
-                'quantity' => $element->pivot->quantity,
-                'is_optional' => (bool) ($element->pivot->is_optional ?? false),
-            ]);
+        $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
+        foreach ($position->elements()->withPivot('quantity')->get() as $element) {
+            $pivotData = ['quantity' => $element->pivot->quantity];
+            if ($supportsElementOptionalPivot) {
+                $pivotData['is_optional'] = (bool) ($element->pivot->is_optional ?? false);
+            }
+            $newPosition->elements()->attach($element->id, $pivotData);
             foreach ($element->materials as $material) {
                 $materialQuantity = PositionMaterial::where([
                     'position_id' => $position->id,
@@ -176,13 +188,15 @@ class PositionController extends Controller
         }
 
         $elements = Element::all();
+        $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
+                $pivotData = ['quantity' => $quantity];
+                if ($supportsElementOptionalPivot) {
+                    $pivotData['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                }
                 $position->elements()->attach([
-                    $elementId => [
-                        'quantity' => $quantity,
-                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
-                    ],
+                    $elementId => $pivotData,
                 ]);
 
                 // Store material_id, element_id, and quantity in the new table
@@ -328,13 +342,15 @@ class PositionController extends Controller
         // Detach existing elements for the position
         $position->elements()->detach();
 
+        $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
+                $pivotData = ['quantity' => $quantity];
+                if ($supportsElementOptionalPivot) {
+                    $pivotData['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                }
                 $position->elements()->attach([
-                    $elementId => [
-                        'quantity' => $quantity,
-                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
-                    ],
+                    $elementId => $pivotData,
                 ]);
 
                 // Store material_id, element_id, and quantity in the new table
@@ -498,12 +514,13 @@ class PositionController extends Controller
             if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
                 $elementsToAttach = [];
                 $elementOptionalMap = $data['element_optional'] ?? [];
+                $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
                 foreach ($data['selected_elements'] as $elementId) {
                     $quantity = $data['element_quantity'][$elementId] ?? 1;
-                    $elementsToAttach[$elementId] = [
-                        'quantity' => $quantity,
-                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
-                    ];
+                    $elementsToAttach[$elementId] = ['quantity' => $quantity];
+                    if ($supportsElementOptionalPivot) {
+                        $elementsToAttach[$elementId]['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                    }
                 }
                 $position->elements()->sync($elementsToAttach);
 

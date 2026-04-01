@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Schema;
 
 class Position extends Model
 {
@@ -49,7 +50,12 @@ class Position extends Model
     
     public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class)->withPivot('quantity', 'is_optional')->withTimestamps();
+        $relation = $this->belongsToMany(Element::class)->withPivot('quantity');
+        if (Schema::hasColumn('element_position', 'is_optional')) {
+            $relation->withPivot('is_optional');
+        }
+
+        return $relation->withTimestamps();
     }
 
     public function elementsForPdf(): BelongsToMany

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Schema;
 
 class Element extends Model
 {
@@ -26,6 +27,11 @@ class Element extends Model
    
    public function positions():BelongsToMany
     {
-        return $this->belongsToMany(Position::class)->withPivot('quantity', 'is_optional')->withTimestamps();
+        $relation = $this->belongsToMany(Position::class)->withPivot('quantity');
+        if (Schema::hasColumn('element_position', 'is_optional')) {
+            $relation->withPivot('is_optional');
+        }
+
+        return $relation->withTimestamps();
     }
 }
