@@ -47,7 +47,7 @@ class OffertController extends Controller
                 'positions' => function ($query) {
                     $query->orderBy('position_number', 'ASC');
                 },
-                'positions.elements.group_elements.organigrams',
+                'positions.elementsForPdf.group_elements.organigrams',
             ]);
 
             $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));

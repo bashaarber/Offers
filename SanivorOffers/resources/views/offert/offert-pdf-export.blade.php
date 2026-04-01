@@ -177,7 +177,7 @@
             $groupedGroupElements = [];
         @endphp
 
-        @foreach ($position->elements as $element)
+        @foreach ($position->elementsForPdf as $element)
             @foreach ($element->group_elements as $group_element)
                 @foreach ($group_element->organigrams as $organigram)
                     @php
