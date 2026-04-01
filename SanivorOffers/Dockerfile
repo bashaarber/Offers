@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libfontconfig1 \
+    fontconfig \
+    fonts-dejavu-core \
     zip \
     unzip \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -50,9 +53,11 @@ CMD ["sh", "-c", "\
   php artisan view:clear 2>/dev/null; \
   echo 'Cleaning up PostgreSQL enum types...' && \
   php cleanup-enums.php 2>/dev/null; \
-  echo 'Running fresh migrations...' && \
-  php artisan migrate:fresh --force --seed && \
-  echo 'Migrations and seeding complete!' && \
+  echo 'Running migrations...' && \
+  php artisan migrate --force && \
+  echo 'Running seeders (best effort)...' && \
+  php artisan db:seed --force 2>/dev/null; \
+  echo 'Migrations complete!' && \
   php artisan config:cache && \
   php artisan route:cache && \
   php artisan view:cache && \
