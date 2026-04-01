@@ -37,19 +37,19 @@ class OffertController extends Controller
     }
 
     public function exportPdf($id){
-        $offert = Offert::with([
-            'positions' => function ($query) {
-                $query->orderBy('position_number', 'ASC');
-            },
-            'positions.elements.group_elements.organigrams',
-            'positions.elements.materials',
-        ])->find($id);
-
-        if (!$offert) {
-            abort(404, 'Offert #' . $id . ' not found.');
-        }
-
         try {
+            $offert = Offert::find($id);
+            if (!$offert) {
+                abort(404, 'Offert #' . $id . ' not found.');
+            }
+
+            $offert->load([
+                'positions' => function ($query) {
+                    $query->orderBy('position_number', 'ASC');
+                },
+                'positions.elements.group_elements.organigrams',
+            ]);
+
             $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
             return $pdf->stream();
         } catch (\Throwable $e) {
