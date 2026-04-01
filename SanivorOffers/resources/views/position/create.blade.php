@@ -13,7 +13,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 5px;
+            padding: 2px 4px;
         }
 
         .organigram-checkbox,
@@ -46,7 +46,7 @@
 
         .position-sidebar-section hr {
             border-color: rgba(255,255,255,0.1);
-            margin: 12px 0;
+            margin: 8px 0;
         }
 
         .type-btn {
@@ -87,6 +87,19 @@
             font-size: 12px;
             padding: 4px 0;
         }
+
+        .card {
+            padding: 0 !important;
+            margin-bottom: 1px !important;
+        }
+
+        .card-body {
+            padding: 4px 8px !important;
+        }
+
+        .card h5, .card h6 {
+            margin-bottom: 4px !important;
+        }
     </style>
 </head>
 
@@ -115,16 +128,16 @@
             extras.className = 'position-sidebar-section';
             extras.innerHTML = `
                 <hr>
-                <div class="sidebar-section-label" style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Types</div>
+                <div class="sidebar-section-label" style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
                 <div id="type-buttons-container" style="text-align:center;padding:4px 0;">
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="0" onclick="switchType(0)">Typ 0</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="1" onclick="switchType(1)">Typ 1</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="2" onclick="switchType(2)">Typ 2</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="3" onclick="switchType(3)">Typ 3</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="4" onclick="switchType(4)">Typ 4</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="0" onclick="switchType(0)">Pos 1</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="1" onclick="switchType(1)">Pos 2</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="2" onclick="switchType(2)">Pos 3</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="3" onclick="switchType(3)">Pos 4</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="4" onclick="switchType(4)">Pos 5</button>
                 </div>
-                <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewType()" style="width:100%;border-radius:8px;font-size:12px;">
-                    <i class="fa-solid fa-plus"></i> Create New Typ
+                <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()" style="width:100%;border-radius:8px;font-size:12px;">
+                    <i class="fa-solid fa-plus"></i> Create New Pos
                 </button>
                 <div id="auto-save-status" class="mt-1" style="color:#4ade80;font-size:12px;display:none;text-align:center;">
                     <i class="fa-solid fa-check-circle"></i> Auto-saving...
@@ -136,14 +149,14 @@
             // Create positions list
             var posList = document.createElement('div');
             posList.className = 'pos-list-container';
-            posList.innerHTML = `@foreach ($positions as $position)@php $latestPositionNumber = $positions->max('position_number'); $nextPositionNumber = $latestPositionNumber + 1; @endphp<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;"><strong>Pos. {{ $position->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            posList.innerHTML = `@foreach ($positions as $position)@php $latestPositionNumber = $positions->max('position_number'); $nextPositionNumber = $latestPositionNumber + 1; @endphp<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;"><strong>Pos. {{ $position->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
             extras.appendChild(posList);
 
             // Add PDF links
             @if (request()->has('offert_id'))
             var pdfLinks = document.createElement('div');
             pdfLinks.style.cssText = 'padding:8px 0;';
-            pdfLinks.innerHTML = `<hr><a href="{{ route('offert.pdf', request()->query('offert_id')) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a><a href="{{ route('offert.pdf-internal', request()->query('offert_id')) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-lines" style="margin-right:8px;"></i>Internal PDF</a>`;
+            pdfLinks.innerHTML = `<hr><a href="{{ route('offert.pdf', request()->query('offert_id')) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a>`;
             extras.appendChild(pdfLinks);
             @endif
 
@@ -170,6 +183,7 @@
                     <input type="hidden" name="zeit-profit" id="zeitProfit" value="0.00">
                     <input type="hidden" name="costo-total" id="costoTotal" value="0.00">
                     <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
+                    <input type="hidden" name="is_optional" id="is_optional_input" value="0">
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
@@ -240,7 +254,7 @@
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
                                         <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="1" min="1">
+                                                value="1" min="1"> <input type="checkbox" name="is_optional" id="is_optional" value="1"> <label for="is_optional">Optional</label>
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                         <td id="discounted-total">0.00</td>
@@ -253,7 +267,7 @@
                         </thead>
                     </table>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <textarea name="description2" rows="3"></textarea>
                     <div class="card-body">
@@ -265,9 +279,9 @@
                             </h5>
                             <div class="group-elements">
                                 @foreach ($organigram->group_elements as $group_element)
-                                    <div class="card mb-2">
+                                    <div class="card">
                                         <div class="card-body">
-                                            <h6 class="card-subtitle mb-2">
+                                            <h6 class="card-subtitle">
                                                 <input type="checkbox" name="selected_group_elements[]"
                                                     class="group-element-checkbox" value="{{ $group_element->id }}">
                                                 {{ $group_element->name }}
@@ -295,7 +309,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8 position">
+            <div class="col-md-9 position">
                 @php
     $totalZTotal = 0; // Initialize the variable to store the sum
 @endphp
@@ -782,7 +796,7 @@
             toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
             toggleCheckboxVisibility(elementCheckboxes, 'element');
 
-            // Highlight current type button
+            // Highlight current position button
             const currentIndex = {{ $index ?? 'null' }};
             if (currentIndex !== null) {
                 document.querySelectorAll('.type-btn').forEach(btn => {
@@ -794,7 +808,7 @@
                 });
             }
 
-            // Auto-save functionality - create Typ 0 and Typ 1 when selections are made
+            // Auto-save functionality - create Pos 1 and Pos 2 when selections are made
             let autoSaveTimeout;
             const autoSaveDelay = 2000; // 2 seconds delay after last change
 
@@ -824,11 +838,16 @@
             });
 
             // Listen to quantity and other input changes
-            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t').forEach(input => {
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t, #is_optional').forEach(input => {
                 input.addEventListener('input', function() {
                     updateTotalProTypPrice();
                     triggerAutoSave();
                 });
+            });
+
+            // Listen to optional checkbox changes
+            document.getElementById('is_optional').addEventListener('change', function() {
+                triggerAutoSave();
             });
 
             function autoSaveForTypes(types) {
@@ -849,7 +868,7 @@
             function collectFormData(typeIndex) {
                 const form = document.getElementById('createPositionForm');
                 const formData = new FormData(form);
-                
+
                 // Collect selected values
                 const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
                     .map(cb => cb.value);
@@ -893,6 +912,7 @@
                     element_quantity: elementQuantities,
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
+                    is_optional: document.getElementById('is_optional').checked ? 1 : 0,
                     auto_save: 1
                 };
             }
@@ -902,7 +922,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
                                       document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
@@ -915,7 +935,7 @@
                     if (isLast) {
                         const statusDiv = document.getElementById('auto-save-status');
                         if (data.success) {
-                            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Auto-saved Typ ' + typeIndex;
+                            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Auto-saved Pos ' + (typeIndex + 1);
                             statusDiv.style.color = '#28a745';
                             setTimeout(() => {
                                 statusDiv.style.display = 'none';
@@ -942,22 +962,22 @@
                 window.location.href = baseUrl.replace('/0', '/' + typeIndex) + '?offert_id=' + offertId;
             }
 
-            function addNewType() {
+            function addNewPos() {
                 const typeButtons = document.querySelectorAll('.type-btn');
                 const maxType = Math.max(...Array.from(typeButtons).map(btn => parseInt(btn.dataset.type)));
                 const newType = maxType + 1;
-                
+
                 // Add new button
                 const container = document.getElementById('type-buttons-container');
                 const newButton = document.createElement('button');
                 newButton.type = 'button';
                 newButton.className = 'btn btn-md btn-outline-warning type-btn';
                 newButton.dataset.type = newType;
-                newButton.textContent = 'Typ ' + newType;
+                newButton.textContent = 'Pos ' + (newType + 1);
                 newButton.onclick = () => switchType(newType);
                 container.appendChild(newButton);
-                
-                // Switch to new type
+
+                // Switch to new position
                 switchType(newType);
             }
         });

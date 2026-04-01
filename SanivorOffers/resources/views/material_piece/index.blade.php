@@ -70,7 +70,7 @@
                             <form action="{{ route('material_piece.destroy', $material->id) }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("Are you sure?");'><i class="fas fa-trash"></i> Delete</button>
                             </form>
                         </td>
                     </tr>

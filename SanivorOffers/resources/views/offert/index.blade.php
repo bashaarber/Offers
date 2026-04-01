@@ -103,9 +103,8 @@
                                     <td>{{ $offert->user->username }}</td>
                                     <td style="white-space: nowrap; text-align: right;">
                                         <div class="btn-group" style="gap: 4px;">
-                                            <a href="{{ route('offert.pdf-internal', $offert->id) }}" class="btn btn-warning btn-sm" title="Internal PDF"><i class="fa-solid fa-file-lines"></i></a>
                                             <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-info btn-sm" title="External PDF"><i class="fa-solid fa-file-export"></i></a>
-                                            <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm" title="Copy"><i class="fa fa-clone"></i></a>
+                                            <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm" title="Copy" onclick='return confirm("Are you sure you want to copy this offer?");'><i class="fa fa-clone"></i></a>
                                             <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm" title="Edit"><i class="fas fa-pencil"></i></a>
                                             <form action="{{ route('offert.destroy', $offert->id) }}" method="post" class="d-inline">
                                                 @csrf

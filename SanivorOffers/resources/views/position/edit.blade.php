@@ -12,7 +12,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 5px;
+            padding: 2px 4px;
         }
 
         .organigram-checkbox,
@@ -78,13 +78,13 @@
             extras.style.cssText = 'padding:0 12px;';
             extras.innerHTML = `
                 <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
-                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Types</div>
+                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
                 <div style="text-align:center;padding:4px 0;">
-                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 0</a>
-                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 1</a>
-                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 2</a>
-                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 3</a>
-                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Typ 4</a>
+                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 1</a>
+                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 2</a>
+                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 3</a>
+                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 4</a>
+                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 5</a>
                 </div>
                 <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
                 <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
@@ -92,7 +92,7 @@
 
             var posList = document.createElement('div');
             posList.className = 'pos-list-container';
-            posList.innerHTML = `@foreach ($positions as $pos)<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:13px;font-weight:500;"><strong>Pos. {{ $pos->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            posList.innerHTML = `@foreach ($positions as $pos)<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:13px;font-weight:500;"><strong>Pos. {{ $pos->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;" onclick="return confirm('Are you sure?');"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
             extras.appendChild(posList);
 
             // Update button
@@ -103,7 +103,7 @@
 
             // PDF links
             var pdfLinks = document.createElement('div');
-            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a><a href="{{ route('offert.pdf-internal', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-lines" style="margin-right:8px;"></i>Internal PDF</a>`;
+            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a>`;
             extras.appendChild(pdfLinks);
 
             sidebar.insertBefore(extras, footer);
@@ -218,7 +218,7 @@
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
                                         <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="{{ $position->quantity }}" min="1">
+                                                value="{{ $position->quantity }}" min="1"> <input type="checkbox" name="is_optional" id="is_optional" value="1" {{ $position->is_optional ? 'checked' : '' }}> <label for="is_optional">Optional</label>
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">
                                             {{ $position->price_brutto }}</td>
@@ -232,12 +232,12 @@
                         </thead>
                     </table>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
-                    <textarea name="description2" rows="3">{{ $position->description2 }}</textarea>
-                    <div class="card-body">
+                    <textarea name="description2" rows="3" style="padding:4px;">{{ $position->description2 }}</textarea>
+                    <div class="card-body" style="padding:4px;">
                         @foreach ($organigrams as $organigram)
-                            <h5 class="card-title">
+                            <h5 class="card-title" style="padding:2px 4px;margin:2px 0;">
                                 <input type="checkbox" class="organigram-checkbox" name="selected_organigrams[]"
                                     value="{{ $organigram->id }}"
                                     {{ in_array($organigram->id, old('selected_organigrams', $position->organigrams->pluck('id')->toArray())) ? 'checked' : '' }}>
@@ -246,9 +246,9 @@
                             </h5>
                             <div class="group-elements">
                                 @foreach ($organigram->group_elements as $group_element)
-                                    <div class="card mb-2">
-                                        <div class="card-body">
-                                            <h6 class="card-subtitle mb-2">
+                                    <div class="card mb-1" style="padding:1px;margin-bottom:1px;">
+                                        <div class="card-body" style="padding:4px;">
+                                            <h6 class="card-subtitle mb-2" style="padding:2px 4px;margin:2px 0;">
                                                 <input type="checkbox" class="group-element-checkbox"
                                                     name="selected_group_elements[]" value="{{ $group_element->id }}"
                                                     {{ in_array($group_element->id, old('selected_group_elements', $position->group_elements->pluck('id')->toArray())) ? 'checked' : '' }}>
@@ -256,9 +256,9 @@
                                             </h6>
                                             <div class="elements">
                                                 @foreach ($group_element->elements as $element)
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <h6 class="card-subtitle">
+                                                    <div class="card" style="padding:1px;margin-bottom:1px;">
+                                                        <div class="card-body" style="padding:4px;">
+                                                            <h6 class="card-subtitle" style="padding:2px 4px;margin:0;">
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
@@ -278,7 +278,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8 position">
+            <div class="col-md-9 position">
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $position->elements->contains($element->id);

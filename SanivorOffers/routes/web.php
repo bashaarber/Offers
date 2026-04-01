@@ -49,6 +49,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
 
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
+    Route::post('/client/{id}/archive', [ClientController::class, 'archive'])->name('client.archive');
+    Route::post('/client/{id}/unarchive', [ClientController::class, 'unarchive'])->name('client.unarchive');
 });
 
 Route::middleware('auth')->group(function () {
@@ -56,7 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
     Route::get('/offert/{offert_id}/copy', [OffertController::class, 'copy'])->name('offert.copy');
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
-    Route::get('/pdf-export-internal/{id}', [OffertController::class, 'exportInternalPdf'])->name('offert.pdf-internal');
 
     Route::resource('position', PositionController::class)->except('create');
     Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');

@@ -143,7 +143,7 @@
                             </div>
                         </div>
                         <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
-                        <a href="{{ route('position.index', ['offert_id' => $offert->id]) }}" class="btn btn-info mt-3 float-right">Go to Position</a>
+                        <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-info mt-3 float-right">Go to Position</a>
                     </div>
                     @foreach ($offert->positions as $position)<br>
                         <h4>Position {{ $position->position_number }}:  Price {{ $position->price_discount }}</h4>

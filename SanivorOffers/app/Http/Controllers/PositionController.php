@@ -106,6 +106,8 @@ class PositionController extends Controller
         $profit_total = $request->input('profit-total');
         $quantity = $request->input('quantity');
 
+        $is_optional = $request->has('is_optional') ? true : false;
+
         $formFields = [
             'description' => $description,
             'description2' => $description2,
@@ -125,6 +127,7 @@ class PositionController extends Controller
             'ziet_profit' => $ziet_profit,
             'costo_total' => $costo_total,
             'profit_total' => $profit_total,
+            'is_optional' => $is_optional,
         ];
 
         // Increment position_number for the new Position
@@ -222,6 +225,8 @@ class PositionController extends Controller
         $profit_total = $request->input('profit-total');
         $quantity = $request->input('quantity');
 
+        $is_optional = $request->has('is_optional') ? true : false;
+
         $formFields = [
             'description' => $description,
             'description2' => $description2,
@@ -241,6 +246,7 @@ class PositionController extends Controller
             'ziet_profit' => $ziet_profit,
             'costo_total' => $costo_total,
             'profit_total' => $profit_total,
+            'is_optional' => $is_optional,
         ];
         $position = Position::find($id);
         $position->update($formFields);
@@ -361,6 +367,7 @@ class PositionController extends Controller
                     'h' => $data['h'] ?? null,
                     't' => $data['t'] ?? null,
                     'quantity' => $data['quantity'] ?? 1,
+                    'is_optional' => $data['is_optional'] ?? false,
                 ]);
             } else {
                 // Create new position
@@ -375,6 +382,7 @@ class PositionController extends Controller
                     'h' => $data['h'] ?? null,
                     't' => $data['t'] ?? null,
                     'quantity' => $data['quantity'] ?? 1,
+                    'is_optional' => $data['is_optional'] ?? false,
                     'position_number' => $positionNumber,
                     'price_brutto' => 0,
                     'price_discount' => 0,

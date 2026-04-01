@@ -13,10 +13,21 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $query = $request->input('query');
+        $showArchived = $request->input('show_archived');
 
-        $clients = Client::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(15);
+        $clients = Client::where('name', 'like', '%' . $query . '%');
 
-        return view('client.index', compact('clients', 'query'));
+        if ($showArchived) {
+            $clients = $clients->where('archived', true);
+        } else {
+            $clients = $clients->where(function($q) {
+                $q->where('archived', false)->orWhereNull('archived');
+            });
+        }
+
+        $clients = $clients->orderBy('id', 'ASC')->paginate(15);
+
+        return view('client.index', compact('clients', 'query', 'showArchived'));
     }
 
     /**
@@ -87,6 +98,26 @@ class ClientController extends Controller
     {
         $client = Client::find($id);
         $client->delete();
+        return redirect()->route('client.index');
+    }
+
+    /**
+     * Archive a client.
+     */
+    public function archive(string $id)
+    {
+        $client = Client::find($id);
+        $client->update(['archived' => true]);
+        return redirect()->route('client.index');
+    }
+
+    /**
+     * Unarchive a client.
+     */
+    public function unarchive(string $id)
+    {
+        $client = Client::find($id);
+        $client->update(['archived' => false]);
         return redirect()->route('client.index');
     }
 }

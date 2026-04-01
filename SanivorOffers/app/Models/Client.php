@@ -13,7 +13,8 @@ class Client extends Model
         'name',
         'email',
         'number',
-        'address'
+        'address',
+        'archived'
     ];
 
     public function offers()

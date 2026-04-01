@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Offert - {{ $offert->id }}</title>
-    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> --}}
     <style>
         table {
             font-family: arial, sans-serif;
@@ -35,9 +33,9 @@
         <a style="color:blue">www.sanivor.ch</a>
     </div>
     <div style="float: right;"><br>
-        <span><strong>Brühwiler Sanitär & Heizung AG </strong></span><br>
+        <span><strong>Br&uuml;hwiler Sanit&auml;r &amp; Heizung AG </strong></span><br>
         <span>Nordstrasse 205</span><br>
-        <span>8037 Zürich</span>
+        <span>8037 Z&uuml;rich</span>
     </div>
     <div style="clear: both;"></div>
     <hr>
@@ -64,7 +62,7 @@
         </div>
 
         <div style="float: right;">
-            <p><strong>Angebot Gültigkeit: </strong> {{ $offert->validity }}</p>
+            <p><strong>Angebot G&uuml;ltigkeit: </strong> {{ $offert->validity }}</p>
             <p><strong>Zahlungskonditionen: </strong> {{ $offert->payment_conditions }}</p>
             <p><strong>Lieferung: </strong> {{ $offert->service }}</p>
         </div>
@@ -80,17 +78,16 @@
             @endphp
 
             @foreach ($offert->positions as $position)
-                @php
-                    $totalElements += $position->quantity;
-                @endphp
+                @if (!$position->is_optional)
+                    @php
+                        $totalElements += $position->quantity;
+                        $totalBrutto += $position->price_brutto;
 
-                @php
-                    $totalBrutto += $position->price_brutto;
-
-                    if ($position->price_discount !== $position->price_brutto) {
-                        $totalDiscount += $position->price_discount;
-                    }
-                @endphp
+                        if ($position->price_discount !== $position->price_brutto) {
+                            $totalDiscount += $position->price_discount;
+                        }
+                    @endphp
+                @endif
             @endforeach
 
             <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalElements }} </strong></p>
@@ -112,14 +109,14 @@
         Folgende Leistungen sind enthalten:<br>
         - Transport<br>
         - Ausmass<br>
-        - Holz (Sperrholz) 24mm: für Gleitstange, Glasstrennwand und Waschtisch
+        - Holz (Sperrholz) 24mm: f&uuml;r Gleitstange, Glasstrennwand und Waschtisch
         <br>
-        <p>Für weitere Fragen stehen wir Ihnen gerne zur Verfügung. Es würde uns freuen, diesen Auftrag für Sie
-            ausführen zu
-            dürfen. Es gelten unsere Allgemeinen Geschäftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
+        <p>F&uuml;r weitere Fragen stehen wir Ihnen gerne zur Verf&uuml;gung. Es w&uuml;rde uns freuen, diesen Auftrag f&uuml;r Sie
+            ausf&uuml;hren zu
+            d&uuml;rfen. Es gelten unsere Allgemeinen Gesch&auml;ftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
         </p>
-        <p>Freundliche Grüsse</p>
-        <p>Izet Kqiku</p>
+        <p>Freundliche Gr&uuml;sse</p>
+        <p>{{ $offert->user_sign }}</p>
         <hr>
     </div>
     <div style="page-break-after: always"></div>
@@ -127,7 +124,7 @@
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
-                    <th>Typ {{ $position->position_number }}</th>
+                    <th>Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
                     <th>{{ $position->description }}</th>
                     <th>Brutto</th>
                     <th>Rabatt</th>
@@ -175,8 +172,25 @@
             @endforeach
         @endforeach
 
+        @php
+            // Define the desired order: Rahme first, then Installationsmodule, then Verrohrung
+            $desiredOrder = ['Rahme', 'Installationsmodule', 'Verrohrung'];
+            $orderedGroupElements = [];
+            foreach ($desiredOrder as $key_name) {
+                if (isset($groupedGroupElements[$key_name])) {
+                    $orderedGroupElements[$key_name] = $groupedGroupElements[$key_name];
+                }
+            }
+            // Add any remaining groups not in the desired order
+            foreach ($groupedGroupElements as $key_name => $value) {
+                if (!isset($orderedGroupElements[$key_name])) {
+                    $orderedGroupElements[$key_name] = $value;
+                }
+            }
+        @endphp
+
         <table style="width:100%">
-            @foreach ($groupedGroupElements as $organigramName => $groupedElements)
+            @foreach ($orderedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
                     <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten
                         {{ $organigramName }}:</td>
@@ -206,7 +220,7 @@
                     @endif
                     Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
                     SIA 181. (Fraunhofer Institut Stuttgart)<br>
-                    MPA geprüft, Brandschutzprüfung und El 120 MPA erfüllt (VKF) Nr. 22523
+                    MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
                 </td>
             </tr>
         </table>

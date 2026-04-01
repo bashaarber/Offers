@@ -47,18 +47,6 @@ class OffertController extends Controller
         // return $pdf->download('invoice.pdf');
     }
 
-    public function exportInternalPdf($id){
-        $offert = Offert::find($id);
-
-        $offert->load(['positions' => function ($query) {
-            $query->orderBy('position_number', 'ASC');
-        }]);
-
-        $pdf = Pdf::loadView('offert.offert-pdf-internal', compact('offert'));
-        return $pdf->stream();
-        // return $pdf->download('invoice.pdf');
-    }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -117,7 +105,13 @@ class OffertController extends Controller
             $query->orderBy('position_number', 'ASC');
         }]);
 
-        return view('offert.show', compact('offert'));
+        // Redirect to first position edit if positions exist, otherwise to create
+        $firstPosition = $offert->positions->first();
+        if ($firstPosition) {
+            return redirect()->route('position.edit', $firstPosition->id);
+        } else {
+            return redirect()->route('position.create', ['index' => 1, 'offert_id' => $offert->id]);
+        }
     }
 
     public function copy($offert_id)
