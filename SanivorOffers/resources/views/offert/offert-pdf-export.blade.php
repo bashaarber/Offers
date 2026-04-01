@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Offert - {{ $offert->id }}</title>
+    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> --}}
     <style>
         table {
             font-family: arial, sans-serif;
@@ -33,9 +35,9 @@
         <a style="color:blue">www.sanivor.ch</a>
     </div>
     <div style="float: right;"><br>
-        <span><strong>Br&uuml;hwiler Sanit&auml;r &amp; Heizung AG </strong></span><br>
+        <span><strong>Brühwiler Sanitär & Heizung AG </strong></span><br>
         <span>Nordstrasse 205</span><br>
-        <span>8037 Z&uuml;rich</span>
+        <span>8037 Zürich</span>
     </div>
     <div style="clear: both;"></div>
     <hr>
@@ -62,7 +64,7 @@
         </div>
 
         <div style="float: right;">
-            <p><strong>Angebot G&uuml;ltigkeit: </strong> {{ $offert->validity }}</p>
+            <p><strong>Angebot Gültigkeit: </strong> {{ $offert->validity }}</p>
             <p><strong>Zahlungskonditionen: </strong> {{ $offert->payment_conditions }}</p>
             <p><strong>Lieferung: </strong> {{ $offert->service }}</p>
         </div>
@@ -118,25 +120,22 @@
         Folgende Leistungen sind enthalten:<br>
         - Transport<br>
         - Ausmass<br>
-        - Holz (Sperrholz) 24mm: f&uuml;r Gleitstange, Glasstrennwand und Waschtisch
+        - Holz (Sperrholz) 24mm: für Gleitstange, Glasstrennwand und Waschtisch
         <br>
-        <p>F&uuml;r weitere Fragen stehen wir Ihnen gerne zur Verf&uuml;gung. Es w&uuml;rde uns freuen, diesen Auftrag f&uuml;r Sie
-            ausf&uuml;hren zu
-            d&uuml;rfen. Es gelten unsere Allgemeinen Gesch&auml;ftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
+        <p>Für weitere Fragen stehen wir Ihnen gerne zur Verfügung. Es würde uns freuen, diesen Auftrag für Sie
+            ausführen zu
+            dürfen. Es gelten unsere Allgemeinen Geschäftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
         </p>
-        <p>Freundliche Gr&uuml;sse</p>
-        <p>{{ $offert->user_sign }}</p>
+        <p>Freundliche Grüsse</p>
+        <p>Izet Kqiku</p>
         <hr>
     </div>
     <div style="page-break-after: always"></div>
-    @if ($offert->positions->isEmpty())
-        <p><strong>Keine Positionen vorhanden.</strong></p>
-    @endif
     @foreach ($offert->positions as $key => $position)
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
-                    <th>Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
+                    <th>Typ {{ $position->position_number }}</th>
                     <th>{{ $position->description }}</th>
                     <th>Brutto</th>
                     <th>Rabatt</th>
@@ -157,13 +156,11 @@
                     <td>{{ number_format($position->price_brutto, 2) }}</td>
                     <td>{{ $position->discount }}%</td>
                     <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
+                    </td>
                     <td> {{ $position->quantity }} </td>
-                    <td>
-                        @if ($position->is_optional)
-                            Optional
-                        @else
-                            {{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
-                        @endif
+                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                    </td>
+
                     </td>
                 </tr>
             </tbody>
@@ -180,32 +177,14 @@
                         $groupedGroupElements[$organigram->name][$group_element->name][] = [
                             'quantity' => $element->pivot->quantity,
                             'element_name' => $element->name,
-                            'is_optional' => (bool) ($element->pivot->is_optional ?? false),
                         ];
                     @endphp
                 @endforeach
             @endforeach
         @endforeach
 
-        @php
-            // Define the desired order: Rahme first, then Installationsmodule, then Verrohrung
-            $desiredOrder = ['Rahme', 'Installationsmodule', 'Verrohrung'];
-            $orderedGroupElements = [];
-            foreach ($desiredOrder as $key_name) {
-                if (isset($groupedGroupElements[$key_name])) {
-                    $orderedGroupElements[$key_name] = $groupedGroupElements[$key_name];
-                }
-            }
-            // Add any remaining groups not in the desired order
-            foreach ($groupedGroupElements as $key_name => $value) {
-                if (!isset($orderedGroupElements[$key_name])) {
-                    $orderedGroupElements[$key_name] = $value;
-                }
-            }
-        @endphp
-
         <table style="width:100%">
-            @foreach ($orderedGroupElements as $organigramName => $groupedElements)
+            @foreach ($groupedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
                     <td style="font-weight:bold;width:25%;vertical-align: top;padding: 5px;">Enthalten
                         {{ $organigramName }}:</td>
@@ -218,11 +197,7 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
-                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}
-                                            @if (!empty($groupElement['is_optional']))
-                                                (Optional)
-                                            @endif
-                                            <br>
+                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
                                         @endforeach
                                     </td>
                                 </tr>
@@ -239,7 +214,7 @@
                     @endif
                     Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
                     SIA 181. (Fraunhofer Institut Stuttgart)<br>
-                    MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
+                    MPA geprüft, Brandschutzprüfung und El 120 MPA erfüllt (VKF) Nr. 22523
                 </td>
             </tr>
         </table>
