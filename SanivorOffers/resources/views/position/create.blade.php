@@ -7,22 +7,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Create</title>
     <style>
-        .organigram-label,
-        .group-element-label,
-        .element-label {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            padding: 1px 2px;
-        }
-
-        .organigram-checkbox,
-        .group-element-checkbox,
-        .element-checkbox {
-            margin-right: 10px;
-            display: inline;
-        }
-
         .group-elements,
         .elements {
             display: none;
@@ -105,6 +89,63 @@
             opacity: 0.6;
             font-style: italic;
         }
+
+        .organigram-toggle {
+            font-size: 14px;
+            font-weight: 700;
+            border-left: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.12);
+            padding: 8px 10px !important;
+            border-radius: 6px;
+        }
+
+        .group-element-toggle {
+            font-size: 13px;
+            font-weight: 600;
+            border-left: 2px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 6px 8px 6px 12px !important;
+            border-radius: 6px;
+        }
+
+        .element-card-title {
+            font-size: 12px;
+            padding-left: 20px !important;
+        }
+
+        .element-materials-wrap {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .element-materials {
+            margin-bottom: 0 !important;
+        }
+
+        .element-materials thead tr {
+            background: #111827;
+            color: #fff;
+        }
+
+        .element-materials tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .element-materials input[type="number"] {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 2px 6px;
+        }
+
+        .element-materials td.total,
+        .element-materials .price-details {
+            text-align: right;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
     </style>
 </head>
 
@@ -139,7 +180,6 @@
                     <input type="hidden" name="zeit-profit" id="zeitProfit" value="0.00">
                     <input type="hidden" name="costo-total" id="costoTotal" value="0.00">
                     <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
-                    <input type="hidden" name="is_optional" id="is_optional_input" value="0">
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
@@ -210,7 +250,7 @@
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
                                         <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="1" min="1"> <input type="checkbox" name="is_optional" id="is_optional" value="1"> <label for="is_optional">Optional</label>
+                                                value="1" min="1">
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                         <td id="discounted-total">0.00</td>
@@ -277,8 +317,8 @@
                             ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
                             ->exists();
                     @endphp
-                    <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: none">
+                    <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display:none;">
+                    <table class="table element-materials" id="element-materials-{{ $element->id }}">
                         <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -364,10 +404,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                    </div>
                 @endforeach
             </div>
         </div>
-        <button hidden type="submit" class="btn btn-primary mt-3">Create Position</button>
         </form>
         {{-- <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a> --}}
     </div>
@@ -447,7 +487,7 @@
             // Function to handle the visibility of the element materials table
             function handleElementMaterialsTableVisibility(checkbox) {
                 const elementId = checkbox.getAttribute('data-element-id');
-                const elementMaterialsTable = document.querySelector(`#element-materials-${elementId}`);
+                const elementMaterialsTable = document.querySelector(`#element-materials-wrap-${elementId}`);
 
                 if (elementMaterialsTable) {
                     // Update the total materials price when the checkbox is clicked
@@ -474,10 +514,10 @@
                 checkbox.addEventListener('change', function() {
                     const elementId = this.getAttribute('data-element-id');
                     const elementMaterialsTable = document.querySelector(
-                        `#element-materials-${elementId}`);
+                        `#element-materials-wrap-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
 
                         // Calculate the total materials price when the checkbox is clicked
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
@@ -785,16 +825,11 @@
             });
 
             // Listen to quantity and other input changes
-            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t, #is_optional').forEach(input => {
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t').forEach(input => {
                 input.addEventListener('input', function() {
                     updateTotalProTypPrice();
                     triggerAutoSave();
                 });
-            });
-
-            // Listen to optional checkbox changes
-            document.getElementById('is_optional').addEventListener('change', function() {
-                triggerAutoSave();
             });
 
             function autoSaveCurrentPosition() {
@@ -864,7 +899,6 @@
                     element_optional: elementOptional,
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
-                    is_optional: document.getElementById('is_optional').checked ? 1 : 0,
                     totalProTypPrice: document.getElementById('totalProTypPriceInput').value || 0,
                     discountedTotal: document.getElementById('discountedTotalInput').value || 0,
                     percentage: document.getElementById('percentageInput').value || 0,

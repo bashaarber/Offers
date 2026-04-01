@@ -36,16 +36,20 @@ class OffertController extends Controller
     }
 
     public function exportPdf($id){
-        $offert = Offert::with([
-            'positions' => function ($query) {
-                $query->orderBy('position_number', 'ASC');
-            },
-            'positions.elements.group_elements.organigrams',
-            'positions.elements.materials',
-        ])->findOrFail($id);
+        try {
+            $offert = Offert::with([
+                'positions' => function ($query) {
+                    $query->orderBy('position_number', 'ASC');
+                },
+                'positions.elements.group_elements.organigrams',
+                'positions.elements.materials',
+            ])->findOrFail($id);
 
-        $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
-        return $pdf->stream();
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
+            return $pdf->stream();
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'External PDF failed: ' . $e->getMessage());
+        }
         // return $pdf->download('invoice.pdf');
     }
 

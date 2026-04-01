@@ -133,9 +133,11 @@ class PositionController extends Controller
             'is_optional' => $is_optional,
         ];
 
-        // Increment position_number for the new Position
-        $latestPosition = $latestOffert ? $latestOffert->positions()->latest()->first() : null;
-        $formFields['position_number'] = $latestPosition ? $latestPosition->position_number + 1 : 1;
+        // Keep position numbering sequential inside the current offert.
+        $maxPositionNumber = $latestOffert
+            ? (int) $latestOffert->positions()->max('position_number')
+            : 0;
+        $formFields['position_number'] = $maxPositionNumber + 1;
 
         $position = Position::create($formFields);
 
@@ -454,8 +456,11 @@ class PositionController extends Controller
                     'profit_total' => $data['profit_total'] ?? 0,
                 ]);
             } else {
-                // Create new position
-                $positionNumber = $requestedPositionNumber;
+                // Create new position with the next sequential number for this offert.
+                $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
+                    $query->where('id', $offertId);
+                })->max('position_number');
+                $positionNumber = $maxPositionNumber + 1;
 
                 $position = Position::create([
                     'description' => $data['description'] ?? '',

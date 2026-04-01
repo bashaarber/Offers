@@ -6,22 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update</title>
     <style>
-        .organigram-label,
-        .group-element-label,
-        .element-label {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            padding: 1px 2px;
-        }
-
-        .organigram-checkbox,
-        .group-element-checkbox,
-        .element-checkbox {
-            margin-right: 10px;
-            display: inline;
-        }
-
         .group-elements,
         .elements {
             display: none;
@@ -66,6 +50,63 @@
         .optional-element-muted {
             opacity: 0.6;
             font-style: italic;
+        }
+
+        .organigram-toggle {
+            font-size: 14px;
+            font-weight: 700;
+            border-left: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.12);
+            padding: 8px 10px !important;
+            border-radius: 6px;
+        }
+
+        .group-element-toggle {
+            font-size: 13px;
+            font-weight: 600;
+            border-left: 2px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 6px 8px 6px 12px !important;
+            border-radius: 6px;
+        }
+
+        .element-card-title {
+            font-size: 12px;
+            padding-left: 20px !important;
+        }
+
+        .element-materials-wrap {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .element-materials {
+            margin-bottom: 0 !important;
+        }
+
+        .element-materials thead tr {
+            background: #111827;
+            color: #fff;
+        }
+
+        .element-materials tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .element-materials input[type="number"] {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 2px 6px;
+        }
+
+        .element-materials td.total,
+        .element-materials .price-details {
+            text-align: right;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
     </style>
 </head>
@@ -191,7 +232,7 @@
                                     </tr>
                                     <tr style="font-weight:700;color:black" class="table-dark">
                                         <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="{{ $position->quantity }}" min="1"> <input type="checkbox" name="is_optional" id="is_optional" value="1" {{ $position->is_optional ? 'checked' : '' }}> <label for="is_optional">Optional</label>
+                                                value="{{ $position->quantity }}" min="1">
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">
                                             {{ $position->price_brutto }}</td>
@@ -262,8 +303,8 @@
                         $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
                         $pivotIsOptional = (bool) ($element->positions->first()->pivot->is_optional ?? false);
                     @endphp
-                    <table class="table element-materials" id="element-materials-{{ $element->id }}"
-                        style="display: {{ $isSelected ? '' : 'none' }}">
+                    <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
+                    <table class="table element-materials" id="element-materials-{{ $element->id }}">
                         <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
@@ -355,6 +396,7 @@
 
                         </tbody>
                     </table>
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -435,10 +477,10 @@
                 checkbox.addEventListener('change', function() {
                     const elementId = this.getAttribute('data-element-id');
                     const elementMaterialsTable = document.querySelector(
-                        `#element-materials-${elementId}`);
+                        `#element-materials-wrap-${elementId}`);
 
                     if (elementMaterialsTable) {
-                        elementMaterialsTable.style.display = this.checked ? '' : 'none';
+                        elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
 
                         // Calculate the total materials price when the checkbox is clicked
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
@@ -607,7 +649,7 @@
                     elementCheckboxes.forEach(checkbox => {
                         const elementId = checkbox.getAttribute('data-element-id');
                         const elementMaterialsTable = document.querySelector(
-                            `#element-materials-${elementId}`);
+                            `#element-materials-wrap-${elementId}`);
 
                         if (elementMaterialsTable && checkbox.checked) {
                             const optionalCheckbox = document.querySelector(

@@ -16,22 +16,12 @@
         </div>
         <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
             style="width:100%;border-radius:8px;font-size:12px;">
-            <i class="fa-solid fa-plus"></i> Create New Pos
+            <i class="fa-solid fa-plus"></i> New Position
         </button>
-
-        @if (!empty($showSaveButton) && !empty($saveFormId))
-            <div style="padding:4px 0;text-align:center;">
-                <button type="button" class="btn btn-warning btn-sm"
-                    onclick="document.getElementById('{{ $saveFormId }}').submit();"
-                    style="width:100%;border-radius:8px;font-weight:600;">
-                    <i class="fa-solid fa-save" style="margin-right:6px;"></i>Create Position
-                </button>
-            </div>
-            <div id="auto-save-status" class="mt-1"
-                style="color:#4ade80;font-size:12px;display:none;text-align:center;">
-                <i class="fa-solid fa-check-circle"></i> Auto-saving...
-            </div>
-        @endif
+        <div id="auto-save-status" class="mt-1"
+            style="color:#4ade80;font-size:12px;display:none;text-align:center;">
+            <i class="fa-solid fa-check-circle"></i> Auto-saving...
+        </div>
 
         <div class="pos-list-container">
             @if ($positions->count())
@@ -130,7 +120,7 @@
         }
 
         window.addNewPos = function() {
-            window.location.href = '{{ url("/position/create") }}/{{ (int) $nextCreateIndex }}?offert_id={{ $offertId }}';
+            window.location.href = '{{ url("/position/create") }}/{{ (int) $positions->count() + 1 }}?offert_id={{ $offertId }}';
         };
     });
 </script>
