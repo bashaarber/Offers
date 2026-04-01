@@ -140,14 +140,12 @@
                 <div id="auto-save-status" class="mt-1" style="color:#4ade80;font-size:12px;display:none;text-align:center;">
                     <i class="fa-solid fa-check-circle"></i> Auto-saving...
                 </div>
-                <hr>
-                <div class="sidebar-section-label" style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
             `;
 
             // Create positions list
             var posList = document.createElement('div');
             posList.className = 'pos-list-container';
-            posList.innerHTML = `@foreach ($positions as $position)@php $latestPositionNumber = $positions->max('position_number'); $nextPositionNumber = $latestPositionNumber + 1; @endphp<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong>Pos. {{ $position->position_number }}</strong></a><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            posList.innerHTML = `@if ($positions->count())<div id="sortable-position-list">@foreach ($positions as $position)<div class="position-row" data-position-id="{{ $position->id }}" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><div style="display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-grip-vertical drag-handle" style="cursor:grab;color:rgba(255,255,255,0.45);font-size:10px;"></i><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong class="position-number-label">Pos. {{ $position->position_number }}</strong>@if($position->is_optional)<span style="font-size:10px;color:#f59e0b;margin-left:4px;">(Optional)</span>@endif</a></div><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach</div> @else <div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong>Pos. 1</strong></span></div> @endif`;
             extras.appendChild(posList);
 
             // Add PDF links
@@ -160,6 +158,36 @@
 
             // Insert before footer
             sidebar.insertBefore(extras, footer);
+
+            const sortableList = document.getElementById('sortable-position-list');
+            if (sortableList && typeof Sortable !== 'undefined') {
+                new Sortable(sortableList, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onUpdate: function(evt) {
+                        const rows = Array.from(evt.to.children);
+                        rows.forEach((row, index) => {
+                            const label = row.querySelector('.position-number-label');
+                            if (label) {
+                                label.textContent = `Pos. ${index + 1}`;
+                            }
+
+                            const positionId = row.getAttribute('data-position-id');
+                            fetch('{{ route("position.updateOrder") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    position_id: positionId,
+                                    order: index + 1
+                                })
+                            });
+                        });
+                    }
+                });
+            }
         });
     </script>
     <div class="content">
@@ -409,6 +437,7 @@
         {{-- <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a> --}}
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
@@ -952,7 +981,7 @@
 
             function addNewPos() {
                 const offertId = document.getElementById('offert_id').value;
-                const nextIndex = {{ $positions->count() }};
+                const nextIndex = {{ $positions->max('position_number') ? $positions->max('position_number') : 0 }};
                 window.location.href = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
             }
         });

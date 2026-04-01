@@ -89,7 +89,7 @@ class OffertController extends Controller
 
         $offert = Offert::create($formFields);
 
-        return redirect()->route('position.create', ['index' => 1,'offert_id' => $offert->id]);
+        return redirect()->route('position.create', ['index' => 0,'offert_id' => $offert->id]);
     }
 
     /**
@@ -110,7 +110,7 @@ class OffertController extends Controller
         if ($firstPosition) {
             return redirect()->route('position.edit', $firstPosition->id);
         } else {
-            return redirect()->route('position.create', ['index' => 1, 'offert_id' => $offert->id]);
+            return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offert->id]);
         }
     }
 

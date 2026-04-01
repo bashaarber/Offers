@@ -348,12 +348,14 @@ class PositionController extends Controller
                 return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
             }
 
-            // Check if position already exists for this type
+            $requestedIndex = (int) ($data['index'] ?? 0);
+            $requestedPositionNumber = $requestedIndex + 1;
+
+            // Check if position already exists for this explicit position number in this offer.
             $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
                 $query->where('id', $offertId);
             })
-            ->where('description', $data['description'] ?? '')
-            ->where('blocktype', $data['blocktype'] ?? null)
+            ->where('position_number', $requestedPositionNumber)
             ->first();
 
             if ($existingPosition) {
@@ -382,8 +384,7 @@ class PositionController extends Controller
                 ]);
             } else {
                 // Create new position
-                $latestPosition = $offert->positions()->latest()->first();
-                $positionNumber = $latestPosition ? $latestPosition->position_number + 1 : 1;
+                $positionNumber = $requestedPositionNumber;
 
                 $position = Position::create([
                     'description' => $data['description'] ?? '',

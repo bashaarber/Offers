@@ -76,34 +76,42 @@
             @php
                 $totalBrutto = 0;
                 $totalDiscount = 0;
+                $totalNetto = 0;
                 $totalElements = 0;
+                $optionalPositions = 0;
             @endphp
 
             @foreach ($offert->positions as $position)
-                @php
-                    $totalElements += $position->quantity;
-                @endphp
-
-                @php
-                    $totalBrutto += $position->price_brutto;
-
-                    if ($position->price_discount !== $position->price_brutto) {
-                        $totalDiscount += $position->price_discount;
-                    }
-                @endphp
+                @if (!$position->is_optional)
+                    @php
+                        $totalElements += $position->quantity;
+                        $totalBrutto += $position->price_brutto;
+                        $totalNetto += $position->price_discount;
+                        $totalDiscount += max($position->price_brutto - $position->price_discount, 0);
+                    @endphp
+                @else
+                    @php
+                        $optionalPositions++;
+                    @endphp
+                @endif
             @endforeach
 
             <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalElements }} </strong></p>
             <p>Total Brutto: CHF {{ number_format($totalBrutto, 2) }} </p>
             <p style="margin-bottom:30px">Rabbat: CHF -{{ number_format($totalDiscount, 2) }}</p>
-            <p><strong>Total Netto: CHF {{ number_format($totalBrutto - $totalDiscount, 2) }}</p></strong>
+            <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</p></strong>
             @php
-                $difference = $totalBrutto - $totalDiscount;
+                $difference = $totalNetto;
                 $discountedAmount = $difference * 0.081;
             @endphp
 
             <p>MwSt 8.1% : CHF {{ number_format($discountedAmount, 2) }}</p>
             <p><strong>Gesamt: CHF {{ number_format($difference + $discountedAmount, 2) }}</p></strong>
+            @if ($optionalPositions > 0)
+                <p style="font-size: 12px; margin-top: 8px;">
+                    * {{ $optionalPositions }} optionale Position(en) sind im Gesamtpreis nicht enthalten.
+                </p>
+            @endif
         </div>
         <div style="clear: both;"></div>
     </div>
@@ -127,7 +135,7 @@
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
-                    <th>Typ {{ $position->position_number }}</th>
+                    <th>Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
                     <th>{{ $position->description }}</th>
                     <th>Brutto</th>
                     <th>Rabatt</th>
@@ -150,7 +158,12 @@
                     <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
                     </td>
                     <td> {{ $position->quantity }} </td>
-                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                    <td>
+                        @if ($position->is_optional)
+                            Optional
+                        @else
+                            {{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
+                        @endif
                     </td>
                 </tr>
             </tbody>
@@ -186,8 +199,23 @@
     @endforeach
 @endforeach
 
+        @php
+            $desiredOrder = ['Rahme', 'Installationsmodule', 'Verrohrung'];
+            $orderedGroupElements = [];
+            foreach ($desiredOrder as $key_name) {
+                if (isset($groupedGroupElements[$key_name])) {
+                    $orderedGroupElements[$key_name] = $groupedGroupElements[$key_name];
+                }
+            }
+            foreach ($groupedGroupElements as $key_name => $value) {
+                if (!isset($orderedGroupElements[$key_name])) {
+                    $orderedGroupElements[$key_name] = $value;
+                }
+            }
+        @endphp
+
         <table style="width:100%">
-            @foreach ($groupedGroupElements as $organigramName => $groupedElements)
+            @foreach ($orderedGroupElements as $organigramName => $groupedElements)
                 <tr style="border:0.25px solid black;">
                     <td style="font-weight:bold;width:25%;vertical-align: top;padding: 4px;">Enthalten
                         {{ $organigramName }}:</td>
