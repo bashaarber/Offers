@@ -43,8 +43,11 @@ class PositionController extends Controller
         $newPosition->organigrams()->sync($position->organigrams->pluck('id')->toArray());
         $newPosition->offerts()->attach($latestOffert);
 
-        foreach ($position->elements()->withPivot('quantity')->get() as $element) {
-            $newElement = $newPosition->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
+        foreach ($position->elements()->withPivot('quantity', 'is_optional')->get() as $element) {
+            $newPosition->elements()->attach($element->id, [
+                'quantity' => $element->pivot->quantity,
+                'is_optional' => (bool) ($element->pivot->is_optional ?? false),
+            ]);
             foreach ($element->materials as $material) {
                 $materialQuantity = PositionMaterial::where([
                     'position_id' => $position->id,
@@ -140,11 +143,45 @@ class PositionController extends Controller
         $organigramIds = $request->input('selected_organigrams', []);
         $selectedElementIds = $request->input('selected_elements', []);
         $elementIdsWithQuantities = $request->input('element_quantity', []);
+        $elementOptionalMap = $request->input('element_optional', []);
+
+        if (empty($groupElementIds) || empty($organigramIds)) {
+            $selectedElementsCollection = Element::with('group_elements.organigrams')
+                ->whereIn('id', $selectedElementIds)
+                ->get();
+
+            if (empty($groupElementIds)) {
+                $groupElementIds = $selectedElementsCollection
+                    ->flatMap(function ($element) {
+                        return $element->group_elements->pluck('id');
+                    })
+                    ->unique()
+                    ->values()
+                    ->toArray();
+            }
+
+            if (empty($organigramIds)) {
+                $organigramIds = $selectedElementsCollection
+                    ->flatMap(function ($element) {
+                        return $element->group_elements->flatMap(function ($group) {
+                            return $group->organigrams->pluck('id');
+                        });
+                    })
+                    ->unique()
+                    ->values()
+                    ->toArray();
+            }
+        }
 
         $elements = Element::all();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
-                $position->elements()->attach([$elementId => ['quantity' => $quantity]]);
+                $position->elements()->attach([
+                    $elementId => [
+                        'quantity' => $quantity,
+                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
+                    ],
+                ]);
 
                 // Store material_id, element_id, and quantity in the new table
                 foreach ($elements->find($elementId)->materials as $material) {
@@ -256,13 +293,47 @@ class PositionController extends Controller
 
         $selectedElementIds = $request->input('selected_elements', []);
         $elementIdsWithQuantities = $request->input('element_quantity', []);
+        $elementOptionalMap = $request->input('element_optional', []);
+
+        if (empty($selectedGroupElementIds) || empty($selectedOrganigramIds)) {
+            $selectedElementsCollection = Element::with('group_elements.organigrams')
+                ->whereIn('id', $selectedElementIds)
+                ->get();
+
+            if (empty($selectedGroupElementIds)) {
+                $selectedGroupElementIds = $selectedElementsCollection
+                    ->flatMap(function ($element) {
+                        return $element->group_elements->pluck('id');
+                    })
+                    ->unique()
+                    ->values()
+                    ->toArray();
+            }
+
+            if (empty($selectedOrganigramIds)) {
+                $selectedOrganigramIds = $selectedElementsCollection
+                    ->flatMap(function ($element) {
+                        return $element->group_elements->flatMap(function ($group) {
+                            return $group->organigrams->pluck('id');
+                        });
+                    })
+                    ->unique()
+                    ->values()
+                    ->toArray();
+            }
+        }
 
         // Detach existing elements for the position
         $position->elements()->detach();
 
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
-                $position->elements()->attach([$elementId => ['quantity' => $quantity]]);
+                $position->elements()->attach([
+                    $elementId => [
+                        'quantity' => $quantity,
+                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
+                    ],
+                ]);
 
                 // Store material_id, element_id, and quantity in the new table
                 $elements = Element::find($elementId);
@@ -421,9 +492,13 @@ class PositionController extends Controller
             }
             if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
                 $elementsToAttach = [];
+                $elementOptionalMap = $data['element_optional'] ?? [];
                 foreach ($data['selected_elements'] as $elementId) {
                     $quantity = $data['element_quantity'][$elementId] ?? 1;
-                    $elementsToAttach[$elementId] = ['quantity' => $quantity];
+                    $elementsToAttach[$elementId] = [
+                        'quantity' => $quantity,
+                        'is_optional' => isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1,
+                    ];
                 }
                 $position->elements()->sync($elementsToAttach);
 

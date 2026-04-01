@@ -100,96 +100,26 @@
         .card h5, .card h6 {
             margin-bottom: 2px !important;
         }
+
+        .optional-element-muted {
+            opacity: 0.6;
+            font-style: italic;
+        }
     </style>
 </head>
 
 <body>
     @include('layouts.sidebar')
 
-    {{-- Position-specific sidebar content injected into the modern sidebar --}}
-    <style>
-        .sidebar .sidebar-footer { bottom: 120px; }
-        .sidebar .position-extras {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            max-height: calc(100vh - 400px);
-            overflow-y: auto;
-        }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inject position-specific content into sidebar
-            var sidebar = document.querySelector('.sidebar');
-            var footer = sidebar.querySelector('.sidebar-footer');
-
-            // Create position extras container
-            var extras = document.createElement('div');
-            extras.className = 'position-sidebar-section';
-            extras.innerHTML = `
-                <hr>
-                <div class="sidebar-section-label" style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
-                <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()" style="width:100%;border-radius:8px;font-size:12px;">
-                    <i class="fa-solid fa-plus"></i> Create New Pos
-                </button>
-                <div style="padding:4px 0;text-align:center;">
-                    <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('createPositionForm').submit();" style="width:100%;border-radius:8px;font-weight:600;">
-                        <i class="fa-solid fa-save" style="margin-right:6px;"></i>Create Position
-                    </button>
-                </div>
-                <div id="auto-save-status" class="mt-1" style="color:#4ade80;font-size:12px;display:none;text-align:center;">
-                    <i class="fa-solid fa-check-circle"></i> Auto-saving...
-                </div>
-            `;
-
-            // Create positions list
-            var posList = document.createElement('div');
-            posList.className = 'pos-list-container';
-            posList.innerHTML = `@if ($positions->count())<div id="sortable-position-list">@foreach ($positions as $position)<div class="position-row" data-position-id="{{ $position->id }}" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><div style="display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-grip-vertical drag-handle" style="cursor:grab;color:rgba(255,255,255,0.45);font-size:10px;"></i><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong class="position-number-label">Pos. {{ $position->position_number }}</strong>@if($position->is_optional)<span style="font-size:10px;color:#f59e0b;margin-left:4px;">(Optional)</span>@endif</a></div><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach</div> @else <div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong>Pos. 1</strong></span></div> @endif`;
-            extras.appendChild(posList);
-
-            // Add PDF links
-            @if (request()->has('offert_id'))
-            var pdfLinks = document.createElement('div');
-            pdfLinks.style.cssText = 'padding:4px 0;';
-            pdfLinks.innerHTML = `<hr><a href="{{ route('offert.pdf', request()->query('offert_id')) }}" style="font-size:12px;padding:3px 4px;"><i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF</a>`;
-            extras.appendChild(pdfLinks);
-            @endif
-
-            // Insert before footer
-            sidebar.insertBefore(extras, footer);
-
-            const sortableList = document.getElementById('sortable-position-list');
-            if (sortableList && typeof Sortable !== 'undefined') {
-                new Sortable(sortableList, {
-                    handle: '.drag-handle',
-                    animation: 150,
-                    onUpdate: function(evt) {
-                        const rows = Array.from(evt.to.children);
-                        rows.forEach((row, index) => {
-                            const label = row.querySelector('.position-number-label');
-                            if (label) {
-                                label.textContent = `Pos. ${index + 1}`;
-                            }
-
-                            const positionId = row.getAttribute('data-position-id');
-                            fetch('{{ route("position.updateOrder") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    position_id: positionId,
-                                    order: index + 1
-                                })
-                            });
-                        });
-                    }
-                });
-            }
-        });
-    </script>
+    @include('position.partials.sidebar-actions', [
+        'positions' => $positions,
+        'offertId' => request()->query('offert_id'),
+        'currentPositionId' => null,
+        'nextCreateIndex' => ((int) ($index ?? 0)) + 1,
+        'showSaveButton' => true,
+        'saveFormId' => 'createPositionForm',
+    ])
+    @include('position.partials.element-selection-js')
     <div class="content">
         <div class="row">
             <div class="col-12">
@@ -297,28 +227,26 @@
                 <div class="card">
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
-                            <h5 class="card-title">
-                                <input type="checkbox" name="selected_organigrams[]" class="organigram-checkbox"
-                                    value="{{ $organigram->id }}">
-                                {{ $organigram->name }}
+                            <h5 class="card-title organigram-toggle" style="cursor:pointer;">
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px;margin-right:6px;"></i>{{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
                                 @foreach ($organigram->group_elements as $group_element)
                                     <div class="card">
                                         <div class="card-body">
-                                            <h6 class="card-subtitle">
-                                                <input type="checkbox" name="selected_group_elements[]"
-                                                    class="group-element-checkbox" value="{{ $group_element->id }}">
-                                                {{ $group_element->name }}
+                                            <h6 class="card-subtitle group-element-toggle" style="cursor:pointer;">
+                                                <i class="fa-solid fa-chevron-right" style="font-size:9px;margin-right:6px;"></i>{{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
                                                 @foreach ($group_element->elements as $element)
                                                     <div class="card">
                                                         <div class="card-body">
-                                                            <h6 class="card-subtitle">
+                                                            <h6 class="card-subtitle element-card-title" data-element-id="{{ $element->id }}">
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
+                                                                    data-group-element-id="{{ $group_element->id }}"
+                                                                    data-organigram-id="{{ $organigram->id }}"
                                                                     value="{{ $element->id }}">
                                                                 {{ $element->name }}
                                                             </h6>
@@ -355,7 +283,14 @@
                             <tr>
                                 <th scope="col">Ans.</th>
                                 <th scope="col">Name</th>
-                                <th></th>
+                                <th scope="col">
+                                    <label style="margin:0;font-size:12px;">
+                                        <input type="checkbox" class="element-optional-checkbox"
+                                            name="element_optional[{{ $element->id }}]" value="1"
+                                            data-element-id="{{ $element->id }}">
+                                        Optional
+                                    </label>
+                                </th>
                                 <th scope="col">PStk.</th>
                                 <th scope="col">Total CHF</th>
                             </tr>
@@ -443,9 +378,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
-            const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
+            const organigramToggles = document.querySelectorAll('.organigram-toggle');
+            const groupElementToggles = document.querySelectorAll('.group-element-toggle');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
+            const optionalElementCheckboxes = document.querySelectorAll('.element-optional-checkbox');
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
@@ -696,6 +632,13 @@
                             `#element-materials-${elementId}`);
 
                         if (elementMaterialsTable && checkbox.checked) {
+                            const optionalCheckbox = document.querySelector(
+                                `.element-optional-checkbox[data-element-id="${elementId}"]`
+                            );
+                            const isElementOptional = optionalCheckbox && optionalCheckbox.checked;
+                            if (isElementOptional) {
+                                return;
+                            }
                             const elementQuantityInput = $(
                                 `.element-quantity-input[data-element-id="${elementId}"]`);
                             const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
@@ -793,35 +736,19 @@
                 }
             }
 
-            organigramCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const groupElements = this.parentElement.nextElementSibling;
-                    groupElements.style.display = this.checked ? 'block' : 'none';
-                });
-            });
+            initializePositionElementSelection(organigramToggles, groupElementToggles);
 
-            groupElementCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const elements = this.parentElement.nextElementSibling;
-                    elements.style.display = this.checked ? 'block' : 'none';
-                });
-            });
-            // Function to toggle visibility for a specific checkbox type
-            function toggleCheckboxVisibility(checkboxes, className) {
-                checkboxes.forEach(checkbox => {
-                    const elements = checkbox.parentElement.nextElementSibling;
-                    if (checkbox.checked) {
-                        elements.style.display = 'block';
-                    }
-                    checkbox.addEventListener('change', function() {
-                        const elements = checkbox.parentElement.nextElementSibling;
-                        elements.style.display = this.checked ? 'block' : 'none';
-                    });
-                });
+            function applyOptionalElementVisualState(elementId) {
+                const optionalCheckbox = document.querySelector(`.element-optional-checkbox[data-element-id="${elementId}"]`);
+                const isOptional = optionalCheckbox && optionalCheckbox.checked;
+                const title = document.querySelector(`.element-card-title[data-element-id="${elementId}"]`);
+                const table = document.getElementById(`element-materials-${elementId}`);
+
+                if (title) title.classList.toggle('optional-element-muted', !!isOptional);
+                if (table) table.classList.toggle('optional-element-muted', !!isOptional);
             }
-            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
-            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
-            toggleCheckboxVisibility(elementCheckboxes, 'element');
+
+            optionalElementCheckboxes.forEach(cb => applyOptionalElementVisualState(cb.dataset.elementId));
 
             // Auto-save functionality for current position
             let autoSaveTimeout;
@@ -832,10 +759,12 @@
                 autoSaveTimeout = setTimeout(() => {
                     const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
                         .map(cb => cb.value);
-                    const selectedGroupElements = Array.from(document.querySelectorAll('.group-element-checkbox:checked'))
-                        .map(cb => cb.value);
-                    const selectedOrganigrams = Array.from(document.querySelectorAll('.organigram-checkbox:checked'))
-                        .map(cb => cb.value);
+                    const selectedGroupElements = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                        .map(cb => cb.dataset.groupElementId)
+                        .filter(Boolean))];
+                    const selectedOrganigrams = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                        .map(cb => cb.dataset.organigramId)
+                        .filter(Boolean))];
 
                     // Only auto-save if there are selections
                     if (selectedElements.length > 0 || selectedGroupElements.length > 0 || selectedOrganigrams.length > 0) {
@@ -845,8 +774,11 @@
             }
 
             // Listen to all checkbox changes
-            document.querySelectorAll('.organigram-checkbox, .group-element-checkbox, .element-checkbox').forEach(checkbox => {
+            document.querySelectorAll('.element-checkbox, .element-optional-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
+                    if (this.classList.contains('element-optional-checkbox')) {
+                        applyOptionalElementVisualState(this.dataset.elementId);
+                    }
                     updateTotalProTypPrice();
                     triggerAutoSave();
                 });
@@ -884,10 +816,17 @@
                 // Collect selected values
                 const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
                     .map(cb => cb.value);
-                const selectedGroupElements = Array.from(document.querySelectorAll('.group-element-checkbox:checked'))
-                    .map(cb => cb.value);
-                const selectedOrganigrams = Array.from(document.querySelectorAll('.organigram-checkbox:checked'))
-                    .map(cb => cb.value);
+                const selectedGroupElements = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.dataset.groupElementId)
+                    .filter(Boolean))];
+                const selectedOrganigrams = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.dataset.organigramId)
+                    .filter(Boolean))];
+                const elementOptional = {};
+                selectedElements.forEach(elementId => {
+                    const optionalCheckbox = document.querySelector(`.element-optional-checkbox[data-element-id="${elementId}"]`);
+                    elementOptional[elementId] = optionalCheckbox && optionalCheckbox.checked ? 1 : 0;
+                });
 
                 // Collect element quantities
                 const elementQuantities = {};
@@ -922,6 +861,7 @@
                     selected_group_elements: selectedGroupElements,
                     selected_organigrams: selectedOrganigrams,
                     element_quantity: elementQuantities,
+                    element_optional: elementOptional,
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
                     is_optional: document.getElementById('is_optional').checked ? 1 : 0,
@@ -979,11 +919,6 @@
                 });
             }
 
-            function addNewPos() {
-                const offertId = document.getElementById('offert_id').value;
-                const nextIndex = {{ $positions->max('position_number') ? $positions->max('position_number') : 0 }};
-                window.location.href = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
-            }
         });
         // Toggle sublinks handled by sidebar partial
     </script>

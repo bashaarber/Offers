@@ -49,6 +49,6 @@ class Position extends Model
     
     public function elements():BelongsToMany
     {
-        return $this->belongsToMany(Element::class)->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(Element::class)->withPivot('quantity', 'is_optional')->withTimestamps();
     }
 }

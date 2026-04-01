@@ -36,11 +36,13 @@ class OffertController extends Controller
     }
 
     public function exportPdf($id){
-        $offert = Offert::find($id);
-
-        $offert->load(['positions' => function ($query) {
-            $query->orderBy('position_number', 'ASC');
-        }]);
+        $offert = Offert::with([
+            'positions' => function ($query) {
+                $query->orderBy('position_number', 'ASC');
+            },
+            'positions.elements.group_elements.organigrams',
+            'positions.elements.materials',
+        ])->findOrFail($id);
 
         $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
         return $pdf->stream();

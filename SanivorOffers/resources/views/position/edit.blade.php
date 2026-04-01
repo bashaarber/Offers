@@ -62,71 +62,26 @@
             padding: 1px 5px !important;
             font-size: 10px !important;
         }
+
+        .optional-element-muted {
+            opacity: 0.6;
+            font-style: italic;
+        }
     </style>
 </head>
 
 <body>
     @include('layouts.sidebar')
 
-    {{-- Position-specific sidebar content --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var sidebar = document.querySelector('.sidebar');
-            var footer = sidebar.querySelector('.sidebar-footer');
-
-            var extras = document.createElement('div');
-            extras.style.cssText = 'padding:0 4px;';
-            extras.innerHTML = `
-                <hr style="border-color:rgba(255,255,255,0.1);margin:6px 0;">
-                <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
-                <button type="button" class="btn btn-sm btn-success mt-1" onclick="window.location.href='{{ route('position.create', ['index' => ($positions->max('position_number') ? $positions->max('position_number') : 0)]) }}?offert_id={{ $offertId }}'" style="width:100%;border-radius:8px;font-size:12px;">
-                    <i class="fa-solid fa-plus"></i> Create New Pos
-                </button>
-            `;
-
-            var posList = document.createElement('div');
-            posList.className = 'pos-list-container';
-            posList.innerHTML = `<div id="sortable-position-list">@foreach ($positions as $pos)<div class="position-row" data-position-id="{{ $pos->id }}" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><div style="display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-grip-vertical drag-handle" style="cursor:grab;color:rgba(255,255,255,0.45);font-size:10px;"></i><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:12px;font-weight:500;"><strong class="position-number-label">Pos. {{ $pos->position_number }}</strong>@if($pos->is_optional)<span style="font-size:10px;color:#f59e0b;margin-left:4px;">(Optional)</span>@endif</a></div><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;" onclick="return confirm('Are you sure?');"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach</div>`;
-            extras.appendChild(posList);
-
-            // PDF links
-            var pdfLinks = document.createElement('div');
-            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:12px;padding:3px 4px;"><i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF</a>`;
-            extras.appendChild(pdfLinks);
-
-            sidebar.insertBefore(extras, footer);
-
-            const sortableList = document.getElementById('sortable-position-list');
-            if (sortableList && typeof Sortable !== 'undefined') {
-                new Sortable(sortableList, {
-                    handle: '.drag-handle',
-                    animation: 150,
-                    onUpdate: function(evt) {
-                        const rows = Array.from(evt.to.children);
-                        rows.forEach((row, index) => {
-                            const label = row.querySelector('.position-number-label');
-                            if (label) {
-                                label.textContent = `Pos. ${index + 1}`;
-                            }
-
-                            const positionId = row.getAttribute('data-position-id');
-                            fetch('{{ route("position.updateOrder") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    position_id: positionId,
-                                    order: index + 1
-                                })
-                            });
-                        });
-                    }
-                });
-            }
-        });
-    </script>
+    @include('position.partials.sidebar-actions', [
+        'positions' => $positions,
+        'offertId' => $offertId,
+        'currentPositionId' => $position->id,
+        'nextCreateIndex' => (int) $position->position_number,
+        'showSaveButton' => false,
+        'saveFormId' => null,
+    ])
+    @include('position.partials.element-selection-js')
     <div class="content">
         <div class="row">
             <div class="col-12">
@@ -254,31 +209,26 @@
                 <div class="card">
                     <div class="card-body" style="padding:4px;">
                         @foreach ($organigrams as $organigram)
-                            <h5 class="card-title" style="padding:2px 4px;margin:2px 0;">
-                                <input type="checkbox" class="organigram-checkbox" name="selected_organigrams[]"
-                                    value="{{ $organigram->id }}"
-                                    {{ in_array($organigram->id, old('selected_organigrams', $position->organigrams->pluck('id')->toArray())) ? 'checked' : '' }}>
-
-                                {{ $organigram->name }}
+                            <h5 class="card-title organigram-toggle" style="padding:2px 4px;margin:2px 0;cursor:pointer;">
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px;margin-right:6px;"></i>{{ $organigram->name }}
                             </h5>
                             <div class="group-elements">
                                 @foreach ($organigram->group_elements as $group_element)
                                     <div class="card mb-1" style="padding:1px;margin-bottom:1px;">
                                         <div class="card-body" style="padding:4px;">
-                                            <h6 class="card-subtitle mb-2" style="padding:2px 4px;margin:2px 0;">
-                                                <input type="checkbox" class="group-element-checkbox"
-                                                    name="selected_group_elements[]" value="{{ $group_element->id }}"
-                                                    {{ in_array($group_element->id, old('selected_group_elements', $position->group_elements->pluck('id')->toArray())) ? 'checked' : '' }}>
-                                                {{ $group_element->name }}
+                                            <h6 class="card-subtitle mb-2 group-element-toggle" style="padding:2px 4px;margin:2px 0;cursor:pointer;">
+                                                <i class="fa-solid fa-chevron-right" style="font-size:9px;margin-right:6px;"></i>{{ $group_element->name }}
                                             </h6>
                                             <div class="elements">
                                                 @foreach ($group_element->elements as $element)
                                                     <div class="card" style="padding:1px;margin-bottom:1px;">
                                                         <div class="card-body" style="padding:4px;">
-                                                            <h6 class="card-subtitle" style="padding:2px 4px;margin:0;">
+                                                            <h6 class="card-subtitle element-card-title" data-element-id="{{ $element->id }}" style="padding:2px 4px;margin:0;">
                                                                 <input type="checkbox" name="selected_elements[]"
                                                                     class="element-checkbox"
                                                                     data-element-id="{{ $element->id }}"
+                                                                    data-group-element-id="{{ $group_element->id }}"
+                                                                    data-organigram-id="{{ $organigram->id }}"
                                                                     value="{{ $element->id }}"
                                                                     {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
                                                                 {{ $element->name }}
@@ -310,6 +260,7 @@
                     @endphp
                     @php
                         $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
+                        $pivotIsOptional = (bool) ($element->positions->first()->pivot->is_optional ?? false);
                     @endphp
                     <table class="table element-materials" id="element-materials-{{ $element->id }}"
                         style="display: {{ $isSelected ? '' : 'none' }}">
@@ -317,7 +268,15 @@
                             <tr>
                                 <th scope="col">Ans.</th>
                                 <th scope="col">Name</th>
-                                <th></th>
+                                <th scope="col">
+                                    <label style="margin:0;font-size:12px;">
+                                        <input type="checkbox" class="element-optional-checkbox"
+                                            name="element_optional[{{ $element->id }}]" value="1"
+                                            data-element-id="{{ $element->id }}"
+                                            {{ $pivotIsOptional ? 'checked' : '' }}>
+                                        Optional
+                                    </label>
+                                </th>
                                 <th scope="col">PStk.</th>
                                 <th scope="col">Total CHF</th>
                             </tr>
@@ -407,9 +366,10 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const organigramCheckboxes = document.querySelectorAll('.organigram-checkbox');
-            const groupElementCheckboxes = document.querySelectorAll('.group-element-checkbox');
+            const organigramToggles = document.querySelectorAll('.organigram-toggle');
+            const groupElementToggles = document.querySelectorAll('.group-element-toggle');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
+            const optionalElementCheckboxes = document.querySelectorAll('.element-optional-checkbox');
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
@@ -494,6 +454,23 @@
                     }
                 });
             });
+            optionalElementCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    applyOptionalElementVisualState(this.dataset.elementId);
+                    updateTotalProTypPrice();
+                });
+            });
+
+            function applyOptionalElementVisualState(elementId) {
+                const optionalCheckbox = document.querySelector(`.element-optional-checkbox[data-element-id="${elementId}"]`);
+                const isOptional = optionalCheckbox && optionalCheckbox.checked;
+                const title = document.querySelector(`.element-card-title[data-element-id="${elementId}"]`);
+                const table = document.getElementById(`element-materials-${elementId}`);
+
+                if (title) title.classList.toggle('optional-element-muted', !!isOptional);
+                if (table) table.classList.toggle('optional-element-muted', !!isOptional);
+            }
+            optionalElementCheckboxes.forEach(cb => applyOptionalElementVisualState(cb.dataset.elementId));
 
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {
@@ -633,6 +610,13 @@
                             `#element-materials-${elementId}`);
 
                         if (elementMaterialsTable && checkbox.checked) {
+                            const optionalCheckbox = document.querySelector(
+                                `.element-optional-checkbox[data-element-id="${elementId}"]`
+                            );
+                            const isElementOptional = optionalCheckbox && optionalCheckbox.checked;
+                            if (isElementOptional) {
+                                return;
+                            }
                             const elementQuantityInput = $(
                                 `.element-quantity-input[data-element-id="${elementId}"]`);
                             const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
@@ -730,35 +714,8 @@
                 }
             }
 
-            organigramCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const groupElements = this.parentElement.nextElementSibling;
-                    groupElements.style.display = this.checked ? 'block' : 'none';
-                });
-            });
+            initializePositionElementSelection(organigramToggles, groupElementToggles);
 
-            groupElementCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const elements = this.parentElement.nextElementSibling;
-                    elements.style.display = this.checked ? 'block' : 'none';
-                });
-            });
-            // Function to toggle visibility for a specific checkbox type
-            function toggleCheckboxVisibility(checkboxes, className) {
-                checkboxes.forEach(checkbox => {
-                    const elements = checkbox.parentElement.nextElementSibling;
-                    if (checkbox.checked) {
-                        elements.style.display = 'block';
-                    }
-                    checkbox.addEventListener('change', function() {
-                        const elements = checkbox.parentElement.nextElementSibling;
-                        elements.style.display = this.checked ? 'block' : 'none';
-                    });
-                });
-            }
-            toggleCheckboxVisibility(organigramCheckboxes, 'organigram');
-            toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
-            toggleCheckboxVisibility(elementCheckboxes, 'element');
         });
         // Add an event listener to toggle sublinks
         document.querySelectorAll('.toggle-sublinks').forEach(link => {

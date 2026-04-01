@@ -180,6 +180,7 @@
                 $groupedGroupElements[$organigram->name][$group_element->name][] = [
                     'quantity' => $element->pivot->quantity,
                     'element_name' => $element->name,
+                    'is_optional' => (bool) ($element->pivot->is_optional ?? false),
                     'materials' => $element->materials->map(function ($material) use ($element, $position) {
                         $positionMaterial = DB::table('position_materials')
                             ->where('position_id', $position->id)
@@ -228,7 +229,11 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 2px;">
                                         @foreach ($groupElements as $groupElement)
-                                            <strong>{{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}</strong><br>
+                                            <strong>{{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}
+                                                @if (!empty($groupElement['is_optional']))
+                                                    (Optional)
+                                                @endif
+                                            </strong><br>
                                             @foreach ($groupElement['materials'] as $material)
                                                 {{ $material['quantity'] }}{{ $material['unit'] }} {{ $material['name'] }}<br>
                                             @endforeach

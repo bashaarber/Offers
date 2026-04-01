@@ -97,14 +97,14 @@
             <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalElements }} </strong></p>
             <p>Total Brutto: CHF {{ number_format($totalBrutto, 2) }} </p>
             <p style="margin-bottom:30px">Rabbat: CHF -{{ number_format($totalDiscount, 2) }}</p>
-            <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</p></strong>
+            <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</strong></p>
             @php
                 $difference = $totalNetto;
                 $discountedAmount = $difference * 0.081;
             @endphp
 
             <p>MwSt 8.1% : CHF {{ number_format($discountedAmount, 2) }}</p>
-            <p><strong>Gesamt: CHF {{ number_format($difference + $discountedAmount, 2) }}</p></strong>
+            <p><strong>Gesamt: CHF {{ number_format($difference + $discountedAmount, 2) }}</strong></p>
             @if ($optionalPositions > 0)
                 <p style="font-size: 12px; margin-top: 8px;">
                     * {{ $optionalPositions }} optionale Position(en) sind im Gesamtpreis nicht enthalten.
@@ -129,6 +129,9 @@
         <hr>
     </div>
     <div style="page-break-after: always"></div>
+    @if ($offert->positions->isEmpty())
+        <p><strong>Keine Positionen vorhanden.</strong></p>
+    @endif
     @foreach ($offert->positions as $key => $position)
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
@@ -154,7 +157,6 @@
                     <td>{{ number_format($position->price_brutto, 2) }}</td>
                     <td>{{ $position->discount }}%</td>
                     <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
-                    </td>
                     <td> {{ $position->quantity }} </td>
                     <td>
                         @if ($position->is_optional)
@@ -162,8 +164,6 @@
                         @else
                             {{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
                         @endif
-                    </td>
-
                     </td>
                 </tr>
             </tbody>
@@ -180,6 +180,7 @@
                         $groupedGroupElements[$organigram->name][$group_element->name][] = [
                             'quantity' => $element->pivot->quantity,
                             'element_name' => $element->name,
+                            'is_optional' => (bool) ($element->pivot->is_optional ?? false),
                         ];
                     @endphp
                 @endforeach
@@ -217,7 +218,11 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
-                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
+                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}
+                                            @if (!empty($groupElement['is_optional']))
+                                                (Optional)
+                                            @endif
+                                            <br>
                                         @endforeach
                                     </td>
                                 </tr>
