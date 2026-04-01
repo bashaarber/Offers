@@ -12,7 +12,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 2px 4px;
+            padding: 1px 2px;
         }
 
         .organigram-checkbox,
@@ -25,14 +25,14 @@
         .group-elements,
         .elements {
             display: none;
-            padding-left: 10px;
+            padding-left: 4px;
         }
 
         .group-element,
         .element {
             border-left: 2px solid #3498db;
-            padding-left: 10px;
-            margin: 5px 0;
+            padding-left: 4px;
+            margin: 2px 0;
         }
 
         th {
@@ -40,27 +40,27 @@
         }
 
         .type-btn {
-            margin: 3px;
+            margin: 1px;
             border-radius: 6px !important;
-            font-size: 12px !important;
-            padding: 4px 12px !important;
+            font-size: 11px !important;
+            padding: 2px 8px !important;
             font-weight: 600 !important;
         }
 
         .pos-list-container {
             max-height: 200px;
             overflow-y: auto;
-            padding: 4px 8px;
+            padding: 1px 3px;
         }
 
         .pos-list-container a {
-            padding: 4px 8px !important;
-            font-size: 13px !important;
+            padding: 1px 3px !important;
+            font-size: 12px !important;
         }
 
         .pos-list-container .btn {
-            padding: 2px 8px !important;
-            font-size: 11px !important;
+            padding: 1px 5px !important;
+            font-size: 10px !important;
         }
     </style>
 </head>
@@ -75,35 +75,31 @@
             var footer = sidebar.querySelector('.sidebar-footer');
 
             var extras = document.createElement('div');
-            extras.style.cssText = 'padding:0 12px;';
+            extras.style.cssText = 'padding:0 4px;';
             extras.innerHTML = `
-                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
-                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
-                <div style="text-align:center;padding:4px 0;">
-                    <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 1</a>
-                    <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 2</a>
-                    <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 3</a>
-                    <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 4</a>
-                    <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-sm btn-outline-warning type-btn">Pos 5</a>
-                </div>
-                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
-                <div style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
+                <hr style="border-color:rgba(255,255,255,0.1);margin:6px 0;">
+                <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
+                <button type="button" class="btn btn-sm btn-success mt-1" onclick="window.location.href='{{ route('position.create', ['index' => $positions->count()]) }}?offert_id={{ $offertId }}'" style="width:100%;border-radius:8px;font-size:12px;">
+                    <i class="fa-solid fa-plus"></i> Create New Pos
+                </button>
+                <hr style="border-color:rgba(255,255,255,0.1);margin:6px 0;">
+                <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
             `;
 
             var posList = document.createElement('div');
             posList.className = 'pos-list-container';
-            posList.innerHTML = `@foreach ($positions as $pos)<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:13px;font-weight:500;"><strong>Pos. {{ $pos->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;" onclick="return confirm('Are you sure?');"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            posList.innerHTML = `@foreach ($positions as $pos)<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $pos->id) }}" style="color:{{ request()->segment(2) == $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:12px;font-weight:500;"><strong>Pos. {{ $pos->position_number }}</strong></a><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;">@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;" onclick="return confirm('Are you sure?');"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
             extras.appendChild(posList);
 
             // Update button
             var updateDiv = document.createElement('div');
-            updateDiv.style.cssText = 'padding:8px 0;text-align:center;';
+            updateDiv.style.cssText = 'padding:4px 0;text-align:center;';
             updateDiv.innerHTML = `<button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('updatePositionForm').submit();" style="width:100%;border-radius:8px;font-weight:600;"><i class="fa-solid fa-save" style="margin-right:6px;"></i>Update Position</button>`;
             extras.appendChild(updateDiv);
 
             // PDF links
             var pdfLinks = document.createElement('div');
-            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a>`;
+            pdfLinks.innerHTML = `<hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;"><a href="{{ route('offert.pdf', $offertId) }}" style="font-size:12px;padding:3px 4px;"><i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF</a>`;
             extras.appendChild(pdfLinks);
 
             sidebar.insertBefore(extras, footer);
@@ -234,7 +230,6 @@
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <textarea name="description2" rows="3" style="padding:4px;">{{ $position->description2 }}</textarea>
                     <div class="card-body" style="padding:4px;">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title" style="padding:2px 4px;margin:2px 0;">
@@ -276,6 +271,7 @@
                             </div>
                         @endforeach
                     </div>
+                    <textarea name="description2" rows="3" style="padding:4px;margin-top:6px;">{{ $position->description2 }}</textarea>
                 </div>
             </div>
             <div class="col-md-9 position">

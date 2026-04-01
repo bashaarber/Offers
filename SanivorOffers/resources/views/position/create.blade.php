@@ -13,7 +13,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 2px 4px;
+            padding: 1px 2px;
         }
 
         .organigram-checkbox,
@@ -26,14 +26,14 @@
         .group-elements,
         .elements {
             display: none;
-            padding-left: 10px;
+            padding-left: 4px;
         }
 
         .group-element,
         .element {
             border-left: 2px solid #3498db;
-            padding-left: 10px;
-            margin: 5px 0;
+            padding-left: 4px;
+            margin: 2px 0;
         }
 
         th {
@@ -41,19 +41,19 @@
         }
 
         .position-sidebar-section {
-            padding: 0 12px;
+            padding: 0 4px;
         }
 
         .position-sidebar-section hr {
             border-color: rgba(255,255,255,0.1);
-            margin: 8px 0;
+            margin: 4px 0;
         }
 
         .type-btn {
-            margin: 3px;
+            margin: 1px;
             border-radius: 6px !important;
-            font-size: 12px !important;
-            padding: 4px 12px !important;
+            font-size: 11px !important;
+            padding: 2px 8px !important;
             font-weight: 600 !important;
         }
 
@@ -66,7 +66,7 @@
         .pos-list-container {
             max-height: 200px;
             overflow-y: auto;
-            padding: 4px 8px;
+            padding: 1px 3px;
         }
 
         .pos-list-container table {
@@ -74,18 +74,18 @@
         }
 
         .pos-list-container a {
-            padding: 4px 8px !important;
-            font-size: 13px !important;
+            padding: 1px 3px !important;
+            font-size: 12px !important;
         }
 
         .pos-list-container .btn {
-            padding: 2px 8px !important;
-            font-size: 11px !important;
+            padding: 1px 5px !important;
+            font-size: 10px !important;
         }
 
         #auto-save-status {
-            font-size: 12px;
-            padding: 4px 0;
+            font-size: 11px;
+            padding: 2px 0;
         }
 
         .card {
@@ -94,11 +94,11 @@
         }
 
         .card-body {
-            padding: 4px 8px !important;
+            padding: 2px 4px !important;
         }
 
         .card h5, .card h6 {
-            margin-bottom: 4px !important;
+            margin-bottom: 2px !important;
         }
     </style>
 </head>
@@ -128,35 +128,33 @@
             extras.className = 'position-sidebar-section';
             extras.innerHTML = `
                 <hr>
-                <div class="sidebar-section-label" style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
-                <div id="type-buttons-container" style="text-align:center;padding:4px 0;">
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="0" onclick="switchType(0)">Pos 1</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="1" onclick="switchType(1)">Pos 2</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="2" onclick="switchType(2)">Pos 3</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="3" onclick="switchType(3)">Pos 4</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning type-btn" data-type="4" onclick="switchType(4)">Pos 5</button>
-                </div>
+                <div class="sidebar-section-label" style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
                 <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()" style="width:100%;border-radius:8px;font-size:12px;">
                     <i class="fa-solid fa-plus"></i> Create New Pos
                 </button>
+                <div style="padding:4px 0;text-align:center;">
+                    <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('createPositionForm').submit();" style="width:100%;border-radius:8px;font-weight:600;">
+                        <i class="fa-solid fa-save" style="margin-right:6px;"></i>Create Position
+                    </button>
+                </div>
                 <div id="auto-save-status" class="mt-1" style="color:#4ade80;font-size:12px;display:none;text-align:center;">
                     <i class="fa-solid fa-check-circle"></i> Auto-saving...
                 </div>
                 <hr>
-                <div class="sidebar-section-label" style="padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.35);">Positions</div>
+                <div class="sidebar-section-label" style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">Positions</div>
             `;
 
             // Create positions list
             var posList = document.createElement('div');
             posList.className = 'pos-list-container';
-            posList.innerHTML = `@foreach ($positions as $position)@php $latestPositionNumber = $positions->max('position_number'); $nextPositionNumber = $latestPositionNumber + 1; @endphp<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;"><strong>Pos. {{ $position->position_number }}</strong></a><div style="display:flex;gap:4px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
+            posList.innerHTML = `@foreach ($positions as $position)@php $latestPositionNumber = $positions->max('position_number'); $nextPositionNumber = $latestPositionNumber + 1; @endphp<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><a href="{{ route('position.edit', $position->id) }}" style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:500;"><strong>Pos. {{ $position->position_number }}</strong></a><div style="display:flex;gap:2px;"><form action="{{ route('position.copy', $position->id) }}" method="post" style="margin:0;">@csrf<button type="submit" class="btn btn-secondary btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-copy"></i></button></form><form action="{{ route('position.destroy', $position->id) }}" method="post" style="margin:0;" onsubmit='return confirm("Are you sure?");'>@csrf @method('DELETE')<button type="submit" class="btn btn-danger btn-sm" style="padding:1px 5px;font-size:10px;"><i class="fa-solid fa-trash-can"></i></button></form></div></div>@endforeach`;
             extras.appendChild(posList);
 
             // Add PDF links
             @if (request()->has('offert_id'))
             var pdfLinks = document.createElement('div');
-            pdfLinks.style.cssText = 'padding:8px 0;';
-            pdfLinks.innerHTML = `<hr><a href="{{ route('offert.pdf', request()->query('offert_id')) }}" style="font-size:13px;padding:6px 8px;"><i class="fa-solid fa-file-export" style="margin-right:8px;"></i>External PDF</a>`;
+            pdfLinks.style.cssText = 'padding:4px 0;';
+            pdfLinks.innerHTML = `<hr><a href="{{ route('offert.pdf', request()->query('offert_id')) }}" style="font-size:12px;padding:3px 4px;"><i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF</a>`;
             extras.appendChild(pdfLinks);
             @endif
 
@@ -269,7 +267,6 @@
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <textarea name="description2" rows="3"></textarea>
                     <div class="card-body">
                         @foreach ($organigrams as $organigram)
                             <h5 class="card-title">
@@ -307,6 +304,7 @@
                             </div>
                         @endforeach
                     </div>
+                    <textarea name="description2" rows="3" style="margin-top:6px;"></textarea>
                 </div>
             </div>
             <div class="col-md-9 position">
@@ -796,19 +794,7 @@
             toggleCheckboxVisibility(groupElementCheckboxes, 'group-element');
             toggleCheckboxVisibility(elementCheckboxes, 'element');
 
-            // Highlight current position button
-            const currentIndex = {{ $index ?? 'null' }};
-            if (currentIndex !== null) {
-                document.querySelectorAll('.type-btn').forEach(btn => {
-                    if (parseInt(btn.dataset.type) === currentIndex) {
-                        btn.classList.add('active');
-                        btn.style.backgroundColor = '#ffc107';
-                        btn.style.color = '#000';
-                    }
-                });
-            }
-
-            // Auto-save functionality - create Pos 1 and Pos 2 when selections are made
+            // Auto-save functionality for current position
             let autoSaveTimeout;
             const autoSaveDelay = 2000; // 2 seconds delay after last change
 
@@ -824,7 +810,7 @@
 
                     // Only auto-save if there are selections
                     if (selectedElements.length > 0 || selectedGroupElements.length > 0 || selectedOrganigrams.length > 0) {
-                        autoSaveForTypes([0, 1]);
+                        autoSaveCurrentPosition();
                     }
                 }, autoSaveDelay);
             }
@@ -850,19 +836,16 @@
                 triggerAutoSave();
             });
 
-            function autoSaveForTypes(types) {
+            function autoSaveCurrentPosition() {
                 const statusDiv = document.getElementById('auto-save-status');
                 statusDiv.style.display = 'block';
                 statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Auto-saving...';
 
-                types.forEach((typeIndex, index) => {
-                    setTimeout(() => {
-                        const formData = collectFormData(typeIndex);
-                        if (formData.selected_elements && formData.selected_elements.length > 0) {
-                            savePositionForType(formData, typeIndex, index === types.length - 1);
-                        }
-                    }, index * 500); // Stagger the requests
-                });
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                if (formData.selected_elements && formData.selected_elements.length > 0) {
+                    savePositionForType(formData, currentIndex, true);
+                }
             }
 
             function collectFormData(typeIndex) {
@@ -913,6 +896,17 @@
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
                     is_optional: document.getElementById('is_optional').checked ? 1 : 0,
+                    totalProTypPrice: document.getElementById('totalProTypPriceInput').value || 0,
+                    discountedTotal: document.getElementById('discountedTotalInput').value || 0,
+                    percentage: document.getElementById('percentageInput').value || 0,
+                    price_out: document.getElementById('priceOutInput').value || 0,
+                    zeit_cost: document.getElementById('zeitCostInput').value || 0,
+                    material_costo: document.getElementById('priceInInput').value || 0,
+                    material_profit: document.getElementById('priceProfit').value || 0,
+                    zeit_costo: document.getElementById('zeitCosto').value || 0,
+                    zeit_profit: document.getElementById('zeitProfit').value || 0,
+                    costo_total: document.getElementById('costoTotal').value || 0,
+                    profit_total: document.getElementById('profitTotal').value || 0,
                     auto_save: 1
                 };
             }
@@ -956,29 +950,10 @@
                 });
             }
 
-            function switchType(typeIndex) {
-                const offertId = document.getElementById('offert_id').value;
-                const baseUrl = '{{ route("position.create", ["index" => 0]) }}';
-                window.location.href = baseUrl.replace('/0', '/' + typeIndex) + '?offert_id=' + offertId;
-            }
-
             function addNewPos() {
-                const typeButtons = document.querySelectorAll('.type-btn');
-                const maxType = Math.max(...Array.from(typeButtons).map(btn => parseInt(btn.dataset.type)));
-                const newType = maxType + 1;
-
-                // Add new button
-                const container = document.getElementById('type-buttons-container');
-                const newButton = document.createElement('button');
-                newButton.type = 'button';
-                newButton.className = 'btn btn-md btn-outline-warning type-btn';
-                newButton.dataset.type = newType;
-                newButton.textContent = 'Pos ' + (newType + 1);
-                newButton.onclick = () => switchType(newType);
-                container.appendChild(newButton);
-
-                // Switch to new position
-                switchType(newType);
+                const offertId = document.getElementById('offert_id').value;
+                const nextIndex = {{ $positions->count() }};
+                window.location.href = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
             }
         });
         // Toggle sublinks handled by sidebar partial
