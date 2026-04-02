@@ -77,8 +77,29 @@
             font-size: 12px;
             color: #111827;
             background: #e2e8f0;
-            padding-left: 20px !important;
+            padding: 4px 8px !important;
             border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .element-card-title .element-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .element-optional-inline {
+            margin: 0;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .element-materials-wrap {
@@ -268,17 +289,30 @@
                                             </h6>
                                             <div class="elements">
                                                 @foreach ($group_element->elements as $element)
+                                                    @php
+                                                        $elPos = $position->elements->firstWhere('id', $element->id);
+                                                        $elOptionalSaved = $elPos ? (bool) ($elPos->pivot->is_optional ?? false) : false;
+                                                    @endphp
                                                     <div class="card" style="padding:1px;margin-bottom:1px;">
                                                         <div class="card-body" style="padding:4px;">
-                                                            <h6 class="card-subtitle element-card-title" data-element-id="{{ $element->id }}" style="padding:2px 4px;margin:0;">
-                                                                <input type="checkbox" name="selected_elements[]"
-                                                                    class="element-checkbox"
-                                                                    data-element-id="{{ $element->id }}"
-                                                                    data-group-element-id="{{ $group_element->id }}"
-                                                                    data-organigram-id="{{ $organigram->id }}"
-                                                                    value="{{ $element->id }}"
-                                                                    {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
-                                                                {{ $element->name }}
+                                                            <h6 class="card-subtitle element-card-title" data-element-id="{{ $element->id }}" style="margin:0;">
+                                                                <span class="element-name-row">
+                                                                    <input type="checkbox" name="selected_elements[]"
+                                                                        class="element-checkbox"
+                                                                        data-element-id="{{ $element->id }}"
+                                                                        data-group-element-id="{{ $group_element->id }}"
+                                                                        data-organigram-id="{{ $organigram->id }}"
+                                                                        value="{{ $element->id }}"
+                                                                        {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
+                                                                    <span>{{ $element->name }}</span>
+                                                                </span>
+                                                                <label class="element-optional-inline mb-0">
+                                                                    <input type="checkbox" class="element-optional-checkbox"
+                                                                        name="element_optional[{{ $element->id }}]" value="1"
+                                                                        data-element-id="{{ $element->id }}"
+                                                                        {{ $elOptionalSaved ? 'checked' : '' }}>
+                                                                    Optional
+                                                                </label>
                                                             </h6>
                                                         </div>
                                                     </div>
@@ -307,7 +341,6 @@
                     @endphp
                     @php
                         $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
-                        $pivotIsOptional = (bool) ($element->positions->first()->pivot->is_optional ?? false);
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">
@@ -315,15 +348,6 @@
                             <tr>
                                 <th scope="col">Ans.</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">
-                                    <label style="margin:0;font-size:12px;">
-                                        <input type="checkbox" class="element-optional-checkbox"
-                                            name="element_optional[{{ $element->id }}]" value="1"
-                                            data-element-id="{{ $element->id }}"
-                                            {{ $pivotIsOptional ? 'checked' : '' }}>
-                                        Optional
-                                    </label>
-                                </th>
                                 <th scope="col">PStk.</th>
                                 <th scope="col">Total CHF</th>
                             </tr>
@@ -336,7 +360,6 @@
                                         name="element_quantity[{{ $element->id }}]" value="{{ $pivotQuantity }}">
                                 </th>
                                 <th scope="col">{{ $element->name }}</th>
-                                <th></th>
                                 <th scope="col" class="total-materials-header"
                                     data-element-id="{{ $element->id }}">
                                     CHF <span class="total-materials-value">0</span> X
