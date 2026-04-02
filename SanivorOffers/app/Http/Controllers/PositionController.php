@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\Organigram;
 use Illuminate\Http\Request;
 use App\Models\PositionMaterial;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class PositionController extends Controller
@@ -21,6 +22,34 @@ class PositionController extends Controller
         }
 
         return $hasColumn;
+    }
+
+    /**
+     * Order elements the same way as the sidebar: organigram → group → element.
+     * First tree occurrence wins; any element not linked in the tree is appended at the end.
+     */
+    private function orderElementsByOrganigramTree(Collection $elements, Collection $organigrams): Collection
+    {
+        $byId = $elements->keyBy('id');
+        $ordered = collect();
+
+        foreach ($organigrams as $organigram) {
+            foreach ($organigram->group_elements as $groupElement) {
+                foreach ($groupElement->elements as $el) {
+                    if ($byId->has($el->id) && ! $ordered->has($el->id)) {
+                        $ordered->put($el->id, $byId->get($el->id));
+                    }
+                }
+            }
+        }
+
+        foreach ($byId as $id => $el) {
+            if (! $ordered->has($id)) {
+                $ordered->put($id, $el);
+            }
+        }
+
+        return $ordered->values();
     }
     /**
      * Display a listing of the resource.
@@ -89,8 +118,8 @@ class PositionController extends Controller
         })->orderBy('position_number', 'ASC')->get();
 
         $materials = Material::get();
-        $organigrams = Organigram::get();
-        $elements = Element::get();
+        $organigrams = Organigram::with(['group_elements.elements'])->get();
+        $elements = $this->orderElementsByOrganigramTree(Element::with('materials')->get(), $organigrams);
         $nextPositionNumber = (int) $index + 1;
 
         return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
@@ -245,10 +274,16 @@ class PositionController extends Controller
         })->orderBy('position_number', 'ASC')->get();
 
         $materials = Material::get();
-        $organigrams = Organigram::get();
-        $elements = Element::with(['positions' => function ($query) use ($id) {
-            $query->where('position_id', $id);
-        }])->get();
+        $organigrams = Organigram::with(['group_elements.elements'])->get();
+        $elements = $this->orderElementsByOrganigramTree(
+            Element::with([
+                'materials',
+                'positions' => function ($query) use ($id) {
+                    $query->where('position_id', $id);
+                },
+            ])->get(),
+            $organigrams
+        );
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
