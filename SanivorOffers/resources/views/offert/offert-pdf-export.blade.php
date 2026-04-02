@@ -147,11 +147,6 @@
     </div>
     <div style="page-break-after: always"></div>
     @foreach ($offert->positions as $key => $position)
-        <p style="margin: 10px 0 6px 0;">
-            Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach SIA
-            181. (Fraunhofer Institut Stuttgart)<br>
-            MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
-        </p>
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
@@ -248,8 +243,12 @@
             <tr style="border:0.25px solid black;">
                 <td colspan="3" style="padding: 10px;">
                     @if ($position->description2)
-                        {{ $position->description2 }}
+                        {{ $position->description2 }}<br>
+                        <hr>
                     @endif
+                    Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
+                    SIA 181. (Fraunhofer Institut Stuttgart)<br>
+                    MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
                 </td>
             </tr>
         </table>
