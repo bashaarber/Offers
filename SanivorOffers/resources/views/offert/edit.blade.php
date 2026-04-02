@@ -146,7 +146,7 @@
                                 <button type="submit" class="btn btn-primary mt-3">Update Offert</button>
                                 <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
                                 <a href="{{ route('offert.show', $offert->id) }}"
-                                    class="btn btn-info mt-3 float-right">Go to Position</a>
+                                    class="btn btn-info mt-3 float-right">View Offert</a>
                             </form>
                         </div>
                         {{-- @foreach ($offert->positions as $position)
