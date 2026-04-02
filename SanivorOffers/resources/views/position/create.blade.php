@@ -156,6 +156,7 @@
         'positions' => $positions,
         'offertId' => request()->query('offert_id'),
         'currentPositionId' => null,
+        'currentCreateNumber' => (int) ($index ?? 0) + 1,
         'nextCreateIndex' => max((int) $positions->count(), ((int) ($index ?? 0)) + 1),
         'showSaveButton' => true,
         'saveFormId' => 'createPositionForm',
@@ -955,9 +956,19 @@
 
             // Expose auto-save-and-navigate for the "New Position" button
             window.doAutoSaveAndNavigate = function(nextUrl) {
+                // Cancel any pending auto-save timer
+                clearTimeout(autoSaveTimeout);
+
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 const offertId = document.getElementById('offert_id').value;
+
+                // Only save if there are selected elements (meaningful data)
+                const hasData = formData.selected_elements && formData.selected_elements.length > 0;
+                if (!hasData) {
+                    window.location.href = nextUrl;
+                    return;
+                }
 
                 const statusDiv = document.getElementById('auto-save-status');
                 if (statusDiv) {
