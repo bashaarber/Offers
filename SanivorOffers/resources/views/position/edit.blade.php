@@ -111,10 +111,6 @@
             overflow: hidden;
         }
 
-        .element-materials {
-            margin-bottom: 0 !important;
-        }
-
         .element-materials thead tr {
             background: #111827;
             color: #fff;
@@ -130,41 +126,61 @@
             padding: 2px 6px;
         }
 
+        .element-materials {
+            margin-bottom: 0 !important;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .element-materials thead th:nth-child(1) {
+            width: 14%;
+        }
+
+        .element-materials thead th:nth-child(2) {
+            width: 38%;
+        }
+
+        .element-materials thead th:nth-child(3) {
+            width: 30%;
+        }
+
+        .element-materials thead th:nth-child(4) {
+            width: 18%;
+        }
+
+        .element-materials th,
+        .element-materials td {
+            vertical-align: middle;
+        }
+
+        .element-materials .col-name,
+        .element-materials td:nth-child(2) {
+            text-align: left;
+        }
+
+        .element-materials .col-pstk,
+        .element-materials td:nth-child(3) {
+            text-align: left;
+        }
+
+        .element-materials .col-total,
         .element-materials td.total {
             text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .element-materials td.total {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
 
         .element-materials .price-details {
-            text-align: right;
+            text-align: left;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-
-        .element-materials-name-pstk {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 10px 16px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
-        .element-materials-name-pstk .element-summary-name {
-            font-weight: 700;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .element-materials-name-pstk .mat-line-name {
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .element-materials-name-pstk .element-summary-pstk,
-        .element-materials-name-pstk .price-details {
-            flex: 0 0 auto;
-            text-align: right;
             white-space: nowrap;
+        }
+
+        .element-materials .element-summary-name {
+            font-weight: 700;
         }
     </style>
 </head>
@@ -378,7 +394,8 @@
                         <thead style="text-align: left">
                             <tr>
                                 <th scope="col">Ans.</th>
-                                <th scope="col">Name / PStk.</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">PStk.</th>
                                 <th scope="col">Total CHF</th>
                             </tr>
                         </thead>
@@ -389,17 +406,15 @@
                                         class="element-quantity-input" data-element-id="{{ $element->id }}"
                                         name="element_quantity[{{ $element->id }}]" value="{{ $pivotQuantity }}">
                                 </th>
-                                <th scope="col">
-                                    <div class="element-materials-name-pstk">
-                                        <span class="element-summary-name">{{ $element->name }}</span>
-                                        <span class="element-summary-pstk total-materials-header"
-                                            data-element-id="{{ $element->id }}">
-                                            CHF <span class="total-materials-value">0</span> X
-                                            <span class="element-quantity">{{ $pivotQuantity }}</span>
-                                        </span>
-                                    </div>
+                                <th scope="col" class="col-name">
+                                    <span class="element-summary-name">{{ $element->name }}</span>
                                 </th>
-                                <th scope="col" class="total-materials-header"
+                                <th scope="col" class="col-pstk total-materials-header"
+                                    data-element-id="{{ $element->id }}">
+                                    CHF <span class="total-materials-value">0</span> X
+                                    <span class="element-quantity">{{ $pivotQuantity }}</span>
+                                </th>
+                                <th scope="col" class="col-total total-materials-header"
                                     data-element-id="{{ $element->id }}">
                                     <span class="total-materials-value-header">0</span>
                                 </th>
@@ -421,17 +436,15 @@
                                             data-element-id="{{ $element->id }}"
                                             data-material-id="{{ $material->id }}"> {{ $material->unit }}
                                     </td>
-                                    <td>
-                                        <div class="element-materials-name-pstk">
-                                            <span class="mat-line-name">{{ $material->name }}</span>
-                                            <span class="price-details"
-                                                data-material-id="{{ $material->id }}"
-                                                data-material-price="{{ $material->total }}">
-                                                CHF <span class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span> X <span
-                                                    class="quantity">{{ $quantity }}</span>
-                                                {{ $material->unit }}
-                                            </span>
-                                        </div>
+                                    <td class="col-name">
+                                        {{ $material->name }}
+                                    </td>
+                                    <td class="col-pstk price-details"
+                                        data-material-id="{{ $material->id }}"
+                                        data-material-price="{{ $material->total }}">
+                                        CHF <span class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span> X <span
+                                            class="quantity">{{ $quantity }}</span>
+                                        {{ $material->unit }}
                                         <div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">
                                             <span class="material-price-out">CHF <span class="price-out">{{ $material->price_out }}</span></span>
                                             <span class="material-price-in">CHF <span class="price-in">{{ $material->price_in }}</span></span>
