@@ -27,10 +27,10 @@
                             <i class="fa-solid fa-grip-vertical drag-handle"
                                 style="cursor:grab;color:rgba(255,255,255,0.45);font-size:10px;"></i>
                             <a href="{{ route('position.edit', $pos->id) }}"
-                                style="color:{{ isset($currentPositionId) && (int) $currentPositionId === (int) $pos->id ? '#f59e0b' : 'rgba(255,255,255,0.7)' }};font-size:12px;font-weight:500;">
+                                style="color:{{ isset($currentPositionId) && (int) $currentPositionId === (int) $pos->id ? '#3b82f6' : 'rgba(255,255,255,0.7)' }};font-size:12px;font-weight:500;">
                                 <strong class="position-number-label">Pos. {{ $pos->position_number }}</strong>
                                 @if ($pos->is_optional)
-                                    <span style="font-size:10px;color:#f59e0b;margin-left:4px;">(Optional)</span>
+                                    <span style="font-size:10px;color:#3b82f6;margin-left:4px;">(Optional)</span>
                                 @endif
                             </a>
                         </div>
@@ -59,8 +59,8 @@
                 @if (isset($currentCreateNumber) && !$positions->contains('position_number', $currentCreateNumber))
                     <div style="display:flex;align-items:center;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
                         <div style="display:flex;align-items:center;gap:4px;">
-                            <i class="fa-solid fa-pen" style="color:#f59e0b;font-size:10px;"></i>
-                            <span style="color:#f59e0b;font-size:12px;font-weight:500;">
+                            <i class="fa-solid fa-pen" style="color:#3b82f6;font-size:10px;"></i>
+                            <span style="color:#3b82f6;font-size:12px;font-weight:500;">
                                 <strong>Pos. {{ $currentCreateNumber }}</strong>
                                 <span style="font-size:10px;margin-left:4px;">(new)</span>
                             </span>

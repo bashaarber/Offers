@@ -14,7 +14,7 @@
 
         .group-element,
         .element {
-            border-left: 2px solid #3498db;
+            border-left: 2px solid #475569;
             padding-left: 4px;
             margin: 2px 0;
         }
@@ -55,18 +55,18 @@
         .organigram-toggle {
             font-size: 14px;
             font-weight: 700;
-            border-left: 3px solid #3498db;
-            background: rgba(52, 152, 219, 0.12);
-            padding: 8px 10px !important;
+            border-left: 3px solid #1e40af;
+            background: rgba(30, 64, 175, 0.13);
+            padding: 5px 8px !important;
             border-radius: 6px;
         }
 
         .group-element-toggle {
             font-size: 13px;
             font-weight: 600;
-            border-left: 2px solid #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
-            padding: 6px 8px 6px 12px !important;
+            border-left: 2px solid #0e7490;
+            background: rgba(14, 116, 144, 0.10);
+            padding: 4px 6px 4px 10px !important;
             border-radius: 6px;
         }
 
