@@ -829,7 +829,9 @@
                 }
             }
 
-            initializePositionElementSelection(organigramToggles, groupElementToggles);
+            initializePositionElementSelection(organigramToggles, groupElementToggles, {
+                expandSelected: true
+            });
 
         });
         // Add an event listener to toggle sublinks
