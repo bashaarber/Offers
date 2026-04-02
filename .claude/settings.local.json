@@ -10,7 +10,16 @@
       "Bash(git merge:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git show:*)",
+      "Bash(php artisan:*)",
+      "Bash(/usr/local/bin/php --version)",
+      "Bash(/opt/homebrew/bin/php --version)",
+      "Bash(/opt/homebrew/bin/php artisan:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8123/pdf-export/1)",
+      "Bash(curl -s http://localhost:8123/pdf-export/1)",
+      "Bash(/opt/homebrew/bin/php -r \":*)"
     ]
   }
 }

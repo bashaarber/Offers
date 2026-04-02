@@ -67,10 +67,6 @@
             font-size: 10px !important;
         }
 
-        #auto-save-status {
-            font-size: 11px;
-            padding: 2px 0;
-        }
 
         .card {
             padding: 0 !important;
@@ -834,10 +830,6 @@
             });
 
             function autoSaveCurrentPosition() {
-                const statusDiv = document.getElementById('auto-save-status');
-                statusDiv.style.display = 'block';
-                statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Auto-saving...';
-
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 if (formData.selected_elements && formData.selected_elements.length > 0) {
@@ -930,27 +922,12 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (isLast) {
-                        const statusDiv = document.getElementById('auto-save-status');
-                        if (data.success) {
-                            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Auto-saved Pos ' + (typeIndex + 1);
-                            statusDiv.style.color = '#28a745';
-                            setTimeout(() => {
-                                statusDiv.style.display = 'none';
-                            }, 3000);
-                        } else {
-                            statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error saving';
-                            statusDiv.style.color = '#dc3545';
-                        }
+                    if (!data.success) {
+                        console.warn('Auto-save warning:', data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Auto-save error:', error);
-                    if (isLast) {
-                        const statusDiv = document.getElementById('auto-save-status');
-                        statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error saving';
-                        statusDiv.style.color = '#dc3545';
-                    }
                 });
             }
 
@@ -968,12 +945,6 @@
                 if (!hasData) {
                     window.location.href = nextUrl;
                     return;
-                }
-
-                const statusDiv = document.getElementById('auto-save-status');
-                if (statusDiv) {
-                    statusDiv.style.display = 'block';
-                    statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
                 }
 
                 fetch('{{ route("position.auto-save") }}', {

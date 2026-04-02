@@ -18,11 +18,6 @@
             style="width:100%;border-radius:8px;font-size:12px;">
             <i class="fa-solid fa-plus"></i> New Position
         </button>
-        <div id="auto-save-status" class="mt-1"
-            style="color:#4ade80;font-size:12px;display:none;text-align:center;">
-            <i class="fa-solid fa-check-circle"></i> Auto-saving...
-        </div>
-
         <div class="pos-list-container">
             <div id="sortable-position-list">
                 @foreach ($positions as $pos)
