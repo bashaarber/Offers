@@ -82,9 +82,11 @@
             @endphp
 
             @foreach ($offert->positions as $position)
+                @php
+                    $totalElements += (int) ($position->quantity ?? 0);
+                @endphp
                 @if (!$position->is_optional)
                     @php
-                        $totalElements += $position->quantity;
                         $totalBrutto += $position->price_brutto;
                         $totalNetto += $position->price_discount;
                         $totalDiscount += max($position->price_brutto - $position->price_discount, 0);
