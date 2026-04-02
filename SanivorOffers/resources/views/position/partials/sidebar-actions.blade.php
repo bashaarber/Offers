@@ -72,7 +72,7 @@
 
         <div style="padding:4px 0;">
             <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
-            <a href="{{ route('offert.pdf', $offertId) }}" style="font-size:12px;padding:3px 4px;">
+            <a href="{{ route('offert.pdf', $offertId) }}" target="_blank" rel="noopener noreferrer" style="font-size:12px;padding:3px 4px;">
                 <i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF
             </a>
         </div>
