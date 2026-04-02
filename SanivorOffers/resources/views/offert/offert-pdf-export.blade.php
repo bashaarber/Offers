@@ -18,6 +18,16 @@
             width: 100%;
             border-collapse: collapse;
         }
+
+        /* Space between Pos 1, Pos 2, … so blocks are not flush */
+        .pdf-position-block {
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+        }
+
+        .pdf-position-block:last-child {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 
@@ -150,6 +160,7 @@
     </div>
     <div style="page-break-after: always"></div>
     @foreach ($offert->positions as $key => $position)
+        <div class="pdf-position-block">
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
@@ -255,6 +266,7 @@
                 </td>
             </tr>
         </table>
+        </div>
     @endforeach
 </body>
 
