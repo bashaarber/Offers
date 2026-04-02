@@ -105,6 +105,10 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
 
+        if (empty($formFields['finish_date'])) {
+            $formFields['finish_date'] = $formFields['create_date'];
+        }
+
         $offert = Offert::create($formFields);
 
         return redirect()->route('position.create', ['index' => 0,'offert_id' => $offert->id]);
@@ -228,6 +232,11 @@ class OffertController extends Controller
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
+
+        if (empty($formFields['finish_date'])) {
+            $formFields['finish_date'] = $formFields['create_date'];
+        }
+
         $offert = Offert::find($id);
         $offert->update($formFields);
 

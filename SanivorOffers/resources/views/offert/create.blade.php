@@ -75,7 +75,8 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="finish_date">vom</label>
-                                    <input type="date" class="form-control" id="finish_date" name="finish_date">
+                                    <input type="date" class="form-control" id="finish_date" name="finish_date"
+                                        value="{{ old('finish_date', date('Y-m-d')) }}">
                                 </div>
                             </div>
 

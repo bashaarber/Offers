@@ -57,8 +57,11 @@
 
     <div>
         <div style="float: left;">
+            @php
+                $vomDateInternal = $offert->finish_date ?? $offert->create_date;
+            @endphp
             <p><strong>Ihr Auftrag: </strong> Email vom
-                {{ $offert->finish_date ? \Carbon\Carbon::parse($offert->finish_date)->format('d/m/Y') : '' }}</p>
+                {{ $vomDateInternal ? \Carbon\Carbon::parse($vomDateInternal)->format('d/m/Y') : '' }}</p>
             <p><strong>Ihre Referenz: </strong> {{ $offert->client_sign }}</p>
             <p><strong>Unsere Referenz: </strong> {{ $offert->user_sign }}</p>
         </div>
