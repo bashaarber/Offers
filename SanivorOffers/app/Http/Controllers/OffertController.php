@@ -44,6 +44,7 @@ class OffertController extends Controller
             }
 
             $offert->load([
+                'client',
                 'positions' => function ($query) {
                     $query->orderBy('position_number', 'ASC');
                 },

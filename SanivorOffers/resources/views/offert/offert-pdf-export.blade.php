@@ -42,16 +42,22 @@
         <a style="color:blue">www.sanivor.ch</a>
     </div>
     <div style="float: right;"><br>
-        <span><strong>Br&uuml;hwiler Sanit&auml;r &amp; Heizung AG </strong></span><br>
-        <span>Nordstrasse 205</span><br>
-        <span>8037 Z&uuml;rich</span>
+        <span><strong>{{ $offert->client->name ?? '' }}</strong></span><br>
+        @php
+            $clientAddressLines = preg_split('/\r\n|\r|\n/', (string) ($offert->client->address ?? ''));
+        @endphp
+        @foreach ($clientAddressLines as $line)
+            @if (trim($line) !== '')
+                <span>{{ $line }}</span><br>
+            @endif
+        @endforeach
     </div>
     <div style="clear: both;"></div>
     <hr>
 
     <div>
         <div style="float: left;">
-            <p><strong>Angebot NR: </strong> {{ $offert->id }}</p>
+            <p><strong>Angebot Nr.: </strong> {{ $offert->id }}</p>
             <p><strong>Datum: </strong> {{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</p>
         </div>
         <div style="margin-left:40%">
@@ -107,7 +113,7 @@
 
             <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalElements }} </strong></p>
             <p>Total Brutto: CHF {{ number_format($totalBrutto, 2) }} </p>
-            <p style="margin-bottom:30px">Rabbat: CHF -{{ number_format($totalDiscount, 2) }}</p>
+            <p style="margin-bottom:30px">Rabatt: CHF -{{ number_format($totalDiscount, 2) }}</p>
             <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</strong></p>
             @php
                 $difference = $totalNetto;
@@ -141,6 +147,11 @@
     </div>
     <div style="page-break-after: always"></div>
     @foreach ($offert->positions as $key => $position)
+        <p style="margin: 10px 0 6px 0;">
+            Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach SIA
+            181. (Fraunhofer Institut Stuttgart)<br>
+            MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
+        </p>
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr>
@@ -155,6 +166,11 @@
             </thead>
             <tbody>
                 <tr style="text-align: center;font-weight:bold">
+                    @php
+                        $quantity = max((float) ($position->quantity ?? 1), 1);
+                        $unitBrutto = (float) ($position->price_brutto ?? 0) / $quantity;
+                        $unitNetto = $unitBrutto * ((100 - (float) ($position->discount ?? 0)) / 100);
+                    @endphp
                     <td>
                         {{ $position->blocktype }}<br>
                         B:{{ $position->b }}
@@ -162,14 +178,11 @@
                         T:{{ $position->t }} (in cm)
                     </td>
                     <td></td>
-                    <td>{{ number_format($position->price_brutto, 2) }}</td>
+                    <td>{{ number_format($unitBrutto, 2) }}</td>
                     <td>{{ $position->discount }}%</td>
-                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100), 2) }}</td>
-                    </td>
+                    <td>{{ number_format($unitNetto, 2) }}</td>
                     <td> {{ $position->quantity }} </td>
-                    <td>{{ number_format($position->price_brutto * ((100 - $position->discount) / 100) * $position->quantity, 2) }}
-                    </td>
-
+                    <td>{{ number_format((float) ($position->price_discount ?? 0), 2) }}
                     </td>
                 </tr>
             </tbody>
@@ -235,18 +248,11 @@
             <tr style="border:0.25px solid black;">
                 <td colspan="3" style="padding: 10px;">
                     @if ($position->description2)
-                        {{ $position->description2 }}<br>
-                        <hr>
+                        {{ $position->description2 }}
                     @endif
-                    Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
-                    SIA 181. (Fraunhofer Institut Stuttgart)<br>
-                    MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
                 </td>
             </tr>
         </table>
-        @if ($key < count($offert->positions) - 1)
-            <div style="page-break-after: always"></div>
-        @endif
     @endforeach
 </body>
 

@@ -865,19 +865,7 @@
             function triggerAutoSave() {
                 clearTimeout(autoSaveTimeout);
                 autoSaveTimeout = setTimeout(() => {
-                    const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
-                        .map(cb => cb.value);
-                    const selectedGroupElements = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
-                        .map(cb => cb.dataset.groupElementId)
-                        .filter(Boolean))];
-                    const selectedOrganigrams = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
-                        .map(cb => cb.dataset.organigramId)
-                        .filter(Boolean))];
-
-                    // Only auto-save if there are selections
-                    if (selectedElements.length > 0 || selectedGroupElements.length > 0 || selectedOrganigrams.length > 0) {
-                        autoSaveCurrentPosition();
-                    }
+                    autoSaveCurrentPosition();
                 }, autoSaveDelay);
             }
 
@@ -893,8 +881,12 @@
             });
 
             // Listen to quantity and other input changes
-            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, #blocktype, #b, #h, #t').forEach(input => {
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput').forEach(input => {
                 input.addEventListener('input', function() {
+                    updateTotalProTypPrice();
+                    triggerAutoSave();
+                });
+                input.addEventListener('change', function() {
                     updateTotalProTypPrice();
                     triggerAutoSave();
                 });
@@ -903,9 +895,7 @@
             function autoSaveCurrentPosition() {
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
-                if (formData.selected_elements && formData.selected_elements.length > 0) {
-                    savePositionForType(formData, currentIndex, true);
-                }
+                savePositionForType(formData, currentIndex, true);
             }
 
             function collectFormData(typeIndex) {
@@ -1006,6 +996,25 @@
                 });
             }
 
+            function persistPositionBeforeLeave() {
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        position_id: currentPositionId,
+                        offert_id: document.getElementById('offert_id').value
+                    })
+                }).catch(() => {});
+            }
+
             // Expose auto-save-and-navigate for the "New Position" button
             window.doAutoSaveAndNavigate = function(nextUrl) {
                 // Cancel any pending auto-save timer
@@ -1014,13 +1023,6 @@
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 const offertId = document.getElementById('offert_id').value;
-
-                // Only save if there are selected elements (meaningful data)
-                const hasData = formData.selected_elements && formData.selected_elements.length > 0;
-                if (!hasData) {
-                    window.location.href = nextUrl;
-                    return;
-                }
 
                 fetch('{{ route("position.auto-save") }}', {
                     method: 'POST',
@@ -1043,6 +1045,16 @@
                     window.location.href = nextUrl;
                 });
             };
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden') {
+                    persistPositionBeforeLeave();
+                }
+            });
+
+            window.addEventListener('pagehide', function() {
+                persistPositionBeforeLeave();
+            });
 
         });
         // Toggle sublinks handled by sidebar partial
