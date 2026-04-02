@@ -203,8 +203,8 @@
             <div class="col-12">
                 <form id="updatePositionForm" method="POST" action="{{ route('position.update', $position->id) }}">
                     @csrf
-                    <input type="hidden" name="index" id="index" value="">
-                    <input type="hidden" name="offert_id" value="{{ $offertId }}">
+                    <input type="hidden" name="index" id="index" value="{{ max(0, (int) $position->position_number - 1) }}">
+                    <input type="hidden" name="offert_id" id="offert_id" value="{{ $offertId }}">
                     @method('PUT')
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput"
                         value="{{ $position->price_brutto }}">
@@ -229,7 +229,7 @@
                             <tr class="table-dark">
                                 <th scope="col">Rahmen <input style="width: 150px"
                                         value="Pos. {{ $position->position_number }}" disabled> mm </th>
-                                <th scope="col"> Desc. <input name="description"
+                                <th scope="col"> Desc. <input id="description" name="description"
                                         value="{{ $position->description }}"> </th>
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
@@ -259,11 +259,11 @@
                                         </option>
                                     </select>
                                 </th>
-                                <th scope="col"> B <input style="width: 150px" name="b"
+                                <th scope="col"> B <input id="b" style="width: 150px" name="b"
                                         value="{{ $position->b }}"> cm </th>
-                                <th scope="col"> H <input style="width: 150px" name="h"
+                                <th scope="col"> H <input id="h" style="width: 150px" name="h"
                                         value="{{ $position->h }}"> cm </th>
-                                <th scope="col"> T<input style="width: 150px" name="t"
+                                <th scope="col"> T <input id="t" style="width: 150px" name="t"
                                         value="{{ $position->t }}"> cm </th>
                             </tr>
                             <tr class="table-dark">
@@ -828,6 +828,182 @@
                     discountedTotalInput.value = discountedTotal.toFixed(2);
                 }
             }
+
+            // Auto-save (same flow as create): persists Menge (quantity) and other fields on change / tab away
+            let autoSaveTimeout;
+            let currentPositionId = {{ (int) $position->id }};
+            const autoSaveDelay = 2000;
+
+            function triggerAutoSave() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    autoSaveCurrentPosition();
+                }, autoSaveDelay);
+            }
+
+            function autoSaveCurrentPosition() {
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                savePositionForType(formData, currentIndex, true);
+            }
+
+            function collectFormData(typeIndex) {
+                const selectedElements = Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.value);
+                const selectedGroupElements = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.dataset.groupElementId)
+                    .filter(Boolean))];
+                const selectedOrganigrams = [...new Set(Array.from(document.querySelectorAll('.element-checkbox:checked'))
+                    .map(cb => cb.dataset.organigramId)
+                    .filter(Boolean))];
+                const elementOptional = {};
+                selectedElements.forEach(elementId => {
+                    const optionalCheckbox = document.querySelector(`.element-optional-checkbox[data-element-id="${elementId}"]`);
+                    elementOptional[elementId] = optionalCheckbox && optionalCheckbox.checked ? 1 : 0;
+                });
+                const elementQuantities = {};
+                selectedElements.forEach(elementId => {
+                    const quantityInput = document.querySelector(`.element-quantity-input[data-element-id="${elementId}"]`);
+                    if (quantityInput) {
+                        elementQuantities[elementId] = quantityInput.value || 1;
+                    }
+                });
+                const materialQuantities = {};
+                selectedElements.forEach(elementId => {
+                    materialQuantities[elementId] = {};
+                    document.querySelectorAll(`#element-materials-${elementId} .quantity-input`).forEach(input => {
+                        const materialId = input.dataset.materialId;
+                        if (materialId) {
+                            materialQuantities[elementId][materialId] = input.value;
+                        }
+                    });
+                });
+                return {
+                    index: typeIndex,
+                    description: document.getElementById('description') ? document.getElementById('description').value : '',
+                    description2: document.querySelector('textarea[name="description2"]') ? document.querySelector('textarea[name="description2"]').value : '',
+                    blocktype: document.getElementById('blocktype') ? document.getElementById('blocktype').value : '',
+                    b: document.getElementById('b') ? document.getElementById('b').value : '',
+                    h: document.getElementById('h') ? document.getElementById('h').value : '',
+                    t: document.getElementById('t') ? document.getElementById('t').value : '',
+                    selected_elements: selectedElements,
+                    selected_group_elements: selectedGroupElements,
+                    selected_organigrams: selectedOrganigrams,
+                    element_quantity: elementQuantities,
+                    element_optional: elementOptional,
+                    material_quantity: materialQuantities,
+                    quantity: document.getElementById('menge-input').value || 1,
+                    totalProTypPrice: document.getElementById('totalProTypPriceInput').value || 0,
+                    discountedTotal: document.getElementById('discountedTotalInput').value || 0,
+                    percentage: document.getElementById('percentageInput').value || 0,
+                    price_out: document.getElementById('priceOutInput').value || 0,
+                    zeit_cost: document.getElementById('zeitCostInput').value || 0,
+                    material_costo: document.getElementById('priceInInput').value || 0,
+                    material_profit: document.getElementById('priceProfit').value || 0,
+                    zeit_costo: document.getElementById('zeitCosto').value || 0,
+                    zeit_profit: document.getElementById('zeitProfit').value || 0,
+                    costo_total: document.getElementById('costoTotal').value || 0,
+                    profit_total: document.getElementById('profitTotal').value || 0,
+                    auto_save: 1
+                };
+            }
+
+            function savePositionForType(formData, typeIndex, isLast) {
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        position_id: currentPositionId,
+                        offert_id: document.getElementById('offert_id').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                    if (!data.success) {
+                        console.warn('Auto-save warning:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Auto-save error:', error);
+                });
+            }
+
+            function persistPositionBeforeLeave() {
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        position_id: currentPositionId,
+                        offert_id: document.getElementById('offert_id').value
+                    })
+                }).catch(() => {});
+            }
+
+            window.doAutoSaveAndNavigate = function(nextUrl) {
+                clearTimeout(autoSaveTimeout);
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                const offertId = document.getElementById('offert_id').value;
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                    window.location.href = nextUrl;
+                })
+                .catch(error => {
+                    console.error('Save before navigate error:', error);
+                    window.location.href = nextUrl;
+                });
+            };
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden') {
+                    persistPositionBeforeLeave();
+                }
+            });
+            window.addEventListener('pagehide', function() {
+                persistPositionBeforeLeave();
+            });
+
+            document.querySelectorAll('.element-checkbox, .element-optional-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    triggerAutoSave();
+                });
+            });
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput, #percentage-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    triggerAutoSave();
+                });
+                input.addEventListener('change', function() {
+                    triggerAutoSave();
+                });
+            });
 
             initializePositionElementSelection(organigramToggles, groupElementToggles, {
                 expandSelected: true

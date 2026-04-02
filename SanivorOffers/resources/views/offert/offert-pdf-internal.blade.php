@@ -80,14 +80,15 @@
                 $totalBrutto = 0;
                 $totalDiscount = 0;
                 $totalNetto = 0;
-                $totalElements = 0;
                 $optionalPositions = 0;
+                $totalMengeStk = (int) round(
+                    $offert->positions->sum(function ($position) {
+                        return (float) ($position->quantity ?? 0);
+                    })
+                );
             @endphp
 
             @foreach ($offert->positions as $position)
-                @php
-                    $totalElements += (int) ($position->quantity ?? 0);
-                @endphp
                 @if (!$position->is_optional)
                     @php
                         $totalBrutto += $position->price_brutto;
@@ -101,7 +102,7 @@
                 @endif
             @endforeach
 
-            <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalElements }} </strong></p>
+            <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalMengeStk }} </strong></p>
             <p>Total Brutto: CHF {{ number_format($totalBrutto, 2) }} </p>
             <p style="margin-bottom:30px">Rabbat: CHF -{{ number_format($totalDiscount, 2) }}</p>
             <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</p></strong>
