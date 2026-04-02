@@ -163,6 +163,7 @@
             text-align: left;
         }
 
+        .element-materials thead th:nth-child(4),
         .element-materials .col-total,
         .element-materials td.total {
             text-align: right;
@@ -391,12 +392,12 @@
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">
-                        <thead style="text-align: left">
+                        <thead>
                             <tr>
                                 <th scope="col">Ans.</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">PStk.</th>
-                                <th scope="col">Total CHF</th>
+                                <th scope="col" class="col-total">Total CHF</th>
                             </tr>
                         </thead>
                         <tbody>
