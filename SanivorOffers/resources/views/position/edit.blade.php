@@ -118,7 +118,7 @@
         'positions' => $positions,
         'offertId' => $offertId,
         'currentPositionId' => $position->id,
-        'nextCreateIndex' => (int) $position->position_number,
+        'nextCreateIndex' => (int) $positions->count(),
         'showSaveButton' => false,
         'saveFormId' => null,
     ])

@@ -120,7 +120,16 @@
         }
 
         window.addNewPos = function() {
-            window.location.href = '{{ url("/position/create") }}/{{ (int) $positions->count() + 1 }}?offert_id={{ $offertId }}';
+            const offertId = '{{ $offertId }}';
+            const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
+            const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
+
+            // Auto-save current position before navigating (if available)
+            if (typeof window.doAutoSaveAndNavigate === 'function') {
+                window.doAutoSaveAndNavigate(nextUrl);
+            } else {
+                window.location.href = nextUrl;
+            }
         };
     });
 </script>

@@ -156,7 +156,7 @@
         'positions' => $positions,
         'offertId' => request()->query('offert_id'),
         'currentPositionId' => null,
-        'nextCreateIndex' => ((int) ($index ?? 0)) + 1,
+        'nextCreateIndex' => max((int) $positions->count(), ((int) ($index ?? 0)) + 1),
         'showSaveButton' => true,
         'saveFormId' => 'createPositionForm',
     ])
@@ -952,6 +952,37 @@
                     }
                 });
             }
+
+            // Expose auto-save-and-navigate for the "New Position" button
+            window.doAutoSaveAndNavigate = function(nextUrl) {
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                const offertId = document.getElementById('offert_id').value;
+
+                const statusDiv = document.getElementById('auto-save-status');
+                if (statusDiv) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                }
+
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ ...formData, offert_id: offertId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    window.location.href = nextUrl;
+                })
+                .catch(error => {
+                    console.error('Save before navigate error:', error);
+                    window.location.href = nextUrl;
+                });
+            };
 
         });
         // Toggle sublinks handled by sidebar partial

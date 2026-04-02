@@ -91,8 +91,9 @@ class PositionController extends Controller
         $materials = Material::get();
         $organigrams = Organigram::get();
         $elements = Element::get();
+        $nextPositionNumber = (int) $index + 1;
 
-        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index','offert'));
+        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
     }
 
     /**
