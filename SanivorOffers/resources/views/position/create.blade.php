@@ -859,6 +859,7 @@
 
             // Auto-save functionality for current position
             let autoSaveTimeout;
+            let currentPositionId = null;
             const autoSaveDelay = 2000; // 2 seconds delay after last change
 
             function triggerAutoSave() {
@@ -987,11 +988,15 @@
                     },
                     body: JSON.stringify({
                         ...formData,
+                        position_id: currentPositionId,
                         offert_id: document.getElementById('offert_id').value
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
                     if (!data.success) {
                         console.warn('Auto-save warning:', data.message);
                     }
@@ -1024,10 +1029,13 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
                                       document.querySelector('input[name="_token"]').value
                     },
-                    body: JSON.stringify({ ...formData, offert_id: offertId })
+                    body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 })
                 .then(response => response.json())
                 .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
                     window.location.href = nextUrl;
                 })
                 .catch(error => {

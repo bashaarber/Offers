@@ -131,7 +131,10 @@ class PositionController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        $latestOffert = Offert::where('user_id', $user->id)->latest()->first();
+        $offertId = $request->input('offert_id');
+        $latestOffert = $offertId
+            ? Offert::find($offertId)
+            : Offert::where('user_id', $user->id)->latest()->first();
         $description = $request->input('description');
         $description2 = $request->input('description2');
         $blocktype = $request->input('blocktype');
@@ -247,8 +250,7 @@ class PositionController extends Controller
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
 
-        // return redirect()->route('position.create', ['offert_id' => $latestOffert ? $latestOffert->id : null]);
-        return redirect()->route('position.create', ['index' => $request->input('index'), 'offert_id' => $latestOffert ? $latestOffert->id : null]);
+        return redirect()->route('position.edit', $position->id);
     }
 
     /**
@@ -476,12 +478,26 @@ class PositionController extends Controller
             $requestedIndex = (int) ($data['index'] ?? 0);
             $requestedPositionNumber = $requestedIndex + 1;
 
-            // Check if position already exists for this explicit position number in this offer.
-            $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-                $query->where('id', $offertId);
-            })
-            ->where('position_number', $requestedPositionNumber)
-            ->first();
+            $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
+
+            // Prefer explicit position ID from the client to avoid cross-position overwrites.
+            $existingPosition = null;
+            if ($requestedPositionId) {
+                $existingPosition = Position::where('id', $requestedPositionId)
+                    ->whereHas('offerts', function ($query) use ($offertId) {
+                        $query->where('id', $offertId);
+                    })
+                    ->first();
+            }
+
+            // Fallback for older clients that don't send position_id yet.
+            if (!$existingPosition) {
+                $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+                    $query->where('id', $offertId);
+                })
+                ->where('position_number', $requestedPositionNumber)
+                ->first();
+            }
 
             if ($existingPosition) {
                 // Update existing position
