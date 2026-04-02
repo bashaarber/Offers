@@ -311,7 +311,7 @@
                                                                         name="element_optional[{{ $element->id }}]" value="1"
                                                                         data-element-id="{{ $element->id }}"
                                                                         {{ $elOptionalSaved ? 'checked' : '' }}>
-                                                                    Optional
+                                                                    Opt.
                                                                 </label>
                                                             </h6>
                                                         </div>

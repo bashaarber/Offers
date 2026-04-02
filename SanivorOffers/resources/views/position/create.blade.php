@@ -319,7 +319,7 @@
                                                                     <input type="checkbox" class="element-optional-checkbox"
                                                                         name="element_optional[{{ $element->id }}]" value="1"
                                                                         data-element-id="{{ $element->id }}">
-                                                                    Optional
+                                                                    Opt.
                                                                 </label>
                                                             </h6>
                                                         </div>
