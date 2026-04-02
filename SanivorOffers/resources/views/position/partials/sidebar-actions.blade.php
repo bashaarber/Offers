@@ -72,7 +72,7 @@
 
         <div style="padding:4px 0;">
             <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
-            <a href="{{ route('offert.pdf', $offertId) }}" target="_blank" rel="noopener noreferrer" style="font-size:12px;padding:3px 4px;">
+            <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer" style="font-size:12px;padding:3px 4px;">
                 <i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF
             </a>
         </div>
@@ -89,6 +89,18 @@
             const wrapper = document.createElement('div');
             wrapper.innerHTML = template.innerHTML;
             sidebar.insertBefore(wrapper.firstElementChild, footer);
+        }
+
+        // External PDF: persist current position (and any unsaved edits) before opening, so the PDF matches the UI
+        if (sidebar) {
+            sidebar.addEventListener('click', function(e) {
+                const link = e.target.closest('a.external-pdf-link');
+                if (!link) return;
+                if (typeof window.openExternalPdfAfterSave === 'function') {
+                    e.preventDefault();
+                    window.openExternalPdfAfterSave(link.getAttribute('href'));
+                }
+            });
         }
 
         const sortableList = document.getElementById('sortable-position-list');

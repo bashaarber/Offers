@@ -183,6 +183,59 @@
         .element-materials .element-summary-name {
             font-weight: 700;
         }
+
+        /* Compact density: right-hand materials panel only (not the organigram column) */
+        .position-materials-panel {
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .position-materials-panel .element-materials-wrap {
+            margin-bottom: 8px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .position-materials-panel .element-materials {
+            font-size: 11px;
+        }
+
+        .position-materials-panel .element-materials thead th {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 0.2rem 0.35rem;
+        }
+
+        .position-materials-panel .element-materials tbody th,
+        .position-materials-panel .element-materials tbody td {
+            padding: 0.2rem 0.35rem;
+            font-size: 11px;
+        }
+
+        .position-materials-panel .element-materials tr.table-dark th {
+            padding: 0.22rem 0.35rem;
+            font-size: 11px;
+        }
+
+        .position-materials-panel .element-materials input[type="number"] {
+            padding: 1px 4px;
+            font-size: 11px;
+            line-height: 1.2;
+            min-height: 22px;
+            border-radius: 4px;
+        }
+
+        .position-materials-panel .element-quantity-input {
+            width: 72px !important;
+        }
+
+        .position-materials-panel .quantity-input {
+            width: 58px !important;
+        }
+
+        .position-materials-panel .element-summary-name {
+            font-size: 11px;
+        }
     </style>
 </head>
 
@@ -375,7 +428,7 @@
                     <textarea name="description2" rows="3" style="padding:4px;margin-top:6px;">{{ $position->description2 }}</textarea>
                 </div>
             </div>
-            <div class="col-md-9 position">
+            <div class="col-md-9 position position-materials-panel">
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $position->elements->contains($element->id);
@@ -979,6 +1032,33 @@
                 .catch(error => {
                     console.error('Save before navigate error:', error);
                     window.location.href = nextUrl;
+                });
+            };
+
+            window.openExternalPdfAfterSave = function(pdfUrl) {
+                clearTimeout(autoSaveTimeout);
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                const offertId = document.getElementById('offert_id').value;
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+                })
+                .catch(error => {
+                    console.error('Save before PDF error:', error);
+                    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
                 });
             };
 
