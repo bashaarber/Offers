@@ -86,9 +86,11 @@
             font-style: italic;
         }
 
+        /* Override global layout h6 { color:#fff; background:gradient } for readability */
         .organigram-toggle {
             font-size: 14px;
             font-weight: 700;
+            color: #111827;
             border-left: 3px solid #1e40af;
             background: rgba(30, 64, 175, 0.13);
             padding: 5px 8px !important;
@@ -98,6 +100,7 @@
         .group-element-toggle {
             font-size: 13px;
             font-weight: 600;
+            color: #111827;
             border-left: 2px solid #0e7490;
             background: rgba(14, 116, 144, 0.10);
             padding: 4px 6px 4px 10px !important;
@@ -106,7 +109,10 @@
 
         .element-card-title {
             font-size: 12px;
+            color: #111827;
+            background: #e2e8f0;
             padding-left: 20px !important;
+            border-radius: 6px;
         }
 
         .element-materials-wrap {
