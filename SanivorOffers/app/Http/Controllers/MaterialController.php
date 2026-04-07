@@ -60,7 +60,7 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total_neto = $price_in + ($price_in * $coefficient->material);
+        $total_neto = ($price_out * $coefficient->material);
         $total = $total_neto + $zeit_cost;
 
         $materials = new Material();
@@ -129,7 +129,7 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total_neto = $price_in + ($price_in * $coefficient->material);
+        $total_neto = ($price_out * $coefficient->material);
         $total = $total_neto + $zeit_cost;
 
         // Update the existing material instance
