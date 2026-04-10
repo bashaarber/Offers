@@ -17,5 +17,6 @@ class Coefficient extends Model
         'material',
         'difficulty',
         'payment_conditions',
+        'default_rabatt',
     ];
 }

@@ -63,7 +63,10 @@ class CoefficientController extends Controller
             'material' => 'required',
             'difficulty' => 'required',
             'payment_conditions' => 'required',
+            'default_rabatt' => 'nullable|numeric|min:0|max:100',
         ]);
+
+        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
 
         $coefficient = Coefficient::find($id);
 

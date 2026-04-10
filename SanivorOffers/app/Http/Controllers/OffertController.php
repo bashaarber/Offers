@@ -117,7 +117,10 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
         if ($this->hasDefaultRabattColumn()) {
-            $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+            $coefficientDefaultRabatt = Coefficient::value('default_rabatt') ?? 0;
+            $formFields['default_rabatt'] = $request->filled('default_rabatt')
+                ? $request->input('default_rabatt')
+                : $coefficientDefaultRabatt;
         } else {
             unset($formFields['default_rabatt']);
         }
@@ -251,7 +254,10 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
         if ($this->hasDefaultRabattColumn()) {
-            $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+            $coefficientDefaultRabatt = Coefficient::value('default_rabatt') ?? 0;
+            $formFields['default_rabatt'] = $request->filled('default_rabatt')
+                ? $request->input('default_rabatt')
+                : $coefficientDefaultRabatt;
         } else {
             unset($formFields['default_rabatt']);
         }

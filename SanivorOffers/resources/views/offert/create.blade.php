@@ -15,6 +15,24 @@
     .select-users + .select2-container .select2-selection--single {
         height: 35px;
     }
+
+    .rabatt-section-card {
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background: #f8fbff;
+        padding: 14px 16px 8px;
+        margin-bottom: 12px;
+    }
+
+    .rabatt-input {
+        -moz-appearance: textfield;
+    }
+
+    .rabatt-input::-webkit-outer-spin-button,
+    .rabatt-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 </style>
 
 <body>
@@ -130,11 +148,16 @@
                                         value="{{ $coefficient->labor_price }}" required>
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
-                                    <input type="number" class="form-control" id="default_rabatt" name="default_rabatt"
-                                        value="0" min="0" max="100" step="0.01">
+                            <h6>Standard Rabatt</h6>
+                            <div class="rabatt-section-card">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
+                                        <input type="text" class="form-control rabatt-input" id="default_rabatt"
+                                            name="default_rabatt"
+                                            value="{{ old('default_rabatt', $coefficient->default_rabatt ?? 0) }}"
+                                            inputmode="decimal" placeholder="0.00">
+                                    </div>
                                 </div>
                             </div>
                             @endforeach
