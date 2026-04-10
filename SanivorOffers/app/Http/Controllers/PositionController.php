@@ -25,6 +25,31 @@ class PositionController extends Controller
     }
 
     /**
+     * Whether the element is marked optional in request data (handles int/string key mismatches).
+     */
+    private function elementOptionalFromRequestMap(array $elementOptionalMap, mixed $elementId): bool
+    {
+        if (! $this->hasElementPivotOptionalColumn()) {
+            return false;
+        }
+
+        $keys = [$elementId, (string) $elementId];
+        if (is_numeric($elementId)) {
+            $keys[] = (int) $elementId;
+        }
+
+        foreach ($keys as $key) {
+            if (! array_key_exists($key, $elementOptionalMap)) {
+                continue;
+            }
+
+            return Position::truthyElementOptionalPivot($elementOptionalMap[$key]);
+        }
+
+        return false;
+    }
+
+    /**
      * Order elements the same way as the sidebar: organigram → group → element.
      * First tree occurrence wins; any element not linked in the tree is appended at the end.
      */
@@ -226,7 +251,7 @@ class PositionController extends Controller
             if (in_array($elementId, $selectedElementIds)) {
                 $pivotData = ['quantity' => $quantity];
                 if ($supportsElementOptionalPivot) {
-                    $pivotData['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                    $pivotData['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                 }
                 $position->elements()->attach([
                     $elementId => $pivotData,
@@ -385,7 +410,7 @@ class PositionController extends Controller
             if (in_array($elementId, $selectedElementIds)) {
                 $pivotData = ['quantity' => $quantity];
                 if ($supportsElementOptionalPivot) {
-                    $pivotData['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                    $pivotData['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                 }
                 $position->elements()->attach([
                     $elementId => $pivotData,
@@ -571,7 +596,7 @@ class PositionController extends Controller
                     $quantity = $data['element_quantity'][$elementId] ?? 1;
                     $elementsToAttach[$elementId] = ['quantity' => $quantity];
                     if ($supportsElementOptionalPivot) {
-                        $elementsToAttach[$elementId]['is_optional'] = isset($elementOptionalMap[$elementId]) && (int) $elementOptionalMap[$elementId] === 1;
+                        $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                     }
                 }
                 $position->elements()->sync($elementsToAttach);

@@ -10,6 +10,30 @@ use Illuminate\Support\Facades\Schema;
 class Position extends Model
 {
     use HasFactory;
+
+    /**
+     * Normalize element_position.is_optional for PDF / display (bool, int, string from DB/drivers).
+     */
+    public static function truthyElementOptionalPivot($value): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_int($value)) {
+            return $value === 1;
+        }
+        if (is_string($value)) {
+            $v = strtolower(trim($value));
+
+            return in_array($v, ['1', 'true', 't', 'yes', 'on'], true);
+        }
+
+        return (bool) $value;
+    }
+
     protected $fillable = [
         'description',
         'description2',

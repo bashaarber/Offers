@@ -186,7 +186,7 @@
                 $groupedGroupElements[$organigram->name][$group_element->name][] = [
                     'quantity' => $element->pivot->quantity,
                     'element_name' => $element->name,
-                    'is_optional' => (bool) ($element->pivot->is_optional ?? false),
+                    'is_optional' => \App\Models\Position::truthyElementOptionalPivot($element->pivot->is_optional ?? null),
                     'materials' => $element->materials->map(function ($material) use ($element, $position) {
                         $positionMaterial = DB::table('position_materials')
                             ->where('position_id', $position->id)
