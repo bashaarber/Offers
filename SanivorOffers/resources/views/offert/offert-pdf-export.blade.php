@@ -98,6 +98,8 @@
             }
         }
 
+        $pdfFooterName = trim((string) $unsereReferenzLine) !== '' ? $unsereReferenzLine : $defaultSignature;
+
         $chf = function ($value, int $decimals = 2) {
             return number_format((float) $value, $decimals, '.', "'");
         };
@@ -217,7 +219,7 @@
     <div>
         <hr>
         {!! nl2br(e($pdfClosingText)) !!}
-        <p style="margin-top: 10px;">{{ $defaultSignature }}</p>
+        <p style="margin-top: 10px;">{{ $pdfFooterName }}</p>
         <hr>
     </div>
     <div style="page-break-after: always"></div>

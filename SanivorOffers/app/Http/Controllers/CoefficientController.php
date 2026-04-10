@@ -19,16 +19,6 @@ class CoefficientController extends Controller
         return $hasColumn;
     }
 
-    private function hasDefaultSignatureColumn(): bool
-    {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('coefficients', 'default_signature');
-        }
-
-        return $hasColumn;
-    }
-
     private function hasDefaultUnsereReferenzColumn(): bool
     {
         static $hasColumn = null;
@@ -105,7 +95,6 @@ class CoefficientController extends Controller
             'difficulty' => 'required',
             'payment_conditions' => 'required',
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
-            'default_signature' => 'nullable|string|max:255',
             'default_unsere_referenz' => 'nullable|string|max:255',
             'pdf_external_closing_text' => 'nullable|string|max:65000',
         ]);
@@ -122,10 +111,6 @@ class CoefficientController extends Controller
 
         if ($this->hasDefaultRabattColumn()) {
             $payload['default_rabatt'] = $request->input('default_rabatt', 20);
-        }
-
-        if ($this->hasDefaultSignatureColumn()) {
-            $payload['default_signature'] = $request->input('default_signature', 'Arber Basha');
         }
 
         if ($this->hasDefaultUnsereReferenzColumn()) {

@@ -74,7 +74,7 @@
                                         <input type="text" class="form-control" name="default_unsere_referenz"
                                             value="{{ old('default_unsere_referenz', $coefficient->default_unsere_referenz ?? '') }}"
                                             placeholder="e.g. Blerant Kqiku — used if the offer has no &quot;Unser Zeichen&quot;">
-                                        <small class="form-text text-muted">Shown as &quot;Unsere Referenz:&quot; in the external PDF header only. If the offer &quot;Unser Zeichen&quot; is empty, this default is used.</small>
+                                        <small class="form-text text-muted">Used for &quot;Unsere Referenz&quot; in the external PDF header when the offer &quot;Unser Zeichen&quot; is empty. The same text is printed after the closing paragraph when set; otherwise the built-in default name from the database is used there.</small>
                                     @else
                                         <span class="text-muted">Run migrations to enable.</span>
                                     @endif
@@ -90,15 +90,6 @@
                                     @else
                                         <span class="text-muted">Run migrations to enable.</span>
                                     @endif
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Default signature (name)</td>
-                                <td>
-                                    <input type="text" class="form-control" name="default_signature"
-                                        value="{{ $coefficient->default_signature ?? 'Arber Basha' }}"
-                                        placeholder="e.g. Arber Basha">
-                                    <small class="form-text text-muted">Printed after the closing text on the external PDF (no duplicate &quot;Unsere Referenz&quot; line there).</small>
                                 </td>
                             </tr>
                             <tr>
