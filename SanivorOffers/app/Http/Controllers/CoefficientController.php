@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coefficient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class CoefficientController extends Controller
@@ -87,21 +88,44 @@ class CoefficientController extends Controller
             'default_signature' => 'nullable|string|max:255',
         ]);
 
+        $payload = [
+            'validity' => $formFields['validity'],
+            'labor_cost' => $formFields['labor_cost'],
+            'labor_price' => $formFields['labor_price'],
+            'service' => $formFields['service'],
+            'material' => $formFields['material'],
+            'difficulty' => $formFields['difficulty'],
+            'payment_conditions' => $formFields['payment_conditions'],
+        ];
+
         if ($this->hasDefaultRabattColumn()) {
-            $formFields['default_rabatt'] = $request->input('default_rabatt', 20);
-        } else {
-            unset($formFields['default_rabatt']);
+            $payload['default_rabatt'] = $request->input('default_rabatt', 20);
         }
 
         if ($this->hasDefaultSignatureColumn()) {
-            $formFields['default_signature'] = $request->input('default_signature', 'Arber Basha');
-        } else {
-            unset($formFields['default_signature']);
+            $payload['default_signature'] = $request->input('default_signature', 'Arber Basha');
         }
 
-        $coefficient = Coefficient::find($id);
+        $coefficient = Coefficient::findOrFail($id);
 
-        $coefficient->update($formFields);
+        try {
+            $coefficient->update($payload);
+        } catch (\Throwable $e) {
+            // Production safety: if schema is behind, update core fields instead of 500.
+            Log::error('Coefficient update failed, retrying with core fields only', [
+                'coefficient_id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+            $coefficient->update([
+                'validity' => $payload['validity'],
+                'labor_cost' => $payload['labor_cost'],
+                'labor_price' => $payload['labor_price'],
+                'service' => $payload['service'],
+                'material' => $payload['material'],
+                'difficulty' => $payload['difficulty'],
+                'payment_conditions' => $payload['payment_conditions'],
+            ]);
+        }
 
         return redirect()->route('coefficient.index');
     }
