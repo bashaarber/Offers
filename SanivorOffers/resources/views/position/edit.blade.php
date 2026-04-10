@@ -429,6 +429,23 @@
                 </div>
             </div>
             <div class="col-md-9 position position-materials-panel">
+                {{-- Single column header shown only once at the top --}}
+                <table class="table element-materials" style="margin-bottom:0; border-radius:10px 10px 0 0; overflow:hidden;">
+                    <colgroup>
+                        <col style="width:14%">
+                        <col style="width:38%">
+                        <col style="width:30%">
+                        <col style="width:18%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">Ans.</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">PStk.</th>
+                            <th scope="col" class="col-total">Total CHF</th>
+                        </tr>
+                    </thead>
+                </table>
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $position->elements->contains($element->id);
@@ -445,14 +462,12 @@
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">
-                        <thead>
-                            <tr>
-                                <th scope="col">Ans.</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">PStk.</th>
-                                <th scope="col" class="col-total">Total CHF</th>
-                            </tr>
-                        </thead>
+                        <colgroup>
+                            <col style="width:14%">
+                            <col style="width:38%">
+                            <col style="width:30%">
+                            <col style="width:18%">
+                        </colgroup>
                         <tbody>
                             <tr style="text-align: left" class="table-dark">
                                 <th scope="col">
