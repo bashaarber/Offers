@@ -60,6 +60,11 @@ class Position extends Model
 
     public function elementsForPdf(): BelongsToMany
     {
-        return $this->belongsToMany(Element::class)->withPivot('quantity', 'is_optional')->withTimestamps();
+        $relation = $this->belongsToMany(Element::class)->withPivot('quantity');
+        if (Schema::hasColumn('element_position', 'is_optional')) {
+            $relation->withPivot('is_optional');
+        }
+
+        return $relation->withTimestamps();
     }
 }
