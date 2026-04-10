@@ -4,9 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Coefficient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CoefficientController extends Controller
 {
+    private function hasDefaultRabattColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('coefficients', 'default_rabatt');
+        }
+
+        return $hasColumn;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -66,7 +76,11 @@ class CoefficientController extends Controller
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+        if ($this->hasDefaultRabattColumn()) {
+            $formFields['default_rabatt'] = $request->input('default_rabatt', 20);
+        } else {
+            unset($formFields['default_rabatt']);
+        }
 
         $coefficient = Coefficient::find($id);
 

@@ -24,6 +24,16 @@ class OffertController extends Controller
         return $hasColumn;
     }
 
+    private function hasCoefficientDefaultRabattColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('coefficients', 'default_rabatt');
+        }
+
+        return $hasColumn;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -117,7 +127,9 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
         if ($this->hasDefaultRabattColumn()) {
-            $coefficientDefaultRabatt = Coefficient::value('default_rabatt') ?? 0;
+            $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
+                ? (Coefficient::value('default_rabatt') ?? 20)
+                : 20;
             $formFields['default_rabatt'] = $request->filled('default_rabatt')
                 ? $request->input('default_rabatt')
                 : $coefficientDefaultRabatt;
@@ -254,7 +266,9 @@ class OffertController extends Controller
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
         if ($this->hasDefaultRabattColumn()) {
-            $coefficientDefaultRabatt = Coefficient::value('default_rabatt') ?? 0;
+            $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
+                ? (Coefficient::value('default_rabatt') ?? 20)
+                : 20;
             $formFields['default_rabatt'] = $request->filled('default_rabatt')
                 ? $request->input('default_rabatt')
                 : $coefficientDefaultRabatt;

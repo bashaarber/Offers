@@ -24,7 +24,7 @@ class CoefficientSeeder extends Seeder
                 'material' => 1.3,
                 'difficulty' => 0.7,
                 'payment_conditions' => '30 Tage Netto',
-                'default_rabatt' => 0,
+                'default_rabatt' => 20,
             ]);
         }
     }

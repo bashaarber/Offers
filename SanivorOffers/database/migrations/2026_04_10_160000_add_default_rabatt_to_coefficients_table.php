@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::table('coefficients', function (Blueprint $table) {
             if (!Schema::hasColumn('coefficients', 'default_rabatt')) {
-                $table->decimal('default_rabatt', 5, 2)->default(0)->after('payment_conditions');
+                $table->decimal('default_rabatt', 5, 2)->default(20)->after('payment_conditions');
             }
         });
     }

@@ -155,7 +155,7 @@
                                         <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
                                         <input type="text" class="form-control rabatt-input" id="default_rabatt"
                                             name="default_rabatt"
-                                            value="{{ old('default_rabatt', $coefficient->default_rabatt ?? 0) }}"
+                                            value="{{ old('default_rabatt', $coefficient->default_rabatt ?? 20) }}"
                                             inputmode="decimal" placeholder="0.00">
                                     </div>
                                 </div>

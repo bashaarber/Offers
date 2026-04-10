@@ -63,7 +63,7 @@
                                 <td>Default Rabatt (%)</td>
                                 <td>
                                     <input type="text" class="form-control" name="default_rabatt"
-                                        value="{{ $coefficient->default_rabatt ?? 0 }}"
+                                        value="{{ $coefficient->default_rabatt ?? 20 }}"
                                         inputmode="decimal" placeholder="0.00">
                                 </td>
                             </tr>
