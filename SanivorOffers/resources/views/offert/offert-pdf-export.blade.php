@@ -34,6 +34,10 @@
             line-height: 1.25;
         }
 
+        .position-head-row th.pos-col {
+            text-align: left !important;
+        }
+
         .position-value-row td {
             padding: 8px 6px;
         }
@@ -208,7 +212,7 @@
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
                 <tr class="position-head-row">
-                    <th>Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
+                    <th class="pos-col text-left">Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
                     <th>{{ $position->description }}</th>
                     <th>Brutto</th>
                     <th>Rabatt</th>
