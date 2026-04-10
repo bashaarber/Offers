@@ -48,7 +48,10 @@
     @php
         $logoPath = public_path('images/sanivor.jpg');
         $logoSrc = null;
-        $defaultSignature = \App\Models\Coefficient::value('default_signature') ?? 'Arber Basha';
+        $defaultSignature = 'Arber Basha';
+        if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_signature')) {
+            $defaultSignature = \App\Models\Coefficient::value('default_signature') ?? 'Arber Basha';
+        }
         $chf = function ($value, int $decimals = 2) {
             return number_format((float) $value, $decimals, '.', "'");
         };
