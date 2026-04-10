@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Material;
 use App\Models\MaterialPiece;
 use App\Models\Element;
@@ -145,8 +146,15 @@ class JsonImportSeeder extends Seeder
         $materialsMap = [];
         $count = 0;
 
+        $laborPrice = (float) (Coefficient::value('labor_price') ?? 0);
+
         foreach ($hardware as $key => $item) {
-            $material = Material::create([
+            $zTotal = floatval($item['timeLabor_schlos'] ?? 0)
+                + floatval($item['timeLabor_pe'] ?? 0)
+                + floatval($item['timeLabor_montag'] ?? 0);
+            $totalArbeit = $zTotal * $laborPrice;
+
+            $row = [
                 'name' => $item['name'] ?? '',
                 'unit' => $item['e'] ?? 'St.',
                 'price_in' => floatval($item['preisIn'] ?? 0),
@@ -154,14 +162,15 @@ class JsonImportSeeder extends Seeder
                 'z_schlosserei' => floatval($item['timeLabor_schlos'] ?? 0),
                 'z_pe' => strval($item['timeLabor_pe'] ?? 0),
                 'z_montage' => strval($item['timeLabor_montag'] ?? 0),
-                'z_fermacell' => strval($item['timeLabor_fermacell'] ?? 0),
-                'z_total' => floatval($item['timeLabor_schlos'] ?? 0) + 
-                            floatval($item['timeLabor_pe'] ?? 0) + 
-                            floatval($item['timeLabor_montag'] ?? 0) + 
-                            floatval($item['timeLabor_fermacell'] ?? 0),
+                'z_total' => $zTotal,
                 'zeit_cost' => floatval($item['preisIn'] ?? 0),
                 'total' => floatval($item['preisOut'] ?? 0),
-            ]);
+            ];
+            if (Schema::hasColumn('materials', 'total_arbeit')) {
+                $row['total_arbeit'] = $totalArbeit;
+            }
+
+            $material = Material::create($row);
 
             $materialsMap[$key] = $material->id;
             $count++;

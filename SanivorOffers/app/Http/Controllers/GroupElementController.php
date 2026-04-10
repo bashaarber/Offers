@@ -11,13 +11,11 @@ class GroupElementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('query');
+        $group_elements = GroupElement::orderBy('id', 'ASC')->paginate(50);
 
-        $group_elements = GroupElement::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(5);
-
-        return view('group_element.index', compact('group_elements', 'query'));
+        return view('group_element.index', compact('group_elements'));
     }
 
     /**

@@ -69,14 +69,13 @@
                 @endif
             </div>
         </div>
-
-        <div style="padding:4px 0;">
-            <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
-            <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer" style="font-size:12px;padding:3px 4px;">
-                <i class="fa-solid fa-file-export" style="margin-right:6px;"></i>External PDF
-            </a>
-        </div>
     </div>
+</div>
+
+<div id="external-pdf-footer-slot-template" style="display:none;">
+    <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-file-export"></i><span>External PDF</span>
+    </a>
 </div>
 
 <script>
@@ -97,6 +96,16 @@
                 firstSidebarSection.insertAdjacentElement('afterend', positionSection);
             } else {
                 sidebar.insertBefore(positionSection, footer);
+            }
+        }
+
+        const pdfFooterTemplate = document.getElementById('external-pdf-footer-slot-template');
+        if (sidebar && footer && pdfFooterTemplate) {
+            const pdfWrap = document.createElement('div');
+            pdfWrap.innerHTML = pdfFooterTemplate.innerHTML.trim();
+            const pdfLink = pdfWrap.firstElementChild;
+            if (pdfLink) {
+                footer.insertBefore(pdfLink, footer.firstElementChild);
             }
         }
 

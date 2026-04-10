@@ -277,7 +277,20 @@
             @auth
                 @if (auth()->user()->role === 'admin')
                 @php
-                    $showSettingsManagementNav = request()->routeIs('dashboard', 'offert.index', 'profile.edit');
+                    $showSettingsManagementNav = request()->routeIs(
+                        'dashboard',
+                        'offert.index',
+                        'profile.edit',
+                        'material_piece.*',
+                        'material.*',
+                        'element.*',
+                        'group_element.*',
+                        'organigram.*',
+                        'coefficient.*',
+                        'client.*',
+                        'user.index',
+                        'register',
+                    );
                 @endphp
                 @if ($showSettingsManagementNav)
                 <div class="sidebar-section">

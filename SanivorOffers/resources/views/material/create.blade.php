@@ -62,11 +62,6 @@
                                             <input type="text" class="form-control" name="z_montage" id="z_montage"
                                                 required>
                                         </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="z_fermacell">Fermacell</label>
-                                            <input type="text" class="form-control" name="z_fermacell"
-                                                id="z_fermacell" required>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

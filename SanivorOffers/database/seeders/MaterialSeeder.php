@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class MaterialSeeder extends Seeder
 {
@@ -119,6 +120,20 @@ class MaterialSeeder extends Seeder
                 'total' => 199.00,
             ],
         ];
+
+        foreach ($materials as &$m) {
+            unset($m['z_fermacell']);
+            $oldZ = (float) $m['z_total'];
+            $newZ = (float) $m['z_schlosserei'] + (float) $m['z_pe'] + (float) $m['z_montage'];
+            $oldZeit = (float) $m['zeit_cost'];
+            $m['z_total'] = $newZ;
+            $m['zeit_cost'] = $oldZ > 0 ? round($oldZeit * ($newZ / $oldZ), 2) : 0;
+            $m['total'] = round((float) $m['total'] - $oldZeit + $m['zeit_cost'], 2);
+            if (Schema::hasColumn('materials', 'total_arbeit')) {
+                $m['total_arbeit'] = $m['zeit_cost'];
+            }
+        }
+        unset($m);
 
         DB::table('materials')->insert($materials);
     }

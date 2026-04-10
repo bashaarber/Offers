@@ -251,6 +251,10 @@
             font-size: 11px;
         }
 
+        .position-materials-panel .element-materials tbody tr:not(.table-dark) td.total {
+            padding-right: 3.5rem;
+        }
+
         .position-materials-panel .element-materials input[type="number"] {
             padding: 1px 4px;
             font-size: 11px;
@@ -296,7 +300,7 @@
                     <input type="hidden" name="auto_save" id="auto_save" value="0">
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">
-                    <input type="hidden" name="percentage" id="percentageInput" value="0">
+                    <input type="hidden" name="percentage" id="percentageInput" value="{{ $offert->default_rabatt ?? 0 }}">
                     <input type="hidden" name="price-out-input" id="priceOutInput" value="0.00">
                     <input type="hidden" name="zeit-cost-input" id="zeitCostInput" value="0.00">
                     <input type="hidden" name="material-costo" id="priceInInput" value="0.00">
@@ -895,6 +899,7 @@
                     // Update the hidden input fields with the calculated values
                     totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
                     discountedTotalInput.value = discountedTotal.toFixed(2);
+                    document.getElementById('percentageInput').value = percentageInput.value;
 
                     // Update the displayed price_out and zeit_cost values
                     priceOutInput.textContent = formatSwissNumber(totalPriceOut);

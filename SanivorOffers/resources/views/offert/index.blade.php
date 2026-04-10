@@ -23,36 +23,12 @@
                 </a>
             </div>
 
-            {{-- Search & Filter Bar --}}
-            <div class="card mb-4" style="border: none; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border-radius: 12px;">
-                <div class="card-body py-3 d-flex align-items-center flex-wrap" style="gap: 12px;">
-                    <form action="{{ route('offert.index') }}" method="GET" class="d-flex align-items-center" style="gap: 8px;">
-                        <div class="input-group" style="max-width: 280px;">
-                            <input type="search" name="query" class="form-control" placeholder="Search offers..." value="{{ request('query') }}" style="border-radius: 8px 0 0 8px;">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-primary" style="border-radius: 0 8px 8px 0;"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
-                    </form>
-                    <a href="{{ route('offert.index') }}" class="btn btn-light" style="border-radius: 8px;" title="Clear filters">
-                        <i class="fas fa-times"></i> Clear
-                    </a>
-                    <form action="{{ route('offert.index') }}" method="GET" class="ml-auto">
-                        <select name="status" onchange="this.form.submit()" class="form-control" style="min-width: 180px; border-radius: 8px; font-size: 14px;">
-                            <option value="">All Statuses</option>
-                            <option value="Neu" {{ request('status') === 'Neu' ? 'selected' : '' }}>Neu - In progress</option>
-                            <option value="Zusage" {{ request('status') === 'Zusage' ? 'selected' : '' }}>Zusage</option>
-                            <option value="Abszage" {{ request('status') === 'Abszage' ? 'selected' : '' }}>Abszage</option>
-                            <option value="Finished" {{ request('status') === 'Finished' ? 'selected' : '' }}>Finished</option>
-                        </select>
-                    </form>
-                </div>
-            </div>
+            @include('layouts.partials.list-filter')
 
             {{-- Table --}}
             <div class="card" style="border: none; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border-radius: 12px; overflow: hidden;">
                 <div class="table-responsive">
-                    <table class="table mb-0">
+                    <table class="table mb-0" data-filterable>
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -64,6 +40,25 @@
                                 <th>Typ</th>
                                 <th>User</th>
                                 <th style="text-align: right;">Actions</th>
+                            </tr>
+                            <tr class="filter-row" style="background:#f8f9fa;">
+                                <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input data-col="1" type="text" placeholder="Datum" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input data-col="2" type="text" placeholder="Kunde" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input data-col="3" type="text" placeholder="Ihr Zeichen" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input data-col="4" type="text" placeholder="Objekt" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td>
+                                    <select data-col="5" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;">
+                                        <option value="">All</option>
+                                        <option value="Neu">Neu</option>
+                                        <option value="Zusage">Zusage</option>
+                                        <option value="Abszage">Abszage</option>
+                                        <option value="Finished">Finished</option>
+                                    </select>
+                                </td>
+                                <td><input data-col="6" type="text" placeholder="Typ" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input data-col="7" type="text" placeholder="User" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,7 +121,7 @@
                     </table>
                 </div>
                 <div class="card-body py-3">
-                    {{ $offerts->appends(['query' => $query])->links() }}
+                    {{ $offerts->links() }}
                 </div>
             </div>
         </div>

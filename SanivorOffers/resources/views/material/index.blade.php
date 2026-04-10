@@ -12,16 +12,6 @@
         .edit-delete-btns button {
             margin-right: 5px;
         }
-
-        .search-form {
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        .search-form input[type="search"] {
-            width: 200px;
-            margin-right: 5px;
-        }
     </style>
 </head>
 
@@ -29,21 +19,13 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
-            <form action="{{ route('material.index') }}" method="GET" class="search-form">
-                <div class="input-group mt-3">
-                    <input type="search" name="query" class="form-control" placeholder="Search...">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
+            <div class="d-flex align-items-center mt-3 mb-2">
+                <a href="{{ route('material.create') }}" class="btn btn-primary ml-auto">Create Material</a>
+            </div>
 
-            <a href="{{ route('material.index') }}" class="btn btn-dark mb-1">
-                <i class="fas fa-times"></i>
-            </a>
-            <a href="{{ route('material.create') }}" class="btn btn-primary float-right mt-3">Create Material</a>
+            @include('layouts.partials.list-filter')
 
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered" data-filterable>
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
@@ -63,10 +45,24 @@
                         <th>schlosserei</th>
                         <th>PE</th>
                         <th>Montage</th>
-                        <th>Fermacell</th>
                         <th>Total</th>
+                        <th>Total Arbeit</th>
                         <th>Material Pieces</th>
                         <th>Action</th>
+                    </tr>
+                    <tr class="filter-row" style="background:#f8f9fa;">
+                        <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="2" type="text" placeholder="E" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="3" type="text" placeholder="In" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="4" type="text" placeholder="Out" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="5" type="text" placeholder="Schl." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="6" type="text" placeholder="PE" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="7" type="text" placeholder="Mont." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="8" type="text" placeholder="Total" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="9" type="text" placeholder="Arbeit" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="10" type="text" placeholder="Pieces" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,8 +76,8 @@
                             <td>{{ $material->z_schlosserei }}</td>
                             <td>{{ $material->z_pe }}</td>
                             <td>{{ $material->z_montage }}</td>
-                            <td>{{ $material->z_fermacell }}</td>
                             <td>{{ $material->z_total }}</td>
+                            <td>{{ number_format((float) ($material->total_arbeit ?? 0), 2, '.', "'") }}</td>
                             <td>
                                 @foreach ($material->material_pieces as $material_piece)
                                 - {{ $material_piece->name }} <br>
@@ -103,11 +99,9 @@
                     @endforeach
                 </tbody>
             </table>
-            {{ $materials->appends(['query' => $query])->links() }}
+            {{ $materials->links() }}
         </div>
     </div>
-
-
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

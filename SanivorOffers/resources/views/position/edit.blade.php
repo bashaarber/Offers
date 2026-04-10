@@ -217,6 +217,11 @@
             font-size: 11px;
         }
 
+        /* Sub-row material totals: inset from the right vs. element header total */
+        .position-materials-panel .element-materials tbody tr:not(.table-dark) td.total {
+            padding-right: 3.5rem;
+        }
+
         .position-materials-panel .element-materials input[type="number"] {
             padding: 1px 4px;
             font-size: 11px;
@@ -900,6 +905,7 @@
                     // Update the hidden input fields with the calculated values
                     totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
                     discountedTotalInput.value = discountedTotal.toFixed(2);
+                    document.getElementById('percentageInput').value = percentageInput.value;
 
                     // Update the displayed price_out and zeit_cost values
                     priceOutInput.textContent = formatSwissNumber(totalPriceOut);

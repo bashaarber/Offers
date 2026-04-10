@@ -12,10 +12,9 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->input('query');
         $showArchived = $request->input('show_archived');
 
-        $clients = Client::where('name', 'like', '%' . $query . '%');
+        $clients = Client::query();
 
         if ($showArchived) {
             $clients = $clients->where('archived', true);
@@ -25,9 +24,9 @@ class ClientController extends Controller
             });
         }
 
-        $clients = $clients->orderBy('id', 'ASC')->paginate(15);
+        $clients = $clients->orderBy('id', 'ASC')->paginate(50);
 
-        return view('client.index', compact('clients', 'query', 'showArchived'));
+        return view('client.index', compact('clients', 'showArchived'));
     }
 
     /**

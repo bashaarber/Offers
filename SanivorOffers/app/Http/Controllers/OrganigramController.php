@@ -11,13 +11,11 @@ class OrganigramController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('query');
+        $organigrams = Organigram::orderBy('id', 'ASC')->paginate(50);
 
-        $organigrams = Organigram::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
-
-        return view('organigram.index', compact('organigrams', 'query'));
+        return view('organigram.index', compact('organigrams'));
     }
 
     /**

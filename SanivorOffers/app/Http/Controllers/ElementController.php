@@ -11,13 +11,11 @@ class ElementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('query');
+        $elements = Element::orderBy('id', 'ASC')->paginate(50);
 
-        $elements = Element::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
-
-        return view('element.index', compact('elements', 'query'));
+        return view('element.index', compact('elements'));
     }
 
     /**

@@ -39,22 +39,9 @@ class OffertController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->input('query');
-        $status = $request->input('status');
+        $offerts = Offert::orderBy('id', 'DESC')->paginate(50);
 
-    if ($status) {
-        $offerts = Offert::where('status', $status)
-            ->orderBy('id', 'DESC')
-            ->paginate(10);
-
-        return view('offert.index', compact('offerts', 'query', 'status'));
-    }
-        $offerts = Offert::where('id', 'like', '%' . $query . '%')
-        ->orWhere('client_sign', 'like', '%' . $query . '%')
-        ->orderBy('id', 'DESC')
-        ->paginate(10);
-
-        return view('offert.index', compact('offerts', 'query'));
+        return view('offert.index', compact('offerts'));
     }
 
     public function exportPdf($id){

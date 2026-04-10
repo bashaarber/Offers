@@ -13,13 +13,11 @@ class MaterialController extends Controller
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('query');
+        $materials = Material::orderBy('id', 'ASC')->paginate(50);
 
-        $materials = Material::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
-
-        return view('material.index', compact('materials', 'query'));
+        return view('material.index', compact('materials'));
     }
 
     /**
@@ -42,12 +40,15 @@ class MaterialController extends Controller
             'z_schlosserei' => 'required',
             'z_pe' => 'required',
             'z_montage' => 'required',
-            'z_fermacell' => 'required',
         ]);
 
-        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage');
         $coefficient = Coefficient::first();
-        $zeit_cost = $z_total * $coefficient->labor_price;
+        $laborPrice = (float) ($coefficient->labor_price ?? 0);
+        $materialKoeff = (float) ($coefficient->material ?? 1);
+        $difficultyKoeff = (float) ($coefficient->difficulty ?? 1);
+        $total_arbeit = $z_total * $laborPrice;
+        $zeit_cost = $total_arbeit;
 
         $selectedMaterialPieces = $request->input('materials');
         $price_in = 0;
@@ -60,13 +61,13 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total_neto = $price_out;
-        $total = $total_neto + $zeit_cost;
+        $total = ($price_out * $materialKoeff) + ($total_arbeit / ($difficultyKoeff ?: 1));
 
         $materials = new Material();
         $materials->fill($formFields);
         $materials->z_total = $z_total;
         $materials->zeit_cost = $zeit_cost;
+        $materials->total_arbeit = $total_arbeit;
         $materials->price_in = $price_in;
         $materials->price_out = $total;
         $materials->total = $total;
@@ -108,15 +109,18 @@ class MaterialController extends Controller
             'z_schlosserei' => 'required',
             'z_pe' => 'required',
             'z_montage' => 'required',
-            'z_fermacell' => 'required',
         ]);
 
         $material = Material::find($id);
 
-        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage') + $request->input('z_fermacell');
+        $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage');
 
         $coefficient = Coefficient::first();
-        $zeit_cost = $z_total * $coefficient->labor_price;
+        $laborPrice = (float) ($coefficient->labor_price ?? 0);
+        $materialKoeff = (float) ($coefficient->material ?? 1);
+        $difficultyKoeff = (float) ($coefficient->difficulty ?? 1);
+        $total_arbeit = $z_total * $laborPrice;
+        $zeit_cost = $total_arbeit;
 
         $selectedMaterialPieces = $request->input('materials');
         $price_in = 0;
@@ -129,19 +133,17 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total_neto = $price_out;
-        $total = $total_neto + $zeit_cost;
+        $total = ($price_out * $materialKoeff) + ($total_arbeit / ($difficultyKoeff ?: 1));
 
-        // Update the existing material instance
         $material->update([
             'name' => $formFields['name'],
             'unit' => $formFields['unit'],
             'z_schlosserei' => $formFields['z_schlosserei'],
             'z_pe' => $formFields['z_pe'],
             'z_montage' => $formFields['z_montage'],
-            'z_fermacell' => $formFields['z_fermacell'],
             'z_total' => $z_total,
             'zeit_cost' => $zeit_cost,
+            'total_arbeit' => $total_arbeit,
             'price_in' => $price_in,
             'price_out' => $total,
             'total' => $total,

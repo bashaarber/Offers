@@ -16,39 +16,26 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 style="font-weight: 700; color: #1a1d23; margin-bottom: 0;">Clients</h3>
-                <a href="{{ route('client.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus mr-1"></i> Create Client
-                </a>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    @if(isset($showArchived) && $showArchived)
+                        <a href="{{ route('client.index') }}" class="btn btn-info">
+                            <i class="fas fa-list"></i> Active Clients
+                        </a>
+                    @else
+                        <a href="{{ route('client.index', ['show_archived' => 1]) }}" class="btn btn-secondary">
+                            <i class="fas fa-archive"></i> Archived
+                        </a>
+                    @endif
+                    <a href="{{ route('client.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-1"></i> Create Client
+                    </a>
+                </div>
             </div>
 
-            <div class="d-flex align-items-center mb-3" style="gap: 8px;">
-                <form action="{{ route('client.index') }}" method="GET" class="search-form">
-                    <div class="input-group">
-                        <input type="search" name="query" class="form-control" placeholder="Search..." value="{{ $query ?? '' }}">
-                        @if(isset($showArchived) && $showArchived)
-                            <input type="hidden" name="show_archived" value="1">
-                        @endif
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </form>
-                <a href="{{ route('client.index') }}" class="btn btn-dark" title="Clear">
-                    <i class="fas fa-times"></i>
-                </a>
-                @if(isset($showArchived) && $showArchived)
-                    <a href="{{ route('client.index') }}" class="btn btn-info">
-                        <i class="fas fa-list"></i> Active Clients
-                    </a>
-                @else
-                    <a href="{{ route('client.index', ['show_archived' => 1]) }}" class="btn btn-secondary">
-                        <i class="fas fa-archive"></i> Archived
-                    </a>
-                @endif
-            </div>
+            @include('layouts.partials.list-filter')
 
             <div class="card" style="border: none; box-shadow: 0 1px 8px rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden;">
-                <table class="table table-striped mb-0">
+                <table class="table table-striped mb-0" data-filterable>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -57,6 +44,14 @@
                             <th>Number</th>
                             <th>Address</th>
                             <th style="text-align: right;">Action</th>
+                        </tr>
+                        <tr class="filter-row" style="background:#f8f9fa;">
+                            <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="2" type="text" placeholder="Email" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="3" type="text" placeholder="Number" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="4" type="text" placeholder="Address" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,7 +88,7 @@
                     </tbody>
                 </table>
             </div>
-            {{ $clients->appends(['query' => $query ?? '', 'show_archived' => $showArchived ?? ''])->links() }}
+            {{ $clients->appends(['show_archived' => $showArchived ?? ''])->links() }}
         </div>
     </div>
 

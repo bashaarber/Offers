@@ -10,13 +10,11 @@ class MaterialPieceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('query');
+        $materials = MaterialPiece::orderBy('id', 'ASC')->paginate(50);
 
-        $materials = MaterialPiece::where('name', 'like', '%' . $query . '%')->orderBy('id', 'ASC')->paginate(10);
-
-        return view('material_piece.index', compact('materials', 'query'));
+        return view('material_piece.index', compact('materials'));
     }
 
     /**

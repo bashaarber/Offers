@@ -12,14 +12,6 @@
         .edit-delete-btns button {
             margin-right: 5px;
         }
-        .search-form {
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .search-form input[type="search"] {
-            width: 200px;
-            margin-right: 5px;
-        }
     </style>
 </head>
 
@@ -27,22 +19,13 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
+            <div class="d-flex align-items-center mt-3 mb-2">
+                <a href="{{ route('material_piece.create') }}" class="btn btn-primary ml-auto">Create Material Piece</a>
+            </div>
 
-            <form action="{{ route('material_piece.index') }}" method="GET" class="search-form">
-                <div class="input-group mt-3">
-                    <input type="search" name="query" class="form-control" placeholder="Search...">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
+            @include('layouts.partials.list-filter')
 
-            <a href="{{ route('material_piece.index') }}" class="btn btn-dark mb-1">
-                <i class="fas fa-times"></i>
-            </a>
-            <a href="{{ route('material_piece.create') }}" class="btn btn-primary float-right mt-3">Create Material Piece</a>
-
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered" data-filterable>
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
@@ -56,6 +39,13 @@
                         <th>In</th>
                         <th>Out</th>
                         <th>Action</th>
+                    </tr>
+                    <tr class="filter-row" style="background:#f8f9fa;">
+                        <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="2" type="text" placeholder="In" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="3" type="text" placeholder="Out" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,11 +67,9 @@
                     @endforeach
                 </tbody>
             </table>
-            {{ $materials->appends(['query' => $query])->links() }}
+            {{ $materials->links() }}
         </div>
     </div>
-
-
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
