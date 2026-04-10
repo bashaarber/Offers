@@ -10,9 +10,20 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PositionMaterial;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class OffertController extends Controller
 {
+    private function hasDefaultRabattColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('offerts', 'default_rabatt');
+        }
+
+        return $hasColumn;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -105,7 +116,11 @@ class OffertController extends Controller
         ]);
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+        if ($this->hasDefaultRabattColumn()) {
+            $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+        } else {
+            unset($formFields['default_rabatt']);
+        }
 
         if (empty($formFields['finish_date'])) {
             $formFields['finish_date'] = $formFields['create_date'];
@@ -235,7 +250,11 @@ class OffertController extends Controller
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+        if ($this->hasDefaultRabattColumn()) {
+            $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
+        } else {
+            unset($formFields['default_rabatt']);
+        }
 
         if (empty($formFields['finish_date'])) {
             $formFields['finish_date'] = $formFields['create_date'];
@@ -267,6 +286,10 @@ class OffertController extends Controller
         // Remove empty finish_date — fall back to create_date
         if (empty($fields['finish_date']) && !empty($fields['create_date'])) {
             $fields['finish_date'] = $fields['create_date'];
+        }
+
+        if (!$this->hasDefaultRabattColumn()) {
+            unset($fields['default_rabatt']);
         }
 
         $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
