@@ -68,11 +68,37 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Default Signature</td>
+                                <td>Default Unsere Referenz</td>
+                                <td>
+                                    @if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_unsere_referenz'))
+                                        <input type="text" class="form-control" name="default_unsere_referenz"
+                                            value="{{ old('default_unsere_referenz', $coefficient->default_unsere_referenz ?? '') }}"
+                                            placeholder="e.g. Blerant Kqiku — used if the offer has no &quot;Unser Zeichen&quot;">
+                                        <small class="form-text text-muted">Shown as &quot;Unsere Referenz:&quot; on the external PDF (header and closing). If the offer field is empty, this default is used.</small>
+                                    @else
+                                        <span class="text-muted">Run migrations to enable.</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>External PDF closing text</td>
+                                <td>
+                                    @if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'pdf_external_closing_text'))
+                                        <textarea class="form-control" name="pdf_external_closing_text" rows="12"
+                                            placeholder="Folgende Leistungen sind enthalten: … through Freundliche Grüsse">{{ old('pdf_external_closing_text', $coefficient->pdf_external_closing_text ?? '') }}</textarea>
+                                        <small class="form-text text-muted">Everything before the closing block: &quot;Unsere Referenz&quot; + signature name. Line breaks are kept. Leave empty to use the built-in default text.</small>
+                                    @else
+                                        <span class="text-muted">Run migrations to enable.</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Default signature (name)</td>
                                 <td>
                                     <input type="text" class="form-control" name="default_signature"
                                         value="{{ $coefficient->default_signature ?? 'Arber Basha' }}"
-                                        placeholder="Signature text">
+                                        placeholder="e.g. Arber Basha">
+                                    <small class="form-text text-muted">Printed under &quot;Unsere Referenz&quot; on the external PDF.</small>
                                 </td>
                             </tr>
                             <tr>

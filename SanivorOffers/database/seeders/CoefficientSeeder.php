@@ -31,6 +31,12 @@ class CoefficientSeeder extends Seeder
             if (Schema::hasColumn('coefficients', 'default_signature')) {
                 $row['default_signature'] = 'Arber Basha';
             }
+            if (Schema::hasColumn('coefficients', 'default_unsere_referenz')) {
+                $row['default_unsere_referenz'] = null;
+            }
+            if (Schema::hasColumn('coefficients', 'pdf_external_closing_text')) {
+                $row['pdf_external_closing_text'] = null;
+            }
             DB::table('coefficients')->insert($row);
         }
     }

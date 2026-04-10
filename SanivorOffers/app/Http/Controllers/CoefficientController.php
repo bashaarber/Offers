@@ -28,6 +28,26 @@ class CoefficientController extends Controller
 
         return $hasColumn;
     }
+
+    private function hasDefaultUnsereReferenzColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('coefficients', 'default_unsere_referenz');
+        }
+
+        return $hasColumn;
+    }
+
+    private function hasPdfExternalClosingTextColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('coefficients', 'pdf_external_closing_text');
+        }
+
+        return $hasColumn;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -86,6 +106,8 @@ class CoefficientController extends Controller
             'payment_conditions' => 'required',
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'default_signature' => 'nullable|string|max:255',
+            'default_unsere_referenz' => 'nullable|string|max:255',
+            'pdf_external_closing_text' => 'nullable|string|max:65000',
         ]);
 
         $payload = [
@@ -104,6 +126,14 @@ class CoefficientController extends Controller
 
         if ($this->hasDefaultSignatureColumn()) {
             $payload['default_signature'] = $request->input('default_signature', 'Arber Basha');
+        }
+
+        if ($this->hasDefaultUnsereReferenzColumn()) {
+            $payload['default_unsere_referenz'] = $request->input('default_unsere_referenz');
+        }
+
+        if ($this->hasPdfExternalClosingTextColumn()) {
+            $payload['pdf_external_closing_text'] = $request->input('pdf_external_closing_text');
         }
 
         $coefficient = Coefficient::findOrFail($id);

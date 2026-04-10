@@ -77,11 +77,19 @@
         <div style="float: left;">
             @php
                 $vomDateInternal = $offert->finish_date ?? $offert->create_date;
+                $coefficientInternal = \App\Models\Coefficient::query()->first();
+                $defaultUnsereRefInternal = '';
+                if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_unsere_referenz') && $coefficientInternal) {
+                    $defaultUnsereRefInternal = (string) ($coefficientInternal->default_unsere_referenz ?? '');
+                }
+                $unsereReferenzLineInternal = trim((string) ($offert->user_sign ?? '')) !== ''
+                    ? trim((string) $offert->user_sign)
+                    : $defaultUnsereRefInternal;
             @endphp
             <p><strong>Ihr Auftrag: </strong> Email vom
                 {{ $vomDateInternal ? \Carbon\Carbon::parse($vomDateInternal)->format('d/m/Y') : '' }}</p>
             <p><strong>Ihre Referenz: </strong> {{ $offert->client_sign }}</p>
-            <p><strong>Unsere Referenz: </strong> {{ $offert->user_sign }}</p>
+            <p><strong>Unsere Referenz: </strong> {{ $unsereReferenzLineInternal }}</p>
         </div>
 
         <div style="float: right;">

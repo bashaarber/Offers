@@ -71,10 +71,33 @@
     @php
         $logoPath = public_path('images/sanivor.jpg');
         $logoSrc = null;
+
+        $coefficientRow = \App\Models\Coefficient::query()->first();
+
         $defaultSignature = 'Arber Basha';
-        if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_signature')) {
-            $defaultSignature = \App\Models\Coefficient::value('default_signature') ?? 'Arber Basha';
+        if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_signature') && $coefficientRow) {
+            $defaultSignature = $coefficientRow->default_signature ?? 'Arber Basha';
         }
+
+        $defaultUnsereReferenz = '';
+        if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'default_unsere_referenz') && $coefficientRow) {
+            $defaultUnsereReferenz = (string) ($coefficientRow->default_unsere_referenz ?? '');
+        }
+
+        $unsereReferenzLine = trim((string) ($offert->user_sign ?? '')) !== ''
+            ? trim((string) $offert->user_sign)
+            : $defaultUnsereReferenz;
+
+        $pdfExternalClosingFallback = "Folgende Leistungen sind enthalten:\n- Transport\n- Ausmass\n- Holz (Sperrholz) 24mm: für Gleitstange, Glasstrennwand und Waschtisch\n\nFür weitere Fragen stehen wir Ihnen gerne zur Verfügung. Es würde uns freuen, diesen Auftrag für Sie ausführen zu dürfen. Es gelten unsere Allgemeinen Geschäftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.\n\nFreundliche Grüsse";
+
+        $pdfClosingText = $pdfExternalClosingFallback;
+        if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'pdf_external_closing_text') && $coefficientRow) {
+            $customClosing = $coefficientRow->pdf_external_closing_text;
+            if ($customClosing !== null && trim((string) $customClosing) !== '') {
+                $pdfClosingText = (string) $customClosing;
+            }
+        }
+
         $chf = function ($value, int $decimals = 2) {
             return number_format((float) $value, $decimals, '.', "'");
         };
@@ -132,7 +155,7 @@
             <p><strong>Ihr Auftrag: </strong> Email vom
                 {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</p>
             <p><strong>Ihre Referenz: </strong> {{ $offert->client_sign }}</p>
-            <p><strong>Unsere Referenz: </strong> {{ $offert->user_sign }}</p>
+            <p><strong>Unsere Referenz: </strong> {{ $unsereReferenzLine }}</p>
         </div>
 
         <div style="float: right;">
@@ -193,16 +216,8 @@
     </div>
     <div>
         <hr>
-        Folgende Leistungen sind enthalten:<br>
-        - Transport<br>
-        - Ausmass<br>
-        - Holz (Sperrholz) 24mm: f&uuml;r Gleitstange, Glasstrennwand und Waschtisch
-        <br>
-        <p>F&uuml;r weitere Fragen stehen wir Ihnen gerne zur Verf&uuml;gung. Es w&uuml;rde uns freuen, diesen Auftrag f&uuml;r Sie
-            ausf&uuml;hren zu
-            d&uuml;rfen. Es gelten unsere Allgemeinen Gesch&auml;ftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
-        </p>
-        <p>Freundliche Gr&uuml;sse</p>
+        {!! nl2br(e($pdfClosingText)) !!}
+        <p style="margin-top: 10px;"><strong>Unsere Referenz:</strong> {{ $unsereReferenzLine }}</p>
         <p>{{ $defaultSignature }}</p>
         <hr>
     </div>

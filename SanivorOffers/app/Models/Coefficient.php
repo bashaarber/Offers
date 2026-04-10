@@ -19,5 +19,7 @@ class Coefficient extends Model
         'payment_conditions',
         'default_rabatt',
         'default_signature',
+        'default_unsere_referenz',
+        'pdf_external_closing_text',
     ];
 }
