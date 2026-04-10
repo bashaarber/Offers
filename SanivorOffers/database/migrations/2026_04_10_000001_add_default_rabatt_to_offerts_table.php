@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('offerts', 'default_rabatt')) {
+            return;
+        }
+
         Schema::table('offerts', function (Blueprint $table) {
             $table->decimal('default_rabatt', 5, 2)->default(0)->after('labor_price');
         });
@@ -15,6 +19,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasColumn('offerts', 'default_rabatt')) {
+            return;
+        }
+
         Schema::table('offerts', function (Blueprint $table) {
             $table->dropColumn('default_rabatt');
         });

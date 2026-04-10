@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CoefficientSeeder extends Seeder
 {
@@ -15,8 +15,8 @@ class CoefficientSeeder extends Seeder
     {
         $coefficient = DB::table('coefficients')->first();
         
-        if (!$coefficient) {
-            DB::table('coefficients')->insert([
+        if (! $coefficient) {
+            $row = [
                 'validity' => '90 Tage',
                 'labor_cost' => 50,
                 'labor_price' => 87.5,
@@ -24,9 +24,14 @@ class CoefficientSeeder extends Seeder
                 'material' => 1.3,
                 'difficulty' => 0.7,
                 'payment_conditions' => '30 Tage Netto',
-                'default_rabatt' => 20,
-                'default_signature' => 'Arber Basha',
-            ]);
+            ];
+            if (Schema::hasColumn('coefficients', 'default_rabatt')) {
+                $row['default_rabatt'] = 20;
+            }
+            if (Schema::hasColumn('coefficients', 'default_signature')) {
+                $row['default_signature'] = 'Arber Basha';
+            }
+            DB::table('coefficients')->insert($row);
         }
     }
 }

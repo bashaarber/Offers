@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($renderUrl = env('RENDER_EXTERNAL_URL')) {
+            URL::forceRootUrl(rtrim($renderUrl, '/'));
+        }
+
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }

@@ -20,6 +20,12 @@ class JsonImportSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production') && ! filter_var(env('RUN_JSON_IMPORT', false), FILTER_VALIDATE_BOOLEAN)) {
+            $this->command?->info('JsonImportSeeder skipped in production (set RUN_JSON_IMPORT=true to run; truncates catalog when JSON is present).');
+
+            return;
+        }
+
         // Clear all existing data
         $this->clearAllData();
 

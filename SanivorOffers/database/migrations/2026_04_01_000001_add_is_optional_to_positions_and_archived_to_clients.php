@@ -13,13 +13,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
-            $table->boolean('is_optional')->default(false)->after('position_number');
-        });
+        if (! Schema::hasColumn('positions', 'is_optional')) {
+            Schema::table('positions', function (Blueprint $table) {
+                $table->boolean('is_optional')->default(false)->after('position_number');
+            });
+        }
 
-        Schema::table('clients', function (Blueprint $table) {
-            $table->boolean('archived')->default(false)->after('address');
-        });
+        if (! Schema::hasColumn('clients', 'archived')) {
+            Schema::table('clients', function (Blueprint $table) {
+                $table->boolean('archived')->default(false)->after('address');
+            });
+        }
     }
 
     /**
@@ -27,12 +31,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
-            $table->dropColumn('is_optional');
-        });
+        if (Schema::hasColumn('positions', 'is_optional')) {
+            Schema::table('positions', function (Blueprint $table) {
+                $table->dropColumn('is_optional');
+            });
+        }
 
-        Schema::table('clients', function (Blueprint $table) {
-            $table->dropColumn('archived');
-        });
+        if (Schema::hasColumn('clients', 'archived')) {
+            Schema::table('clients', function (Blueprint $table) {
+                $table->dropColumn('archived');
+            });
+        }
     }
 };

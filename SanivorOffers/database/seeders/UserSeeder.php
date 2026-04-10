@@ -17,16 +17,11 @@ class UserSeeder extends Seeder
         // Create admin user
         $admin = DB::table('users')->where('email', 'admin@admin.com')->first();
 
-        if (!$admin) {
+        if (! $admin) {
             DB::table('users')->insert([
                 'username' => 'Admin',
                 'email' => 'admin@admin.com',
                 'role' => 'admin',
-                'password' => Hash::make('Zuri0ch2026$'),
-            ]);
-        } else {
-            // Update existing admin password
-            DB::table('users')->where('email', 'admin@admin.com')->update([
                 'password' => Hash::make('Zuri0ch2026$'),
             ]);
         }

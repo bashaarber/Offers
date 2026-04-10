@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('element_position', 'is_optional')) {
+            return;
+        }
+
         Schema::table('element_position', function (Blueprint $table) {
             $table->boolean('is_optional')->default(false)->after('quantity');
         });
@@ -21,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasColumn('element_position', 'is_optional')) {
+            return;
+        }
+
         Schema::table('element_position', function (Blueprint $table) {
             $table->dropColumn('is_optional');
         });
