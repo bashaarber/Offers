@@ -217,8 +217,7 @@
     <div>
         <hr>
         {!! nl2br(e($pdfClosingText)) !!}
-        <p style="margin-top: 10px;"><strong>Unsere Referenz:</strong> {{ $unsereReferenzLine }}</p>
-        <p>{{ $defaultSignature }}</p>
+        <p style="margin-top: 10px;">{{ $defaultSignature }}</p>
         <hr>
     </div>
     <div style="page-break-after: always"></div>
