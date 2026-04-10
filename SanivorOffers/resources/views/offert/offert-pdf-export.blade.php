@@ -41,6 +41,25 @@
         .text-left {
             text-align: left !important;
         }
+
+        /* Quantity in first cell so wrapped text + (opt*) align under the name, not under "1 x" */
+        .pdf-qty-name {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 3px 0;
+        }
+
+        .pdf-qty-name td:first-child {
+            vertical-align: top;
+            white-space: nowrap;
+            width: 1%;
+            padding: 0 6px 0 0;
+        }
+
+        .pdf-qty-name td:last-child {
+            vertical-align: top;
+            padding: 0;
+        }
     </style>
 </head>
 
@@ -271,7 +290,12 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
-                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}{{ $groupElement['is_optional'] ? ' (opt*)' : '' }}<br>
+                                            <table class="pdf-qty-name">
+                                                <tr>
+                                                    <td>{{ $groupElement['quantity'] }} x</td>
+                                                    <td>{{ $groupElement['element_name'] }}{{ $groupElement['is_optional'] ? ' (opt*)' : '' }}</td>
+                                                </tr>
+                                            </table>
                                         @endforeach
                                     </td>
                                 </tr>

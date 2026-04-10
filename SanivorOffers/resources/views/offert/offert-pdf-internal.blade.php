@@ -20,6 +20,24 @@
             width: 100%;
             border-collapse: collapse;
         }
+
+        .pdf-qty-name {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 3px 0;
+        }
+
+        .pdf-qty-name td:first-child {
+            vertical-align: top;
+            white-space: nowrap;
+            width: 1%;
+            padding: 0 6px 0 0;
+        }
+
+        .pdf-qty-name td:last-child {
+            vertical-align: top;
+            padding: 0;
+        }
     </style>
 </head>
 
@@ -235,14 +253,21 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 2px;">
                                         @foreach ($groupElements as $groupElement)
-                                            <strong>{{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}
-                                                @if (!empty($groupElement['is_optional']))
-                                                    (Optional)
-                                                @endif
-                                            </strong><br>
-                                            @foreach ($groupElement['materials'] as $material)
-                                                {{ $material['quantity'] }}{{ $material['unit'] }} {{ $material['name'] }}<br>
-                                            @endforeach
+                                            <table class="pdf-qty-name">
+                                                <tr>
+                                                    <td><strong>{{ $groupElement['quantity'] }} x</strong></td>
+                                                    <td>
+                                                        <strong>{{ $groupElement['element_name'] }}
+                                                            @if (!empty($groupElement['is_optional']))
+                                                                (Optional)
+                                                            @endif
+                                                        </strong><br>
+                                                        @foreach ($groupElement['materials'] as $material)
+                                                            {{ $material['quantity'] }}{{ $material['unit'] }} {{ $material['name'] }}<br>
+                                                        @endforeach
+                                                    </td>
+                                                </tr>
+                                            </table>
                                         @endforeach
                                     </td>
                                 </tr>
