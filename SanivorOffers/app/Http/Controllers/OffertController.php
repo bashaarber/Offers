@@ -100,10 +100,12 @@ class OffertController extends Controller
             'difficulty' => 'required',
             'material' => 'required',
             'labor_price' => 'required',
+            'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
         ]);
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
+        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
 
         if (empty($formFields['finish_date'])) {
             $formFields['finish_date'] = $formFields['create_date'];
@@ -227,11 +229,13 @@ class OffertController extends Controller
             'difficulty' => 'required',
             'material' => 'required',
             'labor_price' => 'required',
+            'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
         ]);
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
+        $formFields['default_rabatt'] = $request->input('default_rabatt', 0);
 
         if (empty($formFields['finish_date'])) {
             $formFields['finish_date'] = $formFields['create_date'];
@@ -241,6 +245,33 @@ class OffertController extends Controller
         $offert->update($formFields);
 
         return redirect()->route('offert.index');
+    }
+
+    /**
+     * Auto-save offert header fields via AJAX (no redirect).
+     */
+    public function autoSave(Request $request, string $id)
+    {
+        $offert = Offert::find($id);
+
+        if (!$offert) {
+            return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+        }
+
+        $fields = $request->only([
+            'user_sign', 'status', 'create_date', 'validity', 'client_sign',
+            'finish_date', 'object', 'city', 'service', 'payment_conditions',
+            'difficulty', 'material', 'labor_price', 'default_rabatt', 'client_id', 'type',
+        ]);
+
+        // Remove empty finish_date — fall back to create_date
+        if (empty($fields['finish_date']) && !empty($fields['create_date'])) {
+            $fields['finish_date'] = $fields['create_date'];
+        }
+
+        $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
+
+        return response()->json(['success' => true]);
     }
 
     /**

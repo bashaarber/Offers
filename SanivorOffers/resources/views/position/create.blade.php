@@ -379,7 +379,8 @@
                                         </td>
                                         <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                         <td id="discounted-total">0.00</td>
-                                        <td>% <input id="percentage-input" name="percentage-input" value="0">
+                                        <td>% <input id="percentage-input" name="percentage-input"
+                                            value="{{ $offert->default_rabatt ?? 0 }}">
                                         </td>
                                         <td id="costo-total" name="costo-total">0.00</td>
                                         <td id="profit-total" name="profit-total">0.00</td>
@@ -559,7 +560,7 @@
             const optionalElementCheckboxes = document.querySelectorAll('.element-optional-checkbox');
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
-            let percentage = 0;
+            let percentage = parseFloat({{ $offert->default_rabatt ?? 0 }});
             // Update the total materials price on document ready
             updateTotalMaterialsPrice();
 

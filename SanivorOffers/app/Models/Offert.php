@@ -26,6 +26,7 @@ class Offert extends Model
         'difficulty',
         'material',
         'labor_price',
+        'default_rabatt',
         'user_id',
     ];
 

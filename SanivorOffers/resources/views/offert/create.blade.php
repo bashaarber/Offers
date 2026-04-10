@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="user_sign">Unser Zeichen</label>
-                                    <input type="text" class="form-control" id="user_sign" name="user_sign" value="Izet Kqiku" required>
+                                    <input type="text" class="form-control" id="user_sign" name="user_sign" value="Blerant Kqiku" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="status">Status</label>
@@ -128,6 +128,13 @@
                                     <label for="labor_price">Stundenansatz</label>
                                     <input type="text" class="form-control" id="labor_price" name="labor_price"
                                         value="{{ $coefficient->labor_price }}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
+                                    <input type="number" class="form-control" id="default_rabatt" name="default_rabatt"
+                                        value="0" min="0" max="100" step="0.01">
                                 </div>
                             </div>
                             @endforeach

@@ -26,7 +26,7 @@
                     <div class="card">
                         <div class="card-body">
                         <h6>Projektinformationen</h6>
-                            <form action="{{ route('offert.update', $offert->id) }}" method="post">
+                            <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
                                 @method('put')
                                 <div class="form-row">
@@ -143,10 +143,18 @@
                                             name="labor_price" value="{{ $offert->labor_price }}" required>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-3">Update Offert</button>
-                                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
+                                        <input type="number" class="form-control" id="default_rabatt"
+                                            name="default_rabatt" value="{{ $offert->default_rabatt ?? 0 }}"
+                                            min="0" max="100" step="0.01">
+                                    </div>
+                                </div>
                                 <a href="{{ route('offert.show', $offert->id) }}"
-                                    class="btn btn-info mt-3 float-right">View Offert</a>
+                                    class="btn btn-info mt-3">Edit Offert</a>
+                                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
+                                <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
                             </form>
                         </div>
                         {{-- @foreach ($offert->positions as $position)
@@ -178,6 +186,67 @@
         $(document).ready(function() {
             $('.select-users').select2();
         });
+    </script>
+
+    <script>
+        // Auto-save offert header fields on change/blur
+        (function () {
+            const autoSaveUrl = "{{ route('offert.auto-save', $offert->id) }}";
+            const csrfToken   = "{{ csrf_token() }}";
+            const statusEl    = document.getElementById('autosave-status');
+            let saveTimer     = null;
+
+            function showStatus(msg, color) {
+                statusEl.textContent = msg;
+                statusEl.style.color = color;
+            }
+
+            function collectFormData() {
+                const form = document.getElementById('offert-edit-form');
+                const data = new FormData(form);
+                // Select2 client dropdown needs manual inclusion
+                const clientId = document.getElementById('client_id');
+                if (clientId && clientId.value) {
+                    data.set('client_id', clientId.value);
+                }
+                return data;
+            }
+
+            function triggerSave() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(function () {
+                    showStatus('Saving…', '#6b7280');
+                    const body = new URLSearchParams();
+                    body.append('_token', csrfToken);
+                    body.append('_method', 'PUT');
+                    const data = collectFormData();
+                    data.forEach((v, k) => body.append(k, v));
+
+                    fetch(autoSaveUrl, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        body: body,
+                    })
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.success) {
+                            showStatus('Saved ✓', '#16a34a');
+                            setTimeout(() => { statusEl.textContent = ''; }, 2000);
+                        } else {
+                            showStatus('Save failed', '#dc2626');
+                        }
+                    })
+                    .catch(() => showStatus('Save failed', '#dc2626'));
+                }, 600); // 600 ms debounce
+            }
+
+            // Listen on all form inputs
+            const form = document.getElementById('offert-edit-form');
+            if (form) {
+                form.addEventListener('input',  triggerSave);
+                form.addEventListener('change', triggerSave);
+            }
+        })();
     </script>
 </body>
 

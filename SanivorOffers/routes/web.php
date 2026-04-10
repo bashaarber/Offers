@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
     Route::get('/offert/{offert_id}/copy', [OffertController::class, 'copy'])->name('offert.copy');
     Route::get('/pdf-export/{id}', [OffertController::class, 'exportPdf'])->name('offert.pdf');
+    Route::post('/offert/{id}/auto-save', [OffertController::class, 'autoSave'])->name('offert.auto-save');
 
     Route::resource('position', PositionController::class)->except('create');
     Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');

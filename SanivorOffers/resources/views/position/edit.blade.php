@@ -366,7 +366,9 @@
                                             {{ $position->price_brutto }}</td>
                                         <td id="discounted-total">{{ $position->price_discount }}</td>
                                         <td>% <input id="percentage-input" name="percentage-input"
-                                                value="{{ $position->discount }}"></td>
+                                                value="{{ $position->discount }}"
+                                                style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
+                                        </td>
                                         <td id="costo-total2">{{ $position->costo_total }}</td>
                                         <td id="profit-total2">{{ $position->profit_total }}</td>
                                     </tr>
@@ -736,6 +738,21 @@
                 return totalZeitCost;
             }
 
+            // Default rabatt from offert header
+            const defaultRabatt = parseFloat({{ $offert->default_rabatt ?? 0 }});
+
+            // Colour the % input red if it differs from the offert default
+            function updateRabattColour(input) {
+                const val = parseFloat(input.value) || 0;
+                if (val !== defaultRabatt) {
+                    input.style.color = 'red';
+                    input.style.fontWeight = 'bold';
+                } else {
+                    input.style.color = '';
+                    input.style.fontWeight = '';
+                }
+            }
+
             // Event listener for the percentage input field
             const percentageInput = document.getElementById('percentage-input');
             percentageInput.addEventListener('input', function() {
@@ -752,6 +769,9 @@
                 // Update the hidden input field with the calculated percentage value
                 const percentageInputHidden = document.getElementById('percentageInput');
                 percentageInputHidden.value = inputValue;
+
+                // Update colour indicator
+                updateRabattColour(this);
             });
 
             // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage

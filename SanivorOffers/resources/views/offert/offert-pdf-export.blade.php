@@ -208,8 +208,9 @@
                 @foreach ($group_element->organigrams as $organigram)
                     @php
                         $groupedGroupElements[$organigram->name][$group_element->name][] = [
-                            'quantity' => $element->pivot->quantity,
+                            'quantity'    => $element->pivot->quantity,
                             'element_name' => $element->name,
+                            'is_optional' => (bool) ($element->pivot->is_optional ?? false),
                         ];
                     @endphp
                 @endforeach
@@ -247,7 +248,7 @@
                                         {{ $groupName }}</td>
                                     <td style="width:50%;padding: 3px;">
                                         @foreach ($groupElements as $groupElement)
-                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}<br>
+                                            {{ $groupElement['quantity'] }} x {{ $groupElement['element_name'] }}{{ $groupElement['is_optional'] ? ' (opt*)' : '' }}<br>
                                         @endforeach
                                     </td>
                                 </tr>
