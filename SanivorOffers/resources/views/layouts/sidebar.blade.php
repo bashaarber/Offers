@@ -277,9 +277,9 @@
             @auth
                 @if (auth()->user()->role === 'admin')
                 @php
-                    $hideAdminManagement = $hideAdminManagement ?? false;
+                    $showSettingsManagementNav = request()->routeIs('dashboard', 'offert.index', 'profile.edit');
                 @endphp
-                @if (!$hideAdminManagement)
+                @if ($showSettingsManagementNav)
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">@lang('public.settings')</div>
                     <a href="javascript:void(0);" class="toggle-sublinks dropdown-link-custom" data-target="home">
