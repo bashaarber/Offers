@@ -44,24 +44,24 @@ RUN mkdir -p /app/storage/logs || true
 EXPOSE 8000
 
 # Run migrations, seeders, caching, and start server (Render sets PORT)
-CMD ["sh", "-c", "\
+CMD sh -c "\
   chmod -R 777 storage bootstrap/cache && \
   mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs && \
   php artisan config:clear 2>/dev/null; \
   php artisan cache:clear 2>/dev/null; \
   php artisan route:clear 2>/dev/null; \
   php artisan view:clear 2>/dev/null; \
-  if [ \"$$CLEANUP_PG_ENUMS\" = \"true\" ]; then \
+  if [ \"$CLEANUP_PG_ENUMS\" = \"true\" ]; then \
     echo 'CLEANUP_PG_ENUMS=true: running enum cleanup (recovery only)...' && \
     php cleanup-enums.php 2>/dev/null || true; \
   fi && \
   echo 'Running migrations...' && \
   php artisan migrate --force && \
   echo 'Running seeders...' && \
-  php artisan db:seed --force || echo 'Warning: db:seed exited non-zero (see logs).' && \
+  (php artisan db:seed --force || echo 'Warning: db:seed exited non-zero (see logs).') && \
   echo 'Migrations complete!' && \
   php artisan config:cache && \
   php artisan route:cache && \
   php artisan view:cache && \
-  echo \"Starting PHP server on port $${PORT:-8000}...\" && \
-  php artisan serve --host=0.0.0.0 --port=$${PORT:-8000}"]
+  echo \"Starting PHP server on port ${PORT:-8000}...\" && \
+  php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
