@@ -25,6 +25,7 @@ class CoefficientSeeder extends Seeder
                 'difficulty' => 0.7,
                 'payment_conditions' => '30 Tage Netto',
                 'default_rabatt' => 20,
+                'default_signature' => 'Arber Basha',
             ]);
         }
     }

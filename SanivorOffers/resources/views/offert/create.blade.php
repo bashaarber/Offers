@@ -36,7 +36,7 @@
 </style>
 
 <body>
-    @include('layouts.sidebar')
+    @include('layouts.sidebar', ['hideAdminManagement' => true])
     <div class="content">
     <div class="container mt-4">
         <div class="row justify-content-center">

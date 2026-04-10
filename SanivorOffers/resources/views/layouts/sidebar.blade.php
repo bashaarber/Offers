@@ -276,6 +276,10 @@
         @if (Route::has('login'))
             @auth
                 @if (auth()->user()->role === 'admin')
+                @php
+                    $hideAdminManagement = $hideAdminManagement ?? false;
+                @endphp
+                @if (!$hideAdminManagement)
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">@lang('public.settings')</div>
                     <a href="javascript:void(0);" class="toggle-sublinks dropdown-link-custom" data-target="home">
@@ -301,6 +305,7 @@
                         <i class="fa fa-address-card"></i><span>@lang('public.clients')</span>
                     </a>
                 </div>
+                @endif
                 @endif
             @endif
         @endauth

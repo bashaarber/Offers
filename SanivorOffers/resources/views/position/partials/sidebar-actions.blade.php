@@ -88,7 +88,16 @@
         if (sidebar && footer && template) {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = template.innerHTML;
-            sidebar.insertBefore(wrapper.firstElementChild, footer);
+            const positionSection = wrapper.firstElementChild;
+            const scrollable = sidebar.querySelector('.sidebar-scrollable');
+            const firstSidebarSection = scrollable?.querySelector('.sidebar-section');
+
+            // Place Positions directly under "Main > Offer"
+            if (scrollable && firstSidebarSection) {
+                firstSidebarSection.insertAdjacentElement('afterend', positionSection);
+            } else {
+                sidebar.insertBefore(positionSection, footer);
+            }
         }
 
         // External PDF: persist current position (and any unsaved edits) before opening, so the PDF matches the UI

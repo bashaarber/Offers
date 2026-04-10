@@ -332,7 +332,7 @@
                                         </tr>
                                     </thead>
                                 <tbody>
-                                    <tr class="table-active">
+                                    <tr class="table-active" style="display:none;">
                                         <td><strong>Materiale Pro Typ</strong></td>
                                         <td id="price-out-input">{{ $position->material_brutto }}</td>
                                         <td id="price-out-input2">{{ $position->material_brutto }}</td>
@@ -340,7 +340,7 @@
                                         <td id="price-in-input">{{ $position->material_costo }}</td>
                                         <td id="price-profit">{{ $position->material_profit }}</td>
                                     </tr>
-                                    <tr class="table-active">
+                                    <tr class="table-active" style="display:none;">
                                         <td><strong>Zeit Pro Typ</strong></td>
                                         <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
                                         <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
@@ -368,6 +368,10 @@
                                         <td>% <input id="percentage-input" name="percentage-input"
                                                 value="{{ $position->discount }}"
                                                 style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
+                                            <button type="button" id="rabatt-default-btn"
+                                                class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
+                                                Default
+                                            </button>
                                         </td>
                                         <td id="costo-total2">{{ $position->costo_total }}</td>
                                         <td id="profit-total2">{{ $position->profit_total }}</td>
@@ -738,6 +742,15 @@
                 return totalZeitCost;
             }
 
+            function formatSwissNumber(value, decimals = 2) {
+                const num = Number(value);
+                if (!Number.isFinite(num)) return decimals > 0 ? `0.${'0'.repeat(decimals)}` : '0';
+                const fixed = num.toFixed(decimals);
+                const parts = fixed.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+                return decimals > 0 ? `${parts[0]}.${parts[1]}` : parts[0];
+            }
+
             // Default rabatt from offert header
             const defaultRabatt = parseFloat({{ $offert->default_rabatt ?? 0 }});
 
@@ -773,6 +786,25 @@
                 // Update colour indicator
                 updateRabattColour(this);
             });
+
+            const rabattDefaultBtn = document.getElementById('rabatt-default-btn');
+            if (rabattDefaultBtn) {
+                rabattDefaultBtn.addEventListener('click', function() {
+                    const defaultValue = defaultRabatt.toString();
+                    const percentageInput2 = document.getElementById('percentage-input2');
+                    const percentageInputHidden = document.getElementById('percentageInput');
+
+                    percentageInput.value = defaultValue;
+                    if (percentageInput2) percentageInput2.value = defaultValue;
+                    if (percentageInputHidden) percentageInputHidden.value = defaultValue;
+
+                    updateRabattColour(percentageInput);
+                    updateTotalProTypPrice();
+                    if (typeof triggerAutoSave === 'function') {
+                        triggerAutoSave();
+                    }
+                });
+            }
 
             // Function to update the Total Pro Typ Price and Discounted Total based on the running total and percentage
             function updateTotalProTypPrice() {
@@ -860,42 +892,42 @@
                     const percentage = parseFloat(percentageInput.value) || 0;
                     const discountedTotal = totalProTypPrice * (1 - (percentage / 100)) * mengeValue;
 
-                    totalProTypPriceCell.textContent = (totalProTypPrice * mengeValue).toFixed(2);
-                    totalProTypPriceCell2.textContent = (totalProTypPrice * mengeValue).toFixed(2);
-                    discountedTotalCell.textContent = discountedTotal.toFixed(2);
-                    discountedTotalCell2.textContent = discountedTotal.toFixed(2);
+                    totalProTypPriceCell.textContent = formatSwissNumber(totalProTypPrice * mengeValue);
+                    totalProTypPriceCell2.textContent = formatSwissNumber(totalProTypPrice * mengeValue);
+                    discountedTotalCell.textContent = formatSwissNumber(discountedTotal);
+                    discountedTotalCell2.textContent = formatSwissNumber(discountedTotal);
 
                     // Update the hidden input fields with the calculated values
                     totalProTypPriceInput.value = totalProTypPrice.toFixed(2);
                     discountedTotalInput.value = discountedTotal.toFixed(2);
 
                     // Update the displayed price_out and zeit_cost values
-                    priceOutInput.textContent = totalPriceOut.toFixed(2);
-                    priceOutInput2.textContent = totalPriceOut.toFixed(2);
+                    priceOutInput.textContent = formatSwissNumber(totalPriceOut);
+                    priceOutInput2.textContent = formatSwissNumber(totalPriceOut);
 
-                    zeitCostInput.textContent = totalZeitCost.toFixed(2);
-                    zeitCostInput2.textContent = totalZeitCost.toFixed(2);
-                    zeitCosto.textContent = (totalZeitCost / 2.5).toFixed(2);
-                    zeitProfit.textContent = totalZeitCost - (totalZeitCost / 2.5);
+                    zeitCostInput.textContent = formatSwissNumber(totalZeitCost);
+                    zeitCostInput2.textContent = formatSwissNumber(totalZeitCost);
+                    zeitCosto.textContent = formatSwissNumber(totalZeitCost / 2.5);
+                    zeitProfit.textContent = formatSwissNumber(totalZeitCost - (totalZeitCost / 2.5));
 
-                    priceInInput.textContent = totalPriceIn.toFixed(2);
-                    priceProfit.textContent = (totalPriceOut - totalPriceIn).toFixed(2);
+                    priceInInput.textContent = formatSwissNumber(totalPriceIn);
+                    priceProfit.textContent = formatSwissNumber(totalPriceOut - totalPriceIn);
 
                     const costoTotalValue = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
-                    costoTotal.textContent = costoTotalValue;
+                    costoTotal.textContent = formatSwissNumber(costoTotalValue);
 
                     const profitTotalValue = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
                         2.5)).toFixed(2);
                     const discountedProfitTotalValue = profitTotalValue * (1 - (percentage / 100)).toFixed(2);
-                    profitTotal.textContent = discountedProfitTotalValue.toFixed(2);
+                    profitTotal.textContent = formatSwissNumber(discountedProfitTotalValue);
 
                     const costoTotalValue2 = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
-                    costoTotal2.textContent = costoTotalValue2;
+                    costoTotal2.textContent = formatSwissNumber(costoTotalValue2);
 
                     const profitTotalValue2 = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
                         2.5)).toFixed(2);
                     const discountedProfitTotalValue2 = profitTotalValue2 * (1 - (percentage / 100)).toFixed(2);
-                    profitTotal2.textContent = discountedProfitTotalValue2.toFixed(2);
+                    profitTotal2.textContent = formatSwissNumber(discountedProfitTotalValue2);
 
                     // Update the hidden input values
                     document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);

@@ -28,6 +28,19 @@
         .pdf-position-block:last-child {
             margin-bottom: 0;
         }
+
+        .position-head-row th {
+            padding: 8px 6px;
+            line-height: 1.25;
+        }
+
+        .position-value-row td {
+            padding: 8px 6px;
+        }
+
+        .text-left {
+            text-align: left !important;
+        }
     </style>
 </head>
 
@@ -35,6 +48,13 @@
     @php
         $logoPath = public_path('images/sanivor.jpg');
         $logoSrc = null;
+        $defaultSignature = \App\Models\Coefficient::value('default_signature') ?? 'Arber Basha';
+        $chf = function ($value, int $decimals = 2) {
+            return number_format((float) $value, $decimals, '.', "'");
+        };
+        $chInt = function ($value) {
+            return number_format((float) $value, 0, '.', "'");
+        };
         if (file_exists($logoPath)) {
             $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
         }
@@ -126,17 +146,17 @@
                 @endif
             @endforeach
 
-            <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $totalMengeStk }} </strong></p>
-            <p>Total Brutto: CHF {{ number_format($totalBrutto, 2) }} </p>
-            <p style="margin-bottom:30px">Rabatt: CHF -{{ number_format($totalDiscount, 2) }}</p>
-            <p><strong>Total Netto: CHF {{ number_format($totalNetto, 2) }}</strong></p>
+            <p style="margin-bottom:30px;"><strong>Total Elemente: Stk. {{ $chInt($totalMengeStk) }} </strong></p>
+            <p>Total Brutto: CHF {{ $chf($totalBrutto) }} </p>
+            <p style="margin-bottom:30px">Rabatt: CHF -{{ $chf($totalDiscount) }}</p>
+            <p><strong>Total Netto: CHF {{ $chf($totalNetto) }}</strong></p>
             @php
                 $difference = $totalNetto;
                 $discountedAmount = $difference * 0.081;
             @endphp
 
-            <p>MwSt 8.1% : CHF {{ number_format($discountedAmount, 2) }}</p>
-            <p><strong>Gesamt: CHF {{ number_format($difference + $discountedAmount, 2) }}</strong></p>
+            <p>MwSt 8.1% : CHF {{ $chf($discountedAmount) }}</p>
+            <p><strong>Gesamt: CHF {{ $chf($difference + $discountedAmount) }}</strong></p>
             @if ($optionalPositions > 0)
                 <p style="font-size: 12px; margin-top: 8px;">
                     * {{ $optionalPositions }} optionale Position(en) sind im Gesamtpreis nicht enthalten.
@@ -157,7 +177,7 @@
             d&uuml;rfen. Es gelten unsere Allgemeinen Gesch&auml;ftsbedingungen (AGB), die unter www.sanivor.ch zu finden sind.
         </p>
         <p>Freundliche Gr&uuml;sse</p>
-        <p>{{ $offert->user_sign }}</p>
+        <p>{{ $defaultSignature }}</p>
         <hr>
     </div>
     <div style="page-break-after: always"></div>
@@ -165,7 +185,7 @@
         <div class="pdf-position-block">
         <table style="border:0.25px solid black;">
             <thead style="border:0.25px solid black;">
-                <tr>
+                <tr class="position-head-row">
                     <th>Pos {{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</th>
                     <th>{{ $position->description }}</th>
                     <th>Brutto</th>
@@ -176,24 +196,24 @@
                 </tr>
             </thead>
             <tbody>
-                <tr style="text-align: center;font-weight:bold">
+                <tr class="position-value-row" style="text-align: center;font-weight:bold">
                     @php
                         $quantity = max((float) ($position->quantity ?? 1), 1);
                         $unitBrutto = (float) ($position->price_brutto ?? 0) / $quantity;
                         $unitNetto = $unitBrutto * ((100 - (float) ($position->discount ?? 0)) / 100);
                     @endphp
-                    <td>
+                    <td class="text-left">
                         {{ $position->blocktype }}<br>
                         B:{{ $position->b }}
                         H:{{ $position->h }}
                         T:{{ $position->t }} (in cm)
                     </td>
-                    <td></td>
-                    <td>{{ number_format($unitBrutto, 2) }}</td>
+                    <td class="text-left"></td>
+                    <td>{{ $chf($unitBrutto) }}</td>
                     <td>{{ $position->discount }}%</td>
-                    <td>{{ number_format($unitNetto, 2) }}</td>
-                    <td> {{ $position->quantity }} </td>
-                    <td>{{ number_format((float) ($position->price_discount ?? 0), 2) }}
+                    <td>{{ $chf($unitNetto) }}</td>
+                    <td> {{ $chInt($position->quantity) }} </td>
+                    <td>{{ $chf((float) ($position->price_discount ?? 0)) }}
                     </td>
                 </tr>
             </tbody>

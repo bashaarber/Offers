@@ -18,5 +18,6 @@ class Coefficient extends Model
         'difficulty',
         'payment_conditions',
         'default_rabatt',
+        'default_signature',
     ];
 }

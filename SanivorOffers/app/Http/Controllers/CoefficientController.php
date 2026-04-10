@@ -17,6 +17,16 @@ class CoefficientController extends Controller
 
         return $hasColumn;
     }
+
+    private function hasDefaultSignatureColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('coefficients', 'default_signature');
+        }
+
+        return $hasColumn;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -74,12 +84,19 @@ class CoefficientController extends Controller
             'difficulty' => 'required',
             'payment_conditions' => 'required',
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
+            'default_signature' => 'nullable|string|max:255',
         ]);
 
         if ($this->hasDefaultRabattColumn()) {
             $formFields['default_rabatt'] = $request->input('default_rabatt', 20);
         } else {
             unset($formFields['default_rabatt']);
+        }
+
+        if ($this->hasDefaultSignatureColumn()) {
+            $formFields['default_signature'] = $request->input('default_signature', 'Arber Basha');
+        } else {
+            unset($formFields['default_signature']);
         }
 
         $coefficient = Coefficient::find($id);
