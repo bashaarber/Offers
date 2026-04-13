@@ -561,13 +561,11 @@
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = parseFloat({{ $offert->default_rabatt ?? 0 }});
-            // Update the total materials price on document ready
-            updateTotalMaterialsPrice();
-            // Recalculate totals on load so hidden inputs are correct before any save
-            updateTotalProTypPrice();
-
-            // Add an event listener to the menge-input element
+            // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
+            // Update the total materials price on document ready, then recalculate totals
+            updateTotalMaterialsPrice();
+            updateTotalProTypPrice();
 
             mengeInput.addEventListener('input', function() {
 
