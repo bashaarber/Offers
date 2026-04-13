@@ -457,18 +457,13 @@
                         </tr>
                     </thead>
                 </table>
+                @php
+                    $matCoeff  = max(floatval($offert->material  ?? 1.3), 0.001);
+                    $diffCoeff = max(floatval($offert->difficulty ?? 0.7), 0.001);
+                @endphp
                 @foreach ($elements as $element)
                     @php
-                        $isSelected = $position->elements->contains($element->id);
-                        $isRahmeElement = $element
-                            ->group_elements()
-                            ->whereHas('organigrams', function ($query) {
-                                $query->where('name', 'Rahme');
-                            })
-                            ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
-                            ->exists();
-                    @endphp
-                    @php
+                        $isSelected    = $position->elements->contains($element->id);
                         $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
@@ -507,6 +502,9 @@
                                         ->where('material_id', $material->id)
                                         ->first();
                                     $quantity = $positionMaterial ? $positionMaterial->quantity : $material->pivot->quantity;
+                                    // preis = price_out × mat_coeff + total_arbeit / difficulty_coeff
+                                    $computedPrice = ($material->price_out * $matCoeff)
+                                        + (($material->total_arbeit ?? 0) / $diffCoeff);
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
@@ -521,8 +519,8 @@
                                     </td>
                                     <td class="col-pstk price-details"
                                         data-material-id="{{ $material->id }}"
-                                        data-material-price="{{ $material->total }}">
-                                        CHF <span class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span> X <span
+                                        data-material-price="{{ number_format($computedPrice, 4, '.', '') }}">
+                                        CHF <span class="price-in">{{ number_format($computedPrice, 2, '.', '') }}</span> X <span
                                             class="quantity">{{ $quantity }}</span>
                                         {{ $material->unit }}
                                         <div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">
@@ -533,15 +531,7 @@
                                     </td>
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{-- {{ $material->total * $quantity }} --}}
-                                        {{ number_format(
-                                            $isRahmeElement
-                                                ? ($material->total / $offert->difficulty) * $quantity
-                                                : $material->total * $quantity,
-                                            2,
-                                            '.',
-                                            '',
-                                        ) }}
+                                        {{ number_format($computedPrice * $quantity, 2, '.', '') }}
                                     </td>
                                 </tr>
                             @endforeach
