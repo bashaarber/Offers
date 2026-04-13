@@ -2,30 +2,168 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class MaterialPieceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $materialPieces = [
-            ['name' => 'Schraube M6x30', 'price_in' => 0.15, 'price_out' => 0.25],
-            ['name' => 'Dübel 8x60', 'price_in' => 0.08, 'price_out' => 0.15],
-            ['name' => 'Schraube M8x40', 'price_in' => 0.22, 'price_out' => 0.35],
-            ['name' => 'Winkelverbinder', 'price_in' => 2.50, 'price_out' => 4.00],
-            ['name' => 'Metallplatte 50x50mm', 'price_in' => 1.20, 'price_out' => 2.00],
-            ['name' => 'Klemmverbinder', 'price_in' => 3.50, 'price_out' => 5.50],
-            ['name' => 'Schraube M10x50', 'price_in' => 0.35, 'price_out' => 0.55],
-            ['name' => 'Dübel 10x80', 'price_in' => 0.12, 'price_out' => 0.20],
-            ['name' => 'Verbindungsplatte', 'price_in' => 4.00, 'price_out' => 6.50],
-            ['name' => 'Ankerbolzen M12', 'price_in' => 1.50, 'price_out' => 2.50],
-        ];
-
-        DB::table('material_pieces')->insert($materialPieces);
+        $rows = [];
+        $rows[] = ['name' => 'UP320, Typ 112 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'UP320, Duofresh, Typ 112 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'UP320, Typ 112, Geruchsabsaugeanschluss Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 85 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 98 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 114 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Behinderten-Wt. mit Siphon Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Bad AP 153 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Gleitstange Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Glasstrenwand Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Bad UP Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Kopfbrause Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Handbrause Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Holz (Sperrholz) 24 mm fur Gleitstange Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Holz (Sperrholz) 24 mm fur Glasstrenwande Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Div. Holz einlagen Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Dusche AP 153 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Dusche UP Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Urinal 137cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Urinal Universal 114cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Urinal 114cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Urinal 123cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Urinal ohne steurung mit wasseranschl. Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Urinal 0 Liter Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Holz fur Küchenkombination Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Langmuffe 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Langmuffe 125 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Bidet Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Abzweig 88 1/2° 110/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Doppel-Abzweig 180° 110/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Doppel-Abzweig 180° 125/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Rohrschelle 125 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Rohrschelle 135 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr 125 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Abzweig 88 1/2° 125/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr 135 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogenabzweig 88 1/2° 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Doppel-Abzweig 180° 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Langmuffe 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Langmuffe 135 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Rohrschelle Fixpunkt Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 88 1/2° 135/110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Küche Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'WM ohne Siphon Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'WM mit Siphon Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/56 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/63 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/75 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/90 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Silent Apparate (anschl.) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'PE Apparate (anschl.) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'WC AP 95 Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Steigleitungen Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Internal Anschlüsse16 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Internal Anschlüsse 20 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex  2x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 2x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 3x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 3x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 4x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 4x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 5x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 5x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 16/20 mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 2x16/20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 3x16/20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 4x16/20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 5x16/20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 2x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 2x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 3x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 3x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 4x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 4x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 5x16mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 5x20mm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'KQ-Wasserzählertstrecke Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Freistehend Aufstock Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Aufstock Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2" Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2" Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Nische ca. 50cmx30cm (für  Dusche/Bad) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 80cm x 80cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Freistehend Aufstock mit Seiten-Abschl. Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Aufstock mit Seiten-Abschl. Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Grundrahme Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Grundrahme Teilhoch Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Grundrahme Telihoch und Rahmhoch Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Freistehend Grundrahme Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Freistehend Grundrahme Hinten leer Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 120cm x 80cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 90cm x 60cm Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Waschtisch UP Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Isoliert mit schwer Schallschutzmatte Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Deckeneinlagen WAS Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Grundelement DeBo Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Vorwand Aufstockelement DeBo Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Befestigung DeBo Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Trennwand Grundelement DeBo Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Trennwand Aufstockelement DeBo Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Lüftungsgehäuse (Lieferung bauseits) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Inkl. Rohrschelle Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Deckeneinlagen WAR Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Fallstrang Umlenkung Geberit Isol. (90/ 110) Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Inkl. E-Muffen Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Inkl. Schalungsschoner Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Inkl. Kanisparblöck Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Befestigung Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Waschtisch Piece', 'price_in' => 0, 'price_out' => 0];
+        $rows[] = ['name' => 'Behinderten-Wt. ohne Siphon Piece', 'price_in' => 0, 'price_out' => 0];
+        DB::table('material_pieces')->insert($rows);
     }
 }
