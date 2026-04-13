@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Material;
 use App\Models\MaterialPiece;
 use App\Models\Element;
@@ -56,10 +57,25 @@ class RepairConnectionsSeeder extends Seeder
         $elementGroupCount = DB::table('element_group_element')->count();
         $groupOrgCount = DB::table('group_element_organigram')->count();
 
-        return $elementMaterialCount === 0
+        if ($elementMaterialCount === 0
             || $materialPieceCount === 0
             || $elementGroupCount === 0
-            || $groupOrgCount === 0;
+            || $groupOrgCount === 0) {
+            return true;
+        }
+
+        // Check if connections are CORRECT: most elements should have at least one material.
+        // If fewer than 50% of elements have materials, the connections are likely wrong.
+        $totalElements = Element::count();
+        $elementsWithMaterials = DB::table('element_material')
+            ->distinct('element_id')
+            ->count('element_id');
+
+        if ($totalElements > 0 && $elementsWithMaterials < ($totalElements * 0.3)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function loadJsonData(): ?array
@@ -81,11 +97,9 @@ class RepairConnectionsSeeder extends Seeder
 
     private function repairMaterialMaterialPiece(array $hardware): void
     {
-        if (DB::table('material_material_piece')->count() > 0) {
-            return;
-        }
-
         $this->command?->info('  Repairing material ↔ material_piece connections...');
+
+        DB::table('material_material_piece')->truncate();
 
         $materials = Material::all();
         $count = 0;
@@ -99,10 +113,8 @@ class RepairConnectionsSeeder extends Seeder
                 ]
             );
 
-            if (! $material->material_pieces()->where('material_piece_id', $piece->id)->exists()) {
-                $material->material_pieces()->attach($piece->id);
-                $count++;
-            }
+            $material->material_pieces()->attach($piece->id);
+            $count++;
         }
 
         $this->command?->info("  → Repaired {$count} material ↔ material_piece connections.");
@@ -110,11 +122,9 @@ class RepairConnectionsSeeder extends Seeder
 
     private function repairElementMaterial(array $hardware, array $elemente): void
     {
-        if (DB::table('element_material')->count() > 0) {
-            return;
-        }
-
         $this->command?->info('  Repairing element ↔ material connections...');
+
+        DB::table('element_material')->truncate();
 
         $hwKeyToName = [];
         foreach ($hardware as $key => $item) {
@@ -164,14 +174,10 @@ class RepairConnectionsSeeder extends Seeder
 
     private function repairElementGroupElementAndOrganigram(array $elemente, array $organigrams): void
     {
-        $needsElemGroup = DB::table('element_group_element')->count() === 0;
-        $needsGroupOrg = DB::table('group_element_organigram')->count() === 0;
-
-        if (! $needsElemGroup && ! $needsGroupOrg) {
-            return;
-        }
-
         $this->command?->info('  Repairing organigram tree connections...');
+
+        DB::table('element_group_element')->truncate();
+        DB::table('group_element_organigram')->truncate();
 
         $elemKeyToName = [];
         foreach ($elemente as $key => $elem) {
@@ -198,33 +204,31 @@ class RepairConnectionsSeeder extends Seeder
                     continue;
                 }
 
-                if ($needsGroupOrg && ! $orgModel->group_elements()->where('group_element_id', $groupModel->id)->exists()) {
+                if (! $orgModel->group_elements()->where('group_element_id', $groupModel->id)->exists()) {
                     $orgModel->group_elements()->attach($groupModel->id);
                     $groupOrgCount++;
                 }
 
-                if ($needsElemGroup) {
-                    $childElements = $child['elements'] ?? [];
-                    foreach ($childElements as $elemRef) {
-                        $elemRefName = is_array($elemRef) ? ($elemRef['name'] ?? null) : $elemRef;
-                        if (! $elemRefName) {
-                            continue;
-                        }
+                $childElements = $child['elements'] ?? [];
+                foreach ($childElements as $elemRef) {
+                    $elemRefName = is_array($elemRef) ? ($elemRef['name'] ?? null) : $elemRef;
+                    if (! $elemRefName) {
+                        continue;
+                    }
 
-                        $elemRealName = $elemKeyToName[$elemRefName] ?? null;
-                        if (! $elemRealName) {
-                            continue;
-                        }
+                    $elemRealName = $elemKeyToName[$elemRefName] ?? null;
+                    if (! $elemRealName) {
+                        continue;
+                    }
 
-                        $elementModel = $elementsByName->get($elemRealName);
-                        if (! $elementModel) {
-                            continue;
-                        }
+                    $elementModel = $elementsByName->get($elemRealName);
+                    if (! $elementModel) {
+                        continue;
+                    }
 
-                        if (! $groupModel->elements()->where('element_id', $elementModel->id)->exists()) {
-                            $groupModel->elements()->attach($elementModel->id);
-                            $elemGroupCount++;
-                        }
+                    if (! $groupModel->elements()->where('element_id', $elementModel->id)->exists()) {
+                        $groupModel->elements()->attach($elementModel->id);
+                        $elemGroupCount++;
                     }
                 }
             }
@@ -235,43 +239,32 @@ class RepairConnectionsSeeder extends Seeder
 
     private function recalculateMaterialPrices(): void
     {
-        $zeroTotal = Material::where('total', 0)->orWhereNull('total')->count();
-        if ($zeroTotal === 0) {
-            return;
-        }
-
-        $this->command?->info("  Recalculating prices for {$zeroTotal} materials with zero total...");
+        $this->command?->info('  Recalculating material prices...');
 
         $coefficient = Coefficient::first();
         $laborPrice = (float) ($coefficient->labor_price ?? 0);
-        $materialKoeff = (float) ($coefficient->material ?? 1);
-        $difficultyKoeff = (float) ($coefficient->difficulty ?? 1);
 
         $updated = 0;
-        foreach (Material::where('total', 0)->orWhereNull('total')->cursor() as $material) {
+        $hasTotalArbeit = Schema::hasColumn('materials', 'total_arbeit');
+
+        foreach (Material::cursor() as $material) {
             $zTotal = (float) $material->z_schlosserei + (float) $material->z_pe + (float) $material->z_montage;
             $totalArbeit = $zTotal * $laborPrice;
 
-            $piecesPriceIn = 0;
-            $piecesPriceOut = 0;
-            foreach ($material->material_pieces as $piece) {
-                $piecesPriceIn += (float) $piece->price_in;
-                $piecesPriceOut += (float) $piece->price_out;
+            $updateData = [
+                'z_total' => $zTotal,
+                'zeit_cost' => $totalArbeit,
+            ];
+
+            if ($hasTotalArbeit) {
+                $updateData['total_arbeit'] = $totalArbeit;
             }
 
-            $priceIn = $piecesPriceIn > 0 ? $piecesPriceIn : (float) $material->price_in;
-            $priceOut = $piecesPriceOut > 0 ? $piecesPriceOut : (float) $material->price_out;
+            if ((float) $material->total === 0.0 || $material->total === null) {
+                $updateData['total'] = (float) $material->price_out;
+            }
 
-            $total = ($priceOut * $materialKoeff) + ($totalArbeit / ($difficultyKoeff ?: 1));
-
-            $material->update([
-                'z_total' => $zTotal,
-                'total_arbeit' => $totalArbeit,
-                'zeit_cost' => $totalArbeit,
-                'price_in' => $priceIn,
-                'price_out' => $total,
-                'total' => $total,
-            ]);
+            $material->update($updateData);
             $updated++;
         }
 
