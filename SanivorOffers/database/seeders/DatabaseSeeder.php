@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Element;
 use App\Models\Organigram;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -39,36 +40,22 @@ class DatabaseSeeder extends Seeder
 
     private function resetAndRunFallbackCatalogSeeders(): void
     {
-        // Wipe all catalog tables (CASCADE handles FK constraints on PostgreSQL).
-        // Positions rows are preserved; only catalog + pivot rows are removed.
+        // Wipe catalog tables with CASCADE to handle FK constraints (PostgreSQL-safe).
+        // Positions table is preserved; only catalog and catalog-pivot rows are removed.
         DB::statement('TRUNCATE TABLE
-            material_material_piece,
-            element_material,
+            group_element_organigram,
+            element_group_element,
             element_position,
             group_element_position,
             organigram_position,
-            group_element_organigram,
-            element_group_element,
-            position_materials,
-            material_pieces,
-            materials,
             organigrams,
             group_elements,
             elements
             RESTART IDENTITY CASCADE');
 
-        // Seed materials (pieces first, then materials, then connect them)
-        $this->call(MaterialPieceSeeder::class);
-        $this->call(MaterialSeeder::class);
-        $this->call(MaterialMaterialPieceRelationshipSeeder::class);
-
-        // Seed catalog structure
         $this->call(ElementSeeder::class);
         $this->call(GroupElementSeeder::class);
         $this->call(OrganigramSeeder::class);
-
-        // Seed relationships
-        $this->call(ElementMaterialRelationshipSeeder::class);
         $this->call(ElementGroupElementRelationshipSeeder::class);
         $this->call(GroupElementOrganigramRelationshipSeeder::class);
     }
