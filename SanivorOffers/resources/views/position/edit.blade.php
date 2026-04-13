@@ -559,6 +559,8 @@
             let percentage = 0;
             // Update the total materials price on document ready
             updateTotalMaterialsPrice();
+            // Recalculate totals on load so hidden inputs are correct before any save
+            updateTotalProTypPrice();
             // Add an event listener to the menge-input element
             const mengeInput = document.getElementById('menge-input');
 
