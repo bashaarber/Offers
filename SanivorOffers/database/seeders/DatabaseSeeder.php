@@ -36,6 +36,8 @@ class DatabaseSeeder extends Seeder
             $this->command?->warn('Catalog missing or outdated; re-seeding with correct catalog data.');
             $this->resetAndRunFallbackCatalogSeeders();
         }
+
+        $this->call(RepairConnectionsSeeder::class);
     }
 
     private function resetAndRunFallbackCatalogSeeders(): void
