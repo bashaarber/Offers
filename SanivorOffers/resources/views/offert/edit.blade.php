@@ -33,10 +33,26 @@
         -webkit-appearance: none;
         margin: 0;
     }
+
+    .embedded-overview-body {
+        background: #f1f5f9;
+    }
+
+    .embedded-overview-body .content {
+        margin-left: 0;
+        padding: 14px;
+    }
+
+    .embedded-overview-body .container {
+        max-width: 100%;
+        padding: 0;
+    }
 </style>
 
-<body>
-    @include('layouts.sidebar')
+<body class="{{ !empty($embeddedOverview) ? 'embedded-overview-body' : '' }}">
+    @if (empty($embeddedOverview))
+        @include('layouts.sidebar')
+    @endif
     <div class="content">
         <div class="container mt-4">
             <div class="row justify-content-center">
@@ -46,6 +62,14 @@
                         <h6>Projektinformationen</h6>
                             <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
+                                @method('put')
+                                @if (!empty($fromPositionOverview))
+                                    <input type="hidden" name="from_position" value="1">
+                                    <input type="hidden" name="return_url" value="{{ $returnUrl }}">
+                                    @if (!empty($embeddedOverview))
+                                        <input type="hidden" name="embed" value="1">
+                                    @endif
+                                @endif
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
                                         <label for="id">Offerte NR.</label>
@@ -171,10 +195,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a href="{{ route('offert.show', $offert->id) }}"
-                                    class="btn btn-info mt-3">Edit Offert</a>
-                                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
-                                <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
+                                @if (!empty($fromPositionOverview))
+                                    <button type="submit" class="btn btn-info mt-3">Edit Offert</button>
+                                    <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-3">Abbrechen</button>
+                                @else
+                                    <a href="{{ route('offert.show', $offert->id) }}"
+                                        class="btn btn-info mt-3">Edit Offert</a>
+                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
+                                    <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
+                                @endif
                             </form>
                         </div>
                         {{-- @foreach ($offert->positions as $position)
@@ -208,9 +237,10 @@
         });
     </script>
 
-    <script>
-        // Auto-save offert header fields on change/blur
-        (function () {
+    @if (empty($fromPositionOverview))
+        <script>
+            // Auto-save offert header fields on change/blur
+            (function () {
             const autoSaveUrl = "{{ route('offert.auto-save', $offert->id) }}";
             const csrfToken   = "{{ csrf_token() }}";
             const statusEl    = document.getElementById('autosave-status');
@@ -224,6 +254,8 @@
             function collectFormData() {
                 const form = document.getElementById('offert-edit-form');
                 const data = new FormData(form);
+                // Autosave endpoint expects POST (not PUT spoofing).
+                data.delete('_method');
                 // Select2 client dropdown needs manual inclusion
                 const clientId = document.getElementById('client_id');
                 if (clientId && clientId.value) {
@@ -274,8 +306,32 @@
                 form.addEventListener('input',  triggerSave);
                 form.addEventListener('change', triggerSave);
             }
-        })();
-    </script>
+            })();
+        </script>
+    @else
+        <script>
+            (function () {
+                const abbrechenBtn = document.getElementById('abbrechen-btn');
+                const returnUrl = @json($returnUrl);
+                const isEmbeddedOverview = @json(!empty($embeddedOverview));
+
+                if (!abbrechenBtn || !returnUrl) {
+                    return;
+                }
+
+                abbrechenBtn.addEventListener('click', function () {
+                    const shouldLeave = confirm('Alle Änderungen werden nicht gespeichert. Möchten Sie abbrechen?');
+                    if (shouldLeave) {
+                        if (isEmbeddedOverview && window.parent && window.parent !== window) {
+                            window.parent.postMessage({ type: 'offert-overview-close', reason: 'cancel' }, '*');
+                        } else {
+                            window.location.href = returnUrl;
+                        }
+                    }
+                });
+            })();
+        </script>
+    @endif
 </body>
 
 </html>
