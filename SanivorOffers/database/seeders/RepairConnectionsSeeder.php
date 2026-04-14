@@ -113,7 +113,8 @@ class RepairConnectionsSeeder extends Seeder
         $count = 0;
 
         foreach ($materials as $material) {
-            $piece = MaterialPiece::firstOrCreate(
+            // Keep piece prices aligned with material prices.
+            $piece = MaterialPiece::updateOrCreate(
                 ['name' => $material->name . ' Piece'],
                 [
                     'price_in' => $material->price_in ?? 0,
@@ -121,7 +122,8 @@ class RepairConnectionsSeeder extends Seeder
                 ]
             );
 
-            $material->material_pieces()->attach($piece->id);
+            // Allow many pieces per material; only ensure this one exists.
+            $material->material_pieces()->syncWithoutDetaching([$piece->id]);
             $count++;
         }
 
