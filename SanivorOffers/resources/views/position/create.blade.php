@@ -507,6 +507,15 @@
                             </tr>
 
                             @foreach ($element->materials as $material)
+                                @php
+                                    $difficultyCoeff = (float) ($offert->difficulty ?: 1);
+                                    $materialCoeff = (float) ($offert->material ?: 1);
+                                    $calculatedMaterialTotal = ((float) $material->price_out * $materialCoeff)
+                                        + ((float) $material->total_arbeit / ($difficultyCoeff ?: 1));
+                                    $displayMaterialTotal = $isRahmeElement
+                                        ? ($calculatedMaterialTotal / ($difficultyCoeff ?: 1))
+                                        : $calculatedMaterialTotal;
+                                @endphp
                                 <tr style="text-align: left">
                                     <td>
                                         mit <input style="width: 100px" min="0" step="any" type="number"
@@ -520,9 +529,9 @@
                                     </td>
                                     <td class="col-pstk price-details"
                                         data-material-id="{{ $material->id }}"
-                                        data-material-price="{{ $material->total }}">
+                                        data-material-price="{{ $displayMaterialTotal }}">
                                         CHF <span
-                                            class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span>
+                                            class="price-in">{{ number_format($displayMaterialTotal, 2, '.', '') }}</span>
                                         X <span class="quantity">{{ $material->pivot->quantity }}</span>
                                         {{ $material->unit }}
                                         <div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">
@@ -534,14 +543,7 @@
 
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ number_format(
-                                            $isRahmeElement
-                                                ? ($material->total / $offert->difficulty) * $material->pivot->quantity
-                                                : $material->total * $material->pivot->quantity,
-                                            2,
-                                            '.',
-                                            '',
-                                        ) }}
+                                        {{ number_format($displayMaterialTotal * $material->pivot->quantity, 2, '.', '') }}
                                     </td>
                                 </tr>
                             @endforeach

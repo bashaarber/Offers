@@ -46,7 +46,6 @@
                         <h6>Projektinformationen</h6>
                             <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
-                                @method('put')
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
                                         <label for="id">Offerte NR.</label>
@@ -132,7 +131,7 @@
                                     <div class="form-group col-md-6">
                                         <label for="clients">Kunde</label>
                                         <select style="width: 100%" class="select-users form-control"
-                                            name="client_id" required>
+                                            id="client_id" name="client_id" required>
                                             @foreach ($clients as $client)
                                                 <option value="{{ $client->id }}"
                                                     {{ $client->id == $offert->client_id ? 'selected' : '' }}>
@@ -233,31 +232,39 @@
                 return data;
             }
 
+            function buildRequestBody() {
+                const body = new URLSearchParams();
+                body.append('_token', csrfToken);
+                const data = collectFormData();
+                data.forEach((v, k) => body.append(k, v));
+                return body;
+            }
+
+            function persistNow() {
+                return fetch(autoSaveUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: buildRequestBody(),
+                });
+            }
+
             function triggerSave() {
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(function () {
                     showStatus('Saving…', '#6b7280');
-                    const body = new URLSearchParams();
-                    body.append('_token', csrfToken);
-                    body.append('_method', 'PUT');
-                    const data = collectFormData();
-                    data.forEach((v, k) => body.append(k, v));
-
-                    fetch(autoSaveUrl, {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                        body: body,
-                    })
+                    persistNow()
                     .then(r => r.json())
                     .then(json => {
                         if (json.success) {
                             showStatus('Saved ✓', '#16a34a');
                             setTimeout(() => { statusEl.textContent = ''; }, 2000);
                         } else {
-                            showStatus('Save failed', '#dc2626');
+                            statusEl.textContent = '';
                         }
                     })
-                    .catch(() => showStatus('Save failed', '#dc2626'));
+                    .catch(() => {
+                        statusEl.textContent = '';
+                    });
                 }, 600); // 600 ms debounce
             }
 
