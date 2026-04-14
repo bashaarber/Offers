@@ -507,6 +507,13 @@
                                         ->where('material_id', $material->id)
                                         ->first();
                                     $quantity = $positionMaterial ? $positionMaterial->quantity : $material->pivot->quantity;
+                                    $difficultyCoeff = (float) ($offert->difficulty ?: 1);
+                                    $materialCoeff = (float) ($offert->material ?: 1);
+                                    $calculatedMaterialTotal = ((float) $material->price_out * $materialCoeff)
+                                        + ((float) $material->total_arbeit / ($difficultyCoeff ?: 1));
+                                    $displayMaterialTotal = $isRahmeElement
+                                        ? ($calculatedMaterialTotal / ($difficultyCoeff ?: 1))
+                                        : $calculatedMaterialTotal;
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
@@ -521,8 +528,8 @@
                                     </td>
                                     <td class="col-pstk price-details"
                                         data-material-id="{{ $material->id }}"
-                                        data-material-price="{{ $material->total }}">
-                                        CHF <span class="price-in">{{ number_format($isRahmeElement ? $material->total / $offert->difficulty : $material->total, 2, '.', '') }}</span> X <span
+                                        data-material-price="{{ $displayMaterialTotal }}">
+                                        CHF <span class="price-in">{{ number_format($displayMaterialTotal, 2, '.', '') }}</span> X <span
                                             class="quantity">{{ $quantity }}</span>
                                         {{ $material->unit }}
                                         <div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">
@@ -533,14 +540,7 @@
                                     </td>
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ number_format(
-                                            $isRahmeElement
-                                                ? ($material->total / $offert->difficulty) * $quantity
-                                                : $material->total * $quantity,
-                                            2,
-                                            '.',
-                                            '',
-                                        ) }}
+                                        {{ number_format($displayMaterialTotal * $quantity, 2, '.', '') }}
                                     </td>
                                 </tr>
                             @endforeach
