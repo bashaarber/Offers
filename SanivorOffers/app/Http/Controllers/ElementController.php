@@ -13,7 +13,7 @@ class ElementController extends Controller
      */
     public function index()
     {
-        $elements = Element::orderBy('id', 'ASC')->paginate(50);
+        $elements = Element::with('materials')->orderBy('id', 'ASC')->paginate(50);
 
         return view('element.index', compact('elements'));
     }
@@ -46,8 +46,10 @@ class ElementController extends Controller
         $quantities = $request->input('quantities', []);
 
         foreach ($materials as $key => $materialId) {
-            $quantity = $quantities[$key] ?? 1; // Default to 1 if no quantity provided
-
+            if (empty($materialId)) {
+                continue;
+            }
+            $quantity = $quantities[$key] ?? 1;
             $element->materials()->attach($materialId, ['quantity' => $quantity]);
         }
 
@@ -90,7 +92,10 @@ class ElementController extends Controller
 
         $syncData = [];
         foreach ($materials as $key => $materialId) {
-            $quantity = $quantities[$key] ?? 1; // Default to 1 if no quantity provided
+            if (empty($materialId)) {
+                continue;
+            }
+            $quantity = $quantities[$key] ?? 1;
             $syncData[$materialId] = ['quantity' => $quantity];
         }
 

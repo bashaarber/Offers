@@ -27,12 +27,16 @@ class RepairConnectionsSeeder extends Seeder
 
         $jsonData = $this->loadJsonData();
         if (! $jsonData) {
-            $this->command?->error('RepairConnectionsSeeder: JSON file not found, cannot repair.');
+            // JSON file not available — fall back to static seeders for element_material
+            $this->command?->warn('RepairConnectionsSeeder: JSON file not found — falling back to static seeders.');
+            if (DB::table('element_material')->count() === 0) {
+                $this->call(ElementMaterialRelationshipSeeder::class);
+            }
             return;
         }
 
-        $hardware = $jsonData['hardware'] ?? [];
-        $elemente = $jsonData['elemente'] ?? [];
+        $hardware    = $jsonData['hardware'] ?? [];
+        $elemente    = $jsonData['elemente'] ?? [];
         $organigrams = $jsonData['organigram'] ?? [];
 
         $this->repairMaterialMaterialPiece($hardware);
@@ -52,26 +56,30 @@ class RepairConnectionsSeeder extends Seeder
             return false;
         }
 
+        // Always repair if element_material is empty — this is the most critical table
+        // and must never be left empty when elements and materials exist.
         $elementMaterialCount = DB::table('element_material')->count();
-        $materialPieceCount = DB::table('material_material_piece')->count();
-        $elementGroupCount = DB::table('element_group_element')->count();
-        $groupOrgCount = DB::table('group_element_organigram')->count();
-
-        if ($elementMaterialCount === 0
-            || $materialPieceCount === 0
-            || $elementGroupCount === 0
-            || $groupOrgCount === 0) {
+        if ($elementMaterialCount === 0) {
             return true;
         }
 
         // Check if connections are CORRECT: most elements should have at least one material.
-        // If fewer than 50% of elements have materials, the connections are likely wrong.
-        $totalElements = Element::count();
-        $elementsWithMaterials = DB::table('element_material')
+        // If fewer than 30% of elements have materials, the connections are likely wrong.
+        $totalElements    = Element::count();
+        $elementsWithMats = DB::table('element_material')
             ->distinct('element_id')
             ->count('element_id');
 
-        if ($totalElements > 0 && $elementsWithMaterials < ($totalElements * 0.3)) {
+        if ($totalElements > 0 && $elementsWithMats < ($totalElements * 0.3)) {
+            return true;
+        }
+
+        // Also check auxiliary tables — if any are missing, repair the whole tree.
+        $materialPieceCount = DB::table('material_material_piece')->count();
+        $elementGroupCount  = DB::table('element_group_element')->count();
+        $groupOrgCount      = DB::table('group_element_organigram')->count();
+
+        if ($materialPieceCount === 0 || $elementGroupCount === 0 || $groupOrgCount === 0) {
             return true;
         }
 
@@ -124,8 +132,6 @@ class RepairConnectionsSeeder extends Seeder
     {
         $this->command?->info('  Repairing element ↔ material connections...');
 
-        DB::table('element_material')->truncate();
-
         $hwKeyToName = [];
         foreach ($hardware as $key => $item) {
             $hwKeyToName[$key] = $item['name'] ?? '';
@@ -134,10 +140,12 @@ class RepairConnectionsSeeder extends Seeder
         $materialsByName = Material::all()->keyBy('name');
         $elementsByName = Element::all()->keyBy('name');
 
-        $count = 0;
+        // Build all connections FIRST — do NOT truncate until we know we have data
+        $rows = [];
+        $now  = now();
 
-        foreach ($elemente as $elemKey => $elemData) {
-            $elemName = $elemData['name'] ?? '';
+        foreach ($elemente as $elemData) {
+            $elemName     = $elemData['name'] ?? '';
             $elementModel = $elementsByName->get($elemName);
 
             if (! $elementModel) {
@@ -150,7 +158,7 @@ class RepairConnectionsSeeder extends Seeder
                     continue;
                 }
 
-                $materialName = $hwKeyToName[$hwKey] ?? null;
+                $materialName  = $hwKeyToName[$hwKey] ?? null;
                 if (! $materialName) {
                     continue;
                 }
@@ -160,16 +168,39 @@ class RepairConnectionsSeeder extends Seeder
                     continue;
                 }
 
-                $quantity = floatval($hwItem['multiplier'] ?? 1);
-
-                if (! $elementModel->materials()->where('material_id', $materialModel->id)->exists()) {
-                    $elementModel->materials()->attach($materialModel->id, ['quantity' => $quantity]);
-                    $count++;
-                }
+                $rows[] = [
+                    'element_id'  => $elementModel->id,
+                    'material_id' => $materialModel->id,
+                    'quantity'    => floatval($hwItem['multiplier'] ?? 1),
+                    'created_at'  => $now,
+                    'updated_at'  => $now,
+                ];
             }
         }
 
-        $this->command?->info("  → Repaired {$count} element ↔ material connections.");
+        if (empty($rows)) {
+            // JSON produced 0 connections — fall back to the static seeder so we
+            // never leave element_material empty after a repair attempt.
+            $this->command?->warn('  JSON produced 0 element-material connections — running fallback ElementMaterialRelationshipSeeder.');
+            $this->call(ElementMaterialRelationshipSeeder::class);
+            return;
+        }
+
+        // Safe to truncate now that we have replacement data
+        DB::table('element_material')->truncate();
+
+        // Bulk-insert in chunks (avoids parameter-limit issues on large sets)
+        foreach (array_chunk($rows, 500) as $chunk) {
+            // Deduplicate by (element_id, material_id) — pivot PK is composite
+            $unique = [];
+            foreach ($chunk as $row) {
+                $key = $row['element_id'] . '_' . $row['material_id'];
+                $unique[$key] = $row;
+            }
+            DB::table('element_material')->insertOrIgnore(array_values($unique));
+        }
+
+        $this->command?->info('  → Repaired ' . count($rows) . ' element ↔ material connections.');
     }
 
     private function repairElementGroupElementAndOrganigram(array $elemente, array $organigrams): void

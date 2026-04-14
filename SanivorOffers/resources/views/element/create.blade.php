@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Element</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <style>
-    .select-material+.select2-container .select2-selection--single {
+    .select-material + .select2-container .select2-selection--single {
         height: 38px;
     }
 </style>
@@ -28,19 +30,22 @@
                                     <label for="name">Name:</label>
                                     <input type="text" class="form-control" id="name" name="name" required>
                                 </div>
-                                <div class="form-group" id="materials-list">
+                                <div class="form-group">
                                     <label for="materials">Materials:</label>
-                                    <div class="input-group mb-2">
-                                        <select class="select-material " name="materials[]" required>
-                                            @foreach ($materials as $material)
-                                                <option value="{{ $material->id }}">{{ $material->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <input type="text" min="0" class="form-control" name="quantities[]"
-                                            placeholder="QTY">
-                                        <button type="button" class="btn btn-danger remove-material"><i
-                                                class="fa-solid fa-minus"></i></button>
+                                    <div id="materials-list">
+                                        <div class="input-group mb-2">
+                                            <select class="select-material" name="materials[]" required>
+                                                <option value="">-- Select Material --</option>
+                                                @foreach ($materials as $material)
+                                                    <option value="{{ $material->id }}">{{ $material->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" min="0" class="form-control" name="quantities[]"
+                                                placeholder="QTY">
+                                            <button type="button" class="btn btn-danger remove-material"><i
+                                                    class="fa-solid fa-minus"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-primary" id="add-material"><i
@@ -56,25 +61,33 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    {{-- Hidden template for adding new material rows --}}
+    <template id="material-row-template">
+        <div class="input-group mb-2">
+            <select class="select-material" name="materials[]" required>
+                <option value="">-- Select Material --</option>
+                @foreach ($materials as $material)
+                    <option value="{{ $material->id }}">{{ $material->name }}
+                    </option>
+                @endforeach
+            </select>
+            <input type="text" min="0" class="form-control" name="quantities[]"
+                placeholder="QTY">
+            <button type="button" class="btn btn-danger remove-material"><i
+                    class="fa-solid fa-minus"></i></button>
+        </div>
+    </template>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#add-material').click(function() {
-                const newMaterialField = $('#materials-list .input-group:first').clone();
-                newMaterialField.find('select').val('material_id_1'); // Set the default material
-                newMaterialField.find('input').val(''); // Clear the quantity input
-
-                // Remove Select2 from the cloned select element
-                newMaterialField.find('.select-material').removeClass('select2-hidden-accessible').next()
-                    .remove();
-                newMaterialField.appendTo('#materials-list');
-
-                // Reinitialize Select2 for all select elements
-                $('.select-material').select2();
+                var template = document.getElementById('material-row-template');
+                var clone = $(template.content.cloneNode(true));
+                $('#materials-list').append(clone);
+                $('#materials-list .select-material').last().select2();
             });
-
 
             $('#materials-list').on('click', '.remove-material', function() {
                 if ($('#materials-list .input-group').length > 1) {
@@ -82,9 +95,7 @@
                 }
             });
 
-            // Initialize Select2 for the first material select element
             $('.select-material').select2();
-
             $('.select-material').val(null).trigger('change');
         });
     </script>
