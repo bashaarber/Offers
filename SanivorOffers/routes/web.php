@@ -11,6 +11,9 @@ use App\Http\Controllers\OffertController;
 use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +30,32 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Temporary emergency endpoint for production repair without shell access.
+// Keep disabled by default and protect with a strong shared token.
+Route::get('/_ops/repair-element-material', function (Request $request) {
+    $enabled = filter_var(env('REPAIR_ENDPOINT_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+    if (! $enabled) {
+        abort(404);
+    }
+
+    $expectedToken = (string) env('REPAIR_ENDPOINT_TOKEN', '');
+    $providedToken = (string) $request->query('token', '');
+    if ($expectedToken === '' || $providedToken === '' || ! hash_equals($expectedToken, $providedToken)) {
+        abort(403);
+    }
+
+    $before = DB::table('element_material')->count();
+    Artisan::call('elements:check-materials', ['--repair' => true]);
+    $after = DB::table('element_material')->count();
+
+    return response()->json([
+        'ok' => $after > 0,
+        'before_count' => $before,
+        'after_count' => $after,
+        'output' => Artisan::output(),
+    ]);
+});
 
 Route::middleware('auth', 'role:admin')->group(function () {
     Route::resource('material_piece', MaterialPieceController::class)->except(['index']);
