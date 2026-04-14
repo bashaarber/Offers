@@ -57,6 +57,25 @@ Route::get('/_ops/repair-element-material', function (Request $request) {
     ]);
 });
 
+Route::post('/_ops/repair-element-material', function () {
+    $enabled = filter_var(env('REPAIR_ENDPOINT_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+    if (! $enabled) {
+        abort(404);
+    }
+
+    $before = DB::table('element_material')->count();
+    Artisan::call('elements:check-materials', ['--repair' => true]);
+    $after = DB::table('element_material')->count();
+
+    return redirect()
+        ->route('dashboard')
+        ->with('repair_status', [
+            'before' => $before,
+            'after' => $after,
+            'ok' => $after > 0,
+        ]);
+})->middleware(['auth', 'role:admin'])->name('ops.repair-element-material');
+
 Route::middleware('auth', 'role:admin')->group(function () {
     Route::resource('material_piece', MaterialPieceController::class)->except(['index']);
     Route::get('/material_piece', [MaterialPieceController::class, 'index'])->name('material_piece.index');
