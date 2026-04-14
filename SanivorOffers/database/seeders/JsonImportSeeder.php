@@ -27,31 +27,40 @@ class JsonImportSeeder extends Seeder
             return;
         }
 
-        // Clear all existing data
-        $this->clearAllData();
-
-        // Load JSON file - try multiple possible locations
+        // Load JSON file - try env path first, then known fallback locations
+        $envJsonPath = env('JSON_IMPORT_PATH');
         $jsonPaths = [
-            '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json', // Local development
+            $envJsonPath,
             base_path('database/seeders/DB___proj_98_2026-01-19 18_03_10.json'), // In repository
             storage_path('app/DB___proj_98_2026-01-19 18_03_10.json'), // In storage
+            '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json', // Local development
         ];
         
         $jsonData = null;
         $jsonPath = null;
         
         foreach ($jsonPaths as $path) {
-            if (File::exists($path)) {
+            if ($path && File::exists($path)) {
                 $jsonPath = $path;
                 $jsonData = json_decode(File::get($path), true);
                 break;
             }
         }
 
-        if (!$jsonData) {
-            $this->command->warn('JSON file not found. Skipping JSON import. Using default seeders instead.');
-            // Don't return - let other seeders run
+        if (! $jsonData) {
+            $this->command->warn('JSON file not found. Skipping JSON import without truncating existing catalog data.');
             return;
+        }
+
+        $this->command?->info("JSON file found at: {$jsonPath}");
+
+        // Full rebuild mode is intended for one-time rebootstrap from JSON.
+        // Keep it explicit so production runs are predictable.
+        $fullRebuild = filter_var(env('JSON_IMPORT_FULL_REBUILD', true), FILTER_VALIDATE_BOOLEAN);
+        if ($fullRebuild) {
+            $this->clearAllData();
+        } else {
+            $this->command?->warn('JSON_IMPORT_FULL_REBUILD=false; skipping destructive truncate. Existing rows may cause partial/duplicate import.');
         }
 
         // Import Coefficients
