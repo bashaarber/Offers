@@ -26,6 +26,16 @@ class RepairConnectionsSeeder extends Seeder
         $this->command?->warn('RepairConnectionsSeeder: broken connections detected — repairing...');
 
         $jsonData = $this->loadJsonData();
+
+        $hardware    = $jsonData ? ($jsonData['hardware'] ?? []) : [];
+        $elemente    = $jsonData ? ($jsonData['elemente'] ?? []) : [];
+        $organigrams = $jsonData ? ($jsonData['organigram'] ?? []) : [];
+
+        // Step 0: Fix materials FIRST if the wrong dataset is loaded (e.g. old
+        // construction-material seeder ran instead of the plumbing-fixture seeder).
+        // This must happen before any element-material repair so that name-matching works.
+        $this->repairMaterialsIfWrong($hardware);
+
         if (! $jsonData) {
             // JSON file not available — fall back to static seeders for element_material
             $this->command?->warn('RepairConnectionsSeeder: JSON file not found — falling back to static seeders.');
@@ -34,10 +44,6 @@ class RepairConnectionsSeeder extends Seeder
             }
             return;
         }
-
-        $hardware    = $jsonData['hardware'] ?? [];
-        $elemente    = $jsonData['elemente'] ?? [];
-        $organigrams = $jsonData['organigram'] ?? [];
 
         $this->repairMaterialMaterialPiece($hardware);
         $this->repairElementMaterial($hardware, $elemente);
@@ -54,6 +60,14 @@ class RepairConnectionsSeeder extends Seeder
 
         if (! $hasElements || ! $hasMaterials) {
             return false;
+        }
+
+        // Detect wrong material dataset — if none of the expected plumbing materials
+        // exist the DB was seeded with stale/incorrect data and needs repair.
+        $hasCorrectMaterials = Material::whereIn('name', ['WC AP 95', 'Befestigung', 'Waschtisch'])
+            ->count() >= 2;
+        if (! $hasCorrectMaterials) {
+            return true;
         }
 
         // Always repair if element_material is empty — this is the most critical table
@@ -84,6 +98,77 @@ class RepairConnectionsSeeder extends Seeder
         }
 
         return false;
+    }
+
+    /**
+     * Safely replace the materials table when it contains the wrong dataset
+     * (e.g. old construction-material seeder instead of the plumbing fixtures).
+     *
+     * Only touches material-related tables (materials, material_pieces and their
+     * pivot tables). Elements, organigrams, offerts and positions are NOT touched.
+     */
+    private function repairMaterialsIfWrong(array $hardware): void
+    {
+        $hasCorrectMaterials = Material::whereIn('name', ['WC AP 95', 'Befestigung', 'Waschtisch'])
+            ->count() >= 2;
+
+        if ($hasCorrectMaterials) {
+            return; // Materials already correct — nothing to do.
+        }
+
+        $this->command?->warn('  Wrong material dataset detected — replacing materials...');
+
+        // Clear material-dependent tables in FK-safe order.
+        DB::table('position_materials')->truncate();
+        DB::table('element_material')->truncate();
+        DB::table('material_material_piece')->truncate();
+        DB::table('material_pieces')->truncate();
+        DB::table('materials')->truncate();
+
+        if (! empty($hardware)) {
+            // Re-import directly from JSON hardware array (most accurate).
+            $laborPrice = (float) (\App\Models\Coefficient::value('labor_price') ?? 87.5);
+            $count = 0;
+
+            foreach ($hardware as $item) {
+                $zTotal = floatval($item['timeLabor_schlos'] ?? 0)
+                    + floatval($item['timeLabor_pe'] ?? 0)
+                    + floatval($item['timeLabor_montag'] ?? 0);
+                $totalArbeit = $zTotal * $laborPrice;
+
+                $row = [
+                    'name'         => $item['name'] ?? '',
+                    'unit'         => $item['e'] ?? 'St.',
+                    'price_in'     => floatval($item['preisIn'] ?? 0),
+                    'price_out'    => floatval($item['preisOut'] ?? 0),
+                    'z_schlosserei'=> floatval($item['timeLabor_schlos'] ?? 0),
+                    'z_pe'         => strval($item['timeLabor_pe'] ?? 0),
+                    'z_montage'    => strval($item['timeLabor_montag'] ?? 0),
+                    'z_total'      => $zTotal,
+                    'zeit_cost'    => floatval($item['preisIn'] ?? 0),
+                    'total'        => floatval($item['preisOut'] ?? 0),
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ];
+
+                if (Schema::hasColumn('materials', 'total_arbeit')) {
+                    $row['total_arbeit'] = $totalArbeit;
+                }
+
+                DB::table('materials')->insert($row);
+                $count++;
+            }
+
+            $this->command?->info("  → Imported {$count} materials from JSON.");
+        } else {
+            // JSON not available — use the static seeder (now contains all 259 materials).
+            $this->command?->warn('  JSON not available — using static MaterialSeeder.');
+            $this->call(MaterialPieceSeeder::class);
+            $this->call(MaterialSeeder::class);
+            $this->call(MaterialMaterialPieceRelationshipSeeder::class);
+        }
+
+        $this->command?->info('  → Materials replaced: ' . Material::count() . ' materials now in DB.');
     }
 
     private function loadJsonData(): ?array
