@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Element;
+use App\Models\Organigram;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,35 +24,52 @@ class DatabaseSeeder extends Seeder
                 $this->call(JsonImportSeeder::class);
             } catch (\Exception $e) {
                 $this->command?->warn('JSON import failed, using default seeders: '.$e->getMessage());
-                $this->runFallbackCatalogSeeders();
+                $this->resetAndRunFallbackCatalogSeeders();
             }
         }
 
-        if (! Element::query()->exists()) {
-            $this->command?->warn('Catalog is empty; running default catalog seeders.');
-            $this->runFallbackCatalogSeeders();
+        // If catalog is empty OR has wrong/old placeholder data, re-seed with correct data.
+        // We detect wrong data by checking for a known correct organigram name ('Rahme').
+        $hasCorrectCatalog = Organigram::where('name', 'Rahme')->exists();
+        if (! $hasCorrectCatalog) {
+            $this->command?->warn('Catalog missing or outdated; re-seeding with correct catalog data.');
+            $this->resetAndRunFallbackCatalogSeeders();
         }
     }
 
-    private function runFallbackCatalogSeeders(): void
+    private function resetAndRunFallbackCatalogSeeders(): void
     {
-        if (Element::query()->exists()) {
-            return;
-        }
+        // Wipe all catalog tables (CASCADE handles FK constraints on PostgreSQL).
+        // Positions rows are preserved; only catalog + pivot rows are removed.
+        DB::statement('TRUNCATE TABLE
+            material_material_piece,
+            element_material,
+            element_position,
+            group_element_position,
+            organigram_position,
+            group_element_organigram,
+            element_group_element,
+            position_materials,
+            material_pieces,
+            materials,
+            organigrams,
+            group_elements,
+            elements
+            RESTART IDENTITY CASCADE');
 
-        $this->call(ClientSeeder::class);
+        // Seed materials (pieces first, then materials, then connect them)
         $this->call(MaterialPieceSeeder::class);
         $this->call(MaterialSeeder::class);
+        $this->call(MaterialMaterialPieceRelationshipSeeder::class);
+
+        // Seed catalog structure
         $this->call(ElementSeeder::class);
         $this->call(GroupElementSeeder::class);
         $this->call(OrganigramSeeder::class);
-        $this->call(PositionSeeder::class);
-        $this->call(MaterialMaterialPieceRelationshipSeeder::class);
+
+        // Seed relationships
         $this->call(ElementMaterialRelationshipSeeder::class);
         $this->call(ElementGroupElementRelationshipSeeder::class);
         $this->call(GroupElementOrganigramRelationshipSeeder::class);
-        $this->call(ElementPositionRelationshipSeeder::class);
-        $this->call(GroupElementPositionRelationshipSeeder::class);
-        $this->call(OrganigramPositionRelationshipSeeder::class);
     }
 }

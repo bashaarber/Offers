@@ -2,139 +2,169 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class MaterialSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $materials = [
-            [
-                'name' => 'Stahlprofil 100x50mm',
-                'unit' => 'm',
-                'price_in' => 25.50,
-                'price_out' => 42.00,
-                'z_schlosserei' => 15.00,
-                'z_pe' => '2.5',
-                'z_montage' => '3.0',
-                'z_fermacell' => '1.5',
-                'z_total' => 22.00,
-                'zeit_cost' => 18.50,
-                'total' => 64.50,
-            ],
-            [
-                'name' => 'Gipskartonplatte 12.5mm',
-                'unit' => 'm²',
-                'price_in' => 8.50,
-                'price_out' => 14.00,
-                'z_schlosserei' => 0.00,
-                'z_pe' => '1.0',
-                'z_montage' => '2.5',
-                'z_fermacell' => '0.0',
-                'z_total' => 3.50,
-                'zeit_cost' => 12.00,
-                'total' => 17.50,
-            ],
-            [
-                'name' => 'Fermacellplatte 12.5mm',
-                'unit' => 'm²',
-                'price_in' => 12.00,
-                'price_out' => 20.00,
-                'z_schlosserei' => 0.00,
-                'z_pe' => '1.2',
-                'z_montage' => '2.8',
-                'z_fermacell' => '1.0',
-                'z_total' => 5.00,
-                'zeit_cost' => 15.00,
-                'total' => 25.00,
-            ],
-            [
-                'name' => 'Metallständer 75mm',
-                'unit' => 'm',
-                'price_in' => 3.20,
-                'price_out' => 5.50,
-                'z_schlosserei' => 8.00,
-                'z_pe' => '1.5',
-                'z_montage' => '2.0',
-                'z_fermacell' => '0.5',
-                'z_total' => 4.00,
-                'zeit_cost' => 10.00,
-                'total' => 9.50,
-            ],
-            [
-                'name' => 'Dämmstoff 60mm',
-                'unit' => 'm²',
-                'price_in' => 6.50,
-                'price_out' => 11.00,
-                'z_schlosserei' => 0.00,
-                'z_pe' => '0.8',
-                'z_montage' => '1.5',
-                'z_fermacell' => '0.0',
-                'z_total' => 2.30,
-                'zeit_cost' => 8.00,
-                'total' => 13.30,
-            ],
-            [
-                'name' => 'Stahlprofil 150x75mm',
-                'unit' => 'm',
-                'price_in' => 38.00,
-                'price_out' => 62.00,
-                'z_schlosserei' => 20.00,
-                'z_pe' => '3.0',
-                'z_montage' => '3.5',
-                'z_fermacell' => '2.0',
-                'z_total' => 28.50,
-                'zeit_cost' => 25.00,
-                'total' => 90.50,
-            ],
-            [
-                'name' => 'Gipskartonplatte 15mm',
-                'unit' => 'm²',
-                'price_in' => 10.50,
-                'price_out' => 17.50,
-                'z_schlosserei' => 0.00,
-                'z_pe' => '1.2',
-                'z_montage' => '2.8',
-                'z_fermacell' => '0.0',
-                'z_total' => 4.00,
-                'zeit_cost' => 14.00,
-                'total' => 21.50,
-            ],
-            [
-                'name' => 'Türzarge Metall',
-                'unit' => 'Stk',
-                'price_in' => 85.00,
-                'price_out' => 140.00,
-                'z_schlosserei' => 45.00,
-                'z_pe' => '4.0',
-                'z_montage' => '5.0',
-                'z_fermacell' => '1.0',
-                'z_total' => 54.00,
-                'zeit_cost' => 60.00,
-                'total' => 199.00,
-            ],
-        ];
-
-        foreach ($materials as &$m) {
-            unset($m['z_fermacell']);
-            $oldZ = (float) $m['z_total'];
-            $newZ = (float) $m['z_schlosserei'] + (float) $m['z_pe'] + (float) $m['z_montage'];
-            $oldZeit = (float) $m['zeit_cost'];
-            $m['z_total'] = $newZ;
-            $m['zeit_cost'] = $oldZ > 0 ? round($oldZeit * ($newZ / $oldZ), 2) : 0;
-            $m['total'] = round((float) $m['total'] - $oldZeit + $m['zeit_cost'], 2);
-            if (Schema::hasColumn('materials', 'total_arbeit')) {
-                $m['total_arbeit'] = $m['zeit_cost'];
-            }
-        }
-        unset($m);
-
-        DB::table('materials')->insert($materials);
+        $rows = [];
+        $rows[] = ['name' => 'WC AP 95', 'unit' => 'St.', 'price_in' => 138.88, 'price_out' => 217.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 138.88, 'total' => 217.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'Waschtisch', 'unit' => 'St.', 'price_in' => 42.94, 'price_out' => 64.5, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 42.94, 'total' => 64.5, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Behinderten-Wt. ohne Siphon', 'unit' => 'St.', 'price_in' => 31.4, 'price_out' => 100.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 31.4, 'total' => 100.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'Dusche AP 153', 'unit' => 'St.', 'price_in' => 27.6, 'price_out' => 47.2, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 27.6, 'total' => 47.2, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Bidet', 'unit' => 'St.', 'price_in' => 41.0, 'price_out' => 170.0, 'z_schlosserei' => 0.33, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.33, 'zeit_cost' => 41.0, 'total' => 170.0, 'total_arbeit' => 28.875];
+        $rows[] = ['name' => 'Küche', 'unit' => 'St.', 'price_in' => 29.0, 'price_out' => 58.5, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 29.0, 'total' => 58.5, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'WM ohne Siphon', 'unit' => 'St.', 'price_in' => 24.0, 'price_out' => 60.0, 'z_schlosserei' => 0.15, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.15, 'zeit_cost' => 24.0, 'total' => 60.0, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'WM mit Siphon', 'unit' => 'St.', 'price_in' => 39.0, 'price_out' => 97.5, 'z_schlosserei' => 0.33, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.33, 'zeit_cost' => 39.0, 'total' => 97.5, 'total_arbeit' => 28.875];
+        $rows[] = ['name' => 'Befestigung', 'unit' => 'St.', 'price_in' => 2.15, 'price_out' => 5.3, 'z_schlosserei' => 0.02, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.02, 'zeit_cost' => 2.15, 'total' => 5.3, 'total_arbeit' => 1.75];
+        $rows[] = ['name' => 'UP320, Typ 112', 'unit' => 'St.', 'price_in' => 116.0, 'price_out' => 156.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 116.0, 'total' => 156.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'UP320, Duofresh, Typ 112', 'unit' => 'St.', 'price_in' => 144.0, 'price_out' => 224.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 144.0, 'total' => 224.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'UP320, Typ 112, Geruchsabsaugeanschluss', 'unit' => 'St.', 'price_in' => 140.8, 'price_out' => 220.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 140.8, 'total' => 220.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 85', 'unit' => 'St.', 'price_in' => 143.36, 'price_out' => 224.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 143.36, 'total' => 224.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 98', 'unit' => 'St.', 'price_in' => 143.36, 'price_out' => 224.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 143.36, 'total' => 224.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'UP200, Omega, Typ 114', 'unit' => 'St.', 'price_in' => 143.36, 'price_out' => 224.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 143.36, 'total' => 224.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'Behinderten-Wt. mit Siphon', 'unit' => 'St.', 'price_in' => 49.4, 'price_out' => 130.0, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 49.4, 'total' => 130.0, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Bad AP 153', 'unit' => 'St.', 'price_in' => 27.6, 'price_out' => 47.2, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 27.6, 'total' => 47.2, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Gleitstange', 'unit' => 'St.', 'price_in' => 10.0, 'price_out' => 28.0, 'z_schlosserei' => 0.15, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.15, 'zeit_cost' => 10.0, 'total' => 28.0, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'Glasstrenwand', 'unit' => 'St.', 'price_in' => 14.0, 'price_out' => 32.2, 'z_schlosserei' => 0.17, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 14.0, 'total' => 32.2, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Bad UP', 'unit' => 'St.', 'price_in' => 10.0, 'price_out' => 40.7, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 10.0, 'total' => 40.7, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Kopfbrause', 'unit' => 'St.', 'price_in' => 15.0, 'price_out' => 32.2, 'z_schlosserei' => 0.17, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 15.0, 'total' => 32.2, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Handbrause', 'unit' => 'St.', 'price_in' => 14.0, 'price_out' => 32.2, 'z_schlosserei' => 0.17, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 14.0, 'total' => 32.2, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Holz (Sperrholz) 24 mm fur Gleitstange', 'unit' => 'St.', 'price_in' => 4.0, 'price_out' => 22.0, 'z_schlosserei' => 0.17, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 4.0, 'total' => 22.0, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Holz (Sperrholz) 24 mm fur Glasstrenwande', 'unit' => 'St.', 'price_in' => 4.0, 'price_out' => 22.0, 'z_schlosserei' => 0.17, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 4.0, 'total' => 22.0, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Div. Holz einlagen', 'unit' => 'St.', 'price_in' => 6.0, 'price_out' => 28.0, 'z_schlosserei' => 0.15, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.15, 'zeit_cost' => 6.0, 'total' => 28.0, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'Dusche UP', 'unit' => 'St.', 'price_in' => 10.0, 'price_out' => 40.7, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 10.0, 'total' => 40.7, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Geberit Urinal 137cm', 'unit' => 'St.', 'price_in' => 342.0, 'price_out' => 483.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 342.0, 'total' => 483.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Geberit Urinal Universal 114cm', 'unit' => 'St.', 'price_in' => 198.4, 'price_out' => 310.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 198.4, 'total' => 310.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Geberit Urinal 114cm', 'unit' => 'St.', 'price_in' => 208.0, 'price_out' => 325.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 208.0, 'total' => 325.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Geberit Urinal 123cm', 'unit' => 'St.', 'price_in' => 196.48, 'price_out' => 307.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 196.48, 'total' => 307.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Urinal ohne steurung mit wasseranschl.', 'unit' => 'St.', 'price_in' => 28.0, 'price_out' => 275.0, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 28.0, 'total' => 275.0, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Urinal 0 Liter', 'unit' => 'St.', 'price_in' => 17.0, 'price_out' => 240.0, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 17.0, 'total' => 240.0, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Holz fur Küchenkombination', 'unit' => 'St.', 'price_in' => 4.0, 'price_out' => 20.0, 'z_schlosserei' => 0.12, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.12, 'zeit_cost' => 4.0, 'total' => 20.0, 'total_arbeit' => 10.5];
+        $rows[] = ['name' => 'Geberit PE Langmuffe 110 mm', 'unit' => 'St.', 'price_in' => 5.5, 'price_out' => 8.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 5.5, 'total' => 8.6, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Langmuffe 125 mm', 'unit' => 'St.', 'price_in' => 11.46, 'price_out' => 17.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 11.46, 'total' => 17.9, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Abzweig 88 1/2° 110/110 mm', 'unit' => 'St.', 'price_in' => 5.18, 'price_out' => 8.1, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 5.18, 'total' => 8.1, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm', 'unit' => 'St.', 'price_in' => 6.4, 'price_out' => 10.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 6.4, 'total' => 10.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm', 'unit' => 'St.', 'price_in' => 26.5, 'price_out' => 41.4, 'z_schlosserei' => 0.0, 'z_pe' => '0.2', 'z_montage' => '0.0', 'z_total' => 0.2, 'zeit_cost' => 26.5, 'total' => 41.4, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Geberit PE Doppel-Abzweig 180° 110/110 mm', 'unit' => 'St.', 'price_in' => 20.29, 'price_out' => 31.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.17', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 20.29, 'total' => 31.7, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Geberit PE Doppel-Abzweig 180° 125/110 mm', 'unit' => 'St.', 'price_in' => 24.64, 'price_out' => 38.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.13', 'z_montage' => '0.0', 'z_total' => 0.13, 'zeit_cost' => 24.64, 'total' => 38.5, 'total_arbeit' => 11.375];
+        $rows[] = ['name' => 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm', 'unit' => 'St.', 'price_in' => 32.0, 'price_out' => 50.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.2', 'z_montage' => '0.0', 'z_total' => 0.2, 'zeit_cost' => 32.0, 'total' => 50.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Rohrschelle 125 mm', 'unit' => 'St.', 'price_in' => 14.5, 'price_out' => 20.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 14.5, 'total' => 20.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Rohrschelle 135 mm', 'unit' => 'St.', 'price_in' => 6.55, 'price_out' => 11.3, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 6.55, 'total' => 11.3, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Rohr 110 mm', 'unit' => 'm', 'price_in' => 5.61, 'price_out' => 11.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.08', 'z_montage' => '0.0', 'z_total' => 0.08, 'zeit_cost' => 5.61, 'total' => 11.0, 'total_arbeit' => 7.0];
+        $rows[] = ['name' => 'Geberit PE Rohr 125 mm', 'unit' => 'm', 'price_in' => 7.85, 'price_out' => 15.4, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 7.85, 'total' => 15.4, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit PE Abzweig 88 1/2° 125/110 mm', 'unit' => 'St.', 'price_in' => 10.18, 'price_out' => 15.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 10.18, 'total' => 15.9, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Silent Rohr 110 mm', 'unit' => 'm', 'price_in' => 14.47, 'price_out' => 22.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 14.47, 'total' => 22.9, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Silent Rohr 135 mm', 'unit' => 'm', 'price_in' => 13.42, 'price_out' => 25.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.13', 'z_montage' => '0.0', 'z_total' => 0.13, 'zeit_cost' => 13.42, 'total' => 25.8, 'total_arbeit' => 11.375];
+        $rows[] = ['name' => 'Geberit Silent Bogenabzweig 88 1/2° 110 mm', 'unit' => 'St.', 'price_in' => 11.53, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 11.53, 'total' => 17.7, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172)', 'unit' => 'St.', 'price_in' => 60.5, 'price_out' => 92.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.15', 'z_montage' => '0.0', 'z_total' => 0.15, 'zeit_cost' => 60.5, 'total' => 92.5, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'Geberit Silent Doppel-Abzweig 180° 110 mm', 'unit' => 'St.', 'price_in' => 28.54, 'price_out' => 49.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.15', 'z_montage' => '0.0', 'z_total' => 0.15, 'zeit_cost' => 28.54, 'total' => 49.2, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'Geberit Silent Langmuffe 110 mm', 'unit' => 'St.', 'price_in' => 12.5, 'price_out' => 19.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 12.5, 'total' => 19.5, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Silent Langmuffe 135 mm', 'unit' => 'St.', 'price_in' => 20.47, 'price_out' => 35.3, 'z_schlosserei' => 0.0, 'z_pe' => '0.1', 'z_montage' => '0.0', 'z_total' => 0.1, 'zeit_cost' => 20.47, 'total' => 35.3, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Rohrschelle Fixpunkt', 'unit' => 'St.', 'price_in' => 11.6, 'price_out' => 20.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 11.6, 'total' => 20.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 88 1/2° 135/110 mm', 'unit' => 'St.', 'price_in' => 16.76, 'price_out' => 28.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.17', 'z_montage' => '0.0', 'z_total' => 0.17, 'zeit_cost' => 16.76, 'total' => 28.9, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 110 mm', 'unit' => 'St.', 'price_in' => 9.2, 'price_out' => 14.4, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 9.2, 'total' => 14.4, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 56 mm', 'unit' => 'St.', 'price_in' => 1.54, 'price_out' => 2.4, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 1.54, 'total' => 2.4, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 63 mm', 'unit' => 'St.', 'price_in' => 1.73, 'price_out' => 2.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 1.73, 'total' => 2.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 75 mm', 'unit' => 'St.', 'price_in' => 2.62, 'price_out' => 4.1, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.62, 'total' => 4.1, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Bogen 45° 90 mm', 'unit' => 'St.', 'price_in' => 3.2, 'price_out' => 5.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 3.2, 'total' => 5.0, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/56 mm', 'unit' => 'St.', 'price_in' => 4.93, 'price_out' => 7.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 4.93, 'total' => 7.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/63 mm', 'unit' => 'St.', 'price_in' => 4.93, 'price_out' => 7.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 4.93, 'total' => 7.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/75 mm', 'unit' => 'St.', 'price_in' => 6.27, 'price_out' => 9.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 6.27, 'total' => 9.8, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Reduktion zentrich 110/90 mm', 'unit' => 'St.', 'price_in' => 6.27, 'price_out' => 9.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 6.27, 'total' => 9.8, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 56 mm', 'unit' => 'St.', 'price_in' => 2.62, 'price_out' => 4.1, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.62, 'total' => 4.1, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 63 mm', 'unit' => 'St.', 'price_in' => 2.75, 'price_out' => 4.3, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.75, 'total' => 4.3, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 75 mm', 'unit' => 'St.', 'price_in' => 2.88, 'price_out' => 4.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.88, 'total' => 4.5, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 90 mm', 'unit' => 'St.', 'price_in' => 3.01, 'price_out' => 4.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 3.01, 'total' => 4.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Elektromuffe mit Indikator 110 mm', 'unit' => 'St.', 'price_in' => 3.58, 'price_out' => 5.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 3.58, 'total' => 5.6, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 56 mm', 'unit' => 'm', 'price_in' => 2.04, 'price_out' => 4.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.04, 'total' => 4.0, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 63 mm', 'unit' => 'm', 'price_in' => 2.142, 'price_out' => 4.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.142, 'total' => 4.2, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 75 mm', 'unit' => 'm', 'price_in' => 2.84, 'price_out' => 5.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.84, 'total' => 5.8, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 90 mm', 'unit' => 'm', 'price_in' => 4.8, 'price_out' => 10.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 4.8, 'total' => 10.0, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit PE Rohr im Stangen 110 mm', 'unit' => 'm', 'price_in' => 5.61, 'price_out' => 11.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.61, 'total' => 11.0, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 56 mm', 'unit' => 'm', 'price_in' => 5.2, 'price_out' => 10.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.2, 'total' => 10.0, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 63 mm', 'unit' => 'm', 'price_in' => 5.67, 'price_out' => 10.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.67, 'total' => 10.9, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 75 mm', 'unit' => 'm', 'price_in' => 7.38, 'price_out' => 14.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 7.38, 'total' => 14.2, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Rohr im Stangen 90 mm', 'unit' => 'm', 'price_in' => 11.07, 'price_out' => 21.3, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 11.07, 'total' => 21.3, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/56 mm', 'unit' => 'St.', 'price_in' => 5.57, 'price_out' => 9.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.57, 'total' => 9.6, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/63 mm', 'unit' => 'St.', 'price_in' => 5.51, 'price_out' => 9.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.51, 'total' => 9.5, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Reduktion zentrich 110/75 mm', 'unit' => 'St.', 'price_in' => 5.57, 'price_out' => 9.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 5.57, 'total' => 9.6, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 56 mm', 'unit' => 'St.', 'price_in' => 2.96, 'price_out' => 5.1, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.96, 'total' => 5.1, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 63 mm', 'unit' => 'St.', 'price_in' => 2.97, 'price_out' => 5.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 2.97, 'total' => 5.6, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 75 mm', 'unit' => 'St.', 'price_in' => 3.65, 'price_out' => 6.3, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 3.65, 'total' => 6.3, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 90 mm', 'unit' => 'St.', 'price_in' => 6.03, 'price_out' => 10.4, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 6.03, 'total' => 10.4, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Bogen 45° 110 mm', 'unit' => 'St.', 'price_in' => 5.78, 'price_out' => 10.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.03', 'z_total' => 0.03, 'zeit_cost' => 5.78, 'total' => 10.7, 'total_arbeit' => 2.625];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110 mm', 'unit' => 'St.', 'price_in' => 9.56, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 9.56, 'total' => 17.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/56 mm', 'unit' => 'St.', 'price_in' => 10.27, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 10.27, 'total' => 17.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/63 mm', 'unit' => 'St.', 'price_in' => 10.27, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 10.27, 'total' => 17.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/75 mm', 'unit' => 'St.', 'price_in' => 10.27, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 10.27, 'total' => 17.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Geberit Silent Abzweig 45° 110/90 mm', 'unit' => 'St.', 'price_in' => 10.27, 'price_out' => 17.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.06', 'z_total' => 0.06, 'zeit_cost' => 10.27, 'total' => 17.7, 'total_arbeit' => 5.25];
+        $rows[] = ['name' => 'Silent Apparate (anschl.)', 'unit' => 'St.', 'price_in' => 36.0, 'price_out' => 57.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.17', 'z_montage' => '0.1', 'z_total' => 0.27, 'zeit_cost' => 36.0, 'total' => 57.0, 'total_arbeit' => 23.625];
+        $rows[] = ['name' => 'PE Apparate (anschl.)', 'unit' => 'St.', 'price_in' => 19.0, 'price_out' => 36.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.17', 'z_montage' => '0.1', 'z_total' => 0.27, 'zeit_cost' => 19.0, 'total' => 36.0, 'total_arbeit' => 23.625];
+        $rows[] = ['name' => 'Steigleitungen', 'unit' => 'St.', 'price_in' => 111.6, 'price_out' => 183.75, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.17', 'z_total' => 0.17, 'zeit_cost' => 111.6, 'total' => 183.75, 'total_arbeit' => 14.875];
+        $rows[] = ['name' => 'Internal Anschlüsse16 mm', 'unit' => 'St.', 'price_in' => 12.78, 'price_out' => 20.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.16', 'z_total' => 0.16, 'zeit_cost' => 12.78, 'total' => 20.7, 'total_arbeit' => 14.0];
+        $rows[] = ['name' => 'Internal Anschlüsse 20 mm', 'unit' => 'St.', 'price_in' => 17.26, 'price_out' => 38.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.16', 'z_total' => 0.16, 'zeit_cost' => 17.26, 'total' => 38.2, 'total_arbeit' => 14.0];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 16mm', 'unit' => 'St.', 'price_in' => 8.45, 'price_out' => 17.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 8.45, 'total' => 17.6, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 20mm', 'unit' => 'St.', 'price_in' => 12.0, 'price_out' => 25.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 12.0, 'total' => 25.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex  2x16mm', 'unit' => 'St.', 'price_in' => 15.79, 'price_out' => 32.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 15.79, 'total' => 32.9, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 2x20mm', 'unit' => 'St.', 'price_in' => 25.44, 'price_out' => 53.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 25.44, 'total' => 53.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 3x16mm', 'unit' => 'St.', 'price_in' => 22.46, 'price_out' => 46.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 22.46, 'total' => 46.8, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 3x20mm', 'unit' => 'St.', 'price_in' => 36.0, 'price_out' => 75.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 36.0, 'total' => 75.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 4x16mm', 'unit' => 'St.', 'price_in' => 31.58, 'price_out' => 65.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 31.58, 'total' => 65.8, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 4x20mm', 'unit' => 'St.', 'price_in' => 50.88, 'price_out' => 106.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 50.88, 'total' => 106.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 5x16mm', 'unit' => 'St.', 'price_in' => 38.25, 'price_out' => 79.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 38.25, 'total' => 79.7, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Sanipex 5x20mm', 'unit' => 'St.', 'price_in' => 61.44, 'price_out' => 128.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 61.44, 'total' => 128.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 16/20 mm', 'unit' => 'St.', 'price_in' => 12.61, 'price_out' => 19.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 12.61, 'total' => 19.7, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 2x16/20mm', 'unit' => 'St.', 'price_in' => 18.05, 'price_out' => 28.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 18.05, 'total' => 28.2, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 3x16/20mm', 'unit' => 'St.', 'price_in' => 22.4, 'price_out' => 35.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 22.4, 'total' => 35.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 4x16/20mm', 'unit' => 'St.', 'price_in' => 32.0, 'price_out' => 50.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 32.0, 'total' => 50.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse iFIT 5x16/20mm', 'unit' => 'St.', 'price_in' => 40.45, 'price_out' => 63.2, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 40.45, 'total' => 63.2, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 16mm', 'unit' => 'St.', 'price_in' => 8.45, 'price_out' => 17.6, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 8.45, 'total' => 17.6, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 20mm', 'unit' => 'St.', 'price_in' => 12.0, 'price_out' => 25.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 12.0, 'total' => 25.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 2x16mm', 'unit' => 'St.', 'price_in' => 15.79, 'price_out' => 32.9, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 15.79, 'total' => 32.9, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 2x20mm', 'unit' => 'St.', 'price_in' => 25.44, 'price_out' => 53.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 25.44, 'total' => 53.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 3x16mm', 'unit' => 'St.', 'price_in' => 22.46, 'price_out' => 46.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 22.46, 'total' => 46.8, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 3x20mm', 'unit' => 'St.', 'price_in' => 36.75, 'price_out' => 75.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 36.75, 'total' => 75.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 4x16mm', 'unit' => 'St.', 'price_in' => 31.58, 'price_out' => 65.8, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 31.58, 'total' => 65.8, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 4x20mm', 'unit' => 'St.', 'price_in' => 50.88, 'price_out' => 106.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 50.88, 'total' => 106.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 5x16mm', 'unit' => 'St.', 'price_in' => 38.25, 'price_out' => 79.7, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 38.25, 'total' => 79.7, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Externe Anschlüsse Nussbaum 5x20mm', 'unit' => 'St.', 'price_in' => 61.44, 'price_out' => 128.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 61.44, 'total' => 128.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'KQ-Wasserzählertstrecke', 'unit' => 'St.', 'price_in' => 102.0, 'price_out' => 150.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.1, 'zeit_cost' => 102.0, 'total' => 150.0, 'total_arbeit' => 8.75];
+        $rows[] = ['name' => 'Freistehend Aufstock', 'unit' => 'm²', 'price_in' => 32.75, 'price_out' => 40.0, 'z_schlosserei' => 0.4, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.4, 'zeit_cost' => 32.75, 'total' => 40.0, 'total_arbeit' => 35.0];
+        $rows[] = ['name' => 'Vorwand Aufstock', 'unit' => 'm²', 'price_in' => 21.84, 'price_out' => 30.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 21.84, 'total' => 30.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2"', 'unit' => 'St.', 'price_in' => 200.0, 'price_out' => 410.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.25', 'z_total' => 0.25, 'zeit_cost' => 200.0, 'total' => 410.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2"', 'unit' => 'St.', 'price_in' => 225.0, 'price_out' => 453.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 225.0, 'total' => 453.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse', 'unit' => 'St.', 'price_in' => 155.0, 'price_out' => 253.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.2', 'z_total' => 0.2, 'zeit_cost' => 155.0, 'total' => 253.0, 'total_arbeit' => 17.5];
+        $rows[] = ['name' => 'Nische ca. 50cmx30cm (für  Dusche/Bad)', 'unit' => 'St.', 'price_in' => 15.0, 'price_out' => 30.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 15.0, 'total' => 30.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 80cm x 80cm', 'unit' => 'St.', 'price_in' => 25.0, 'price_out' => 50.0, 'z_schlosserei' => 0.3, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.3, 'zeit_cost' => 25.0, 'total' => 50.0, 'total_arbeit' => 26.25];
+        $rows[] = ['name' => 'Freistehend Aufstock mit Seiten-Abschl.', 'unit' => 'm²', 'price_in' => 38.0, 'price_out' => 45.0, 'z_schlosserei' => 0.45, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.45, 'zeit_cost' => 38.0, 'total' => 45.0, 'total_arbeit' => 39.375];
+        $rows[] = ['name' => 'Vorwand Aufstock mit Seiten-Abschl.', 'unit' => 'm²', 'price_in' => 25.0, 'price_out' => 36.0, 'z_schlosserei' => 0.3, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.3, 'zeit_cost' => 25.0, 'total' => 36.0, 'total_arbeit' => 26.25];
+        $rows[] = ['name' => 'Vorwand Grundrahme', 'unit' => 'St.', 'price_in' => 20.0, 'price_out' => 75.0, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 20.0, 'total' => 75.0, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Vorwand Grundrahme Teilhoch', 'unit' => 'St.', 'price_in' => 25.0, 'price_out' => 90.0, 'z_schlosserei' => 0.35, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.35, 'zeit_cost' => 25.0, 'total' => 90.0, 'total_arbeit' => 30.625];
+        $rows[] = ['name' => 'Vorwand Grundrahme Telihoch und Rahmhoch', 'unit' => 'St.', 'price_in' => 25.0, 'price_out' => 95.0, 'z_schlosserei' => 0.35, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.35, 'zeit_cost' => 25.0, 'total' => 95.0, 'total_arbeit' => 30.625];
+        $rows[] = ['name' => 'Freistehend Grundrahme', 'unit' => 'St.', 'price_in' => 45.0, 'price_out' => 150.0, 'z_schlosserei' => 0.63, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.63, 'zeit_cost' => 45.0, 'total' => 150.0, 'total_arbeit' => 55.125];
+        $rows[] = ['name' => 'Freistehend Grundrahme Hinten leer', 'unit' => 'St.', 'price_in' => 60.0, 'price_out' => 194.0, 'z_schlosserei' => 0.85, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.85, 'zeit_cost' => 60.0, 'total' => 194.0, 'total_arbeit' => 74.375];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 120cm x 80cm', 'unit' => 'St.', 'price_in' => 30.0, 'price_out' => 60.0, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 30.0, 'total' => 60.0, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Nische für Spiegelschrank 90cm x 60cm', 'unit' => 'St.', 'price_in' => 23.0, 'price_out' => 47.0, 'z_schlosserei' => 0.5, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.5, 'zeit_cost' => 23.0, 'total' => 47.0, 'total_arbeit' => 43.75];
+        $rows[] = ['name' => 'Waschtisch UP', 'unit' => 'St.', 'price_in' => 70.0, 'price_out' => 90.0, 'z_schlosserei' => 0.75, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.75, 'zeit_cost' => 70.0, 'total' => 90.0, 'total_arbeit' => 65.625];
+        $rows[] = ['name' => 'Isoliert mit schwer Schallschutzmatte', 'unit' => 'm', 'price_in' => 31.02, 'price_out' => 65.64, 'z_schlosserei' => 0.25, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.25, 'zeit_cost' => 31.02, 'total' => 65.64, 'total_arbeit' => 21.875];
+        $rows[] = ['name' => 'Deckeneinlagen WAS', 'unit' => 'St.', 'price_in' => 70.0, 'price_out' => 70.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 70.0, 'total' => 70.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Vorwand Grundelement DeBo', 'unit' => 'St.', 'price_in' => 60.0, 'price_out' => 194.0, 'z_schlosserei' => 0.85, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.85, 'zeit_cost' => 60.0, 'total' => 194.0, 'total_arbeit' => 74.375];
+        $rows[] = ['name' => 'Vorwand Aufstockelement DeBo', 'unit' => 'm²', 'price_in' => 38.0, 'price_out' => 45.0, 'z_schlosserei' => 0.45, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.45, 'zeit_cost' => 38.0, 'total' => 45.0, 'total_arbeit' => 39.375];
+        $rows[] = ['name' => 'Befestigung DeBo', 'unit' => 'St.', 'price_in' => 2.15, 'price_out' => 5.3, 'z_schlosserei' => 0.6, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.6, 'zeit_cost' => 2.15, 'total' => 5.3, 'total_arbeit' => 52.5];
+        $rows[] = ['name' => 'Trennwand Grundelement DeBo', 'unit' => 'St.', 'price_in' => 2.15, 'price_out' => 194.0, 'z_schlosserei' => 0.85, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.85, 'zeit_cost' => 2.15, 'total' => 194.0, 'total_arbeit' => 74.375];
+        $rows[] = ['name' => 'Trennwand Aufstockelement DeBo', 'unit' => 'm²', 'price_in' => 38.0, 'price_out' => 45.0, 'z_schlosserei' => 0.45, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.45, 'zeit_cost' => 38.0, 'total' => 45.0, 'total_arbeit' => 39.375];
+        $rows[] = ['name' => 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN', 'unit' => 'St.', 'price_in' => 173.3, 'price_out' => 361.0, 'z_schlosserei' => 0.05, 'z_pe' => '0.0', 'z_montage' => '0.1', 'z_total' => 0.15, 'zeit_cost' => 173.3, 'total' => 361.0, 'total_arbeit' => 13.125];
+        $rows[] = ['name' => 'Lüftungsgehäuse (Lieferung bauseits)', 'unit' => 'St.', 'price_in' => 20.0, 'price_out' => 40.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 20.0, 'total' => 40.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Inkl. Rohrschelle', 'unit' => 'St.', 'price_in' => 5.0, 'price_out' => 5.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 5.0, 'total' => 5.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Deckeneinlagen WAR', 'unit' => 'St.', 'price_in' => 92.5, 'price_out' => 92.5, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 92.5, 'total' => 92.5, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Fallstrang Umlenkung Geberit Isol. (90/ 110)', 'unit' => 'St.', 'price_in' => 45.0, 'price_out' => 60.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.05', 'z_montage' => '0.0', 'z_total' => 0.05, 'zeit_cost' => 45.0, 'total' => 60.0, 'total_arbeit' => 4.375];
+        $rows[] = ['name' => 'Inkl. E-Muffen', 'unit' => 'St.', 'price_in' => 1.0, 'price_out' => 1.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 1.0, 'total' => 1.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Inkl. Schalungsschoner', 'unit' => 'St.', 'price_in' => 1.0, 'price_out' => 1.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 1.0, 'total' => 1.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Inkl. Kanisparblöck', 'unit' => 'St.', 'price_in' => 1.0, 'price_out' => 1.0, 'z_schlosserei' => 0.0, 'z_pe' => '0.0', 'z_montage' => '0.0', 'z_total' => 0.0, 'zeit_cost' => 1.0, 'total' => 1.0, 'total_arbeit' => 0.0];
+        $rows[] = ['name' => 'Tragschalle', 'unit' => 'St.', 'price_in' => 1.0, 'price_out' => 1.0, 'z_schlosserei' => 0.0, 'z_pe' => '1.0', 'z_montage' => '0.0', 'z_total' => 1.0, 'zeit_cost' => 1.0, 'total' => 1.0, 'total_arbeit' => 87.5];
+        DB::table('materials')->insert($rows);
     }
 }
