@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Element;
+use App\Models\Material;
 use App\Models\Organigram;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +44,22 @@ class DatabaseSeeder extends Seeder
                 $this->call(RepairConnectionsSeeder::class);
             } catch (\Throwable $e) {
                 $this->command?->warn('RepairConnectionsSeeder failed: '.$e->getMessage());
+            }
+
+            // Last-resort guarantee: if element_material is STILL empty after all the
+            // above, run the static relationship seeder directly. This covers cases
+            // where JSON is unavailable and RepairConnectionsSeeder also skipped.
+            try {
+                $hasElements  = Element::query()->exists();
+                $hasMaterials = Material::query()->exists();
+                $hasPivot     = DB::table('element_material')->count() > 0;
+
+                if ($hasElements && $hasMaterials && ! $hasPivot) {
+                    $this->command?->warn('element_material still empty after repair — running ElementMaterialRelationshipSeeder directly.');
+                    $this->call(ElementMaterialRelationshipSeeder::class);
+                }
+            } catch (\Throwable $e) {
+                $this->command?->warn('ElementMaterialRelationshipSeeder fallback failed: '.$e->getMessage());
             }
         }
     }

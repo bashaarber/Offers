@@ -101,7 +101,7 @@ class ElementMaterialRelationshipSeeder extends Seeder
             $m = $materials->where('name', 'Rohrschelle 125 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
             $m = $materials->where('name', 'Geberit PE Abzweig 88 1/2° 110/110 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
             $m = $materials->where('name', 'Geberit PE Rohr 110 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Isoliert mit schwer Schallschutzmatte')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Isoliert mit schwer Schallschutzmatte')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -615,11 +615,6 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Internal Anschlüsse16 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex  2x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -627,11 +622,6 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Internal Anschlüsse 20 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 2x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -639,11 +629,6 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Internal Anschlüsse16 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -651,22 +636,50 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Internal Anschlüsse 20 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
+        }
+
+        $el = $elements->where('name', 'Sanipex 16mm')->first();
+        if ($el) {
+            $attach = [];
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex  2x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
+        }
+
+        $el = $elements->where('name', 'Sanipex 20mm')->first();
+        if ($el) {
+            $attach = [];
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 2x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
         $el = $elements->where('name', 'iFit 16/20mm')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Externe Anschlüsse iFIT 16/20 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse iFIT 2x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse iFIT 3x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse iFIT 4x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Externe Anschlüsse iFIT 5x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse iFIT 16/20 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse iFIT 2x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse iFIT 3x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse iFIT 4x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse iFIT 5x16/20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
+        }
+
+        $el = $elements->where('name', 'Nussbaum 16mm')->first();
+        if ($el) {
+            $attach = [];
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x16mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -688,6 +701,17 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Vorwand Aufstock')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
+            if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
+        }
+
+        $el = $elements->where('name', 'Nussbaum 20mm')->first();
+        if ($el) {
+            $attach = [];
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x20mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -831,7 +855,7 @@ class ElementMaterialRelationshipSeeder extends Seeder
         $el = $elements->where('name', 'Deckeneinlagen WAS')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Deckeneinlagen WAS')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Deckeneinlagen WAS')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -869,7 +893,7 @@ class ElementMaterialRelationshipSeeder extends Seeder
         if ($el) {
             $attach = [];
             $m = $materials->where('name', 'Waschtisch')->first(); if ($m) { $attach[$m->id] = ['quantity' => 1.0]; }
-            $m = $materials->where('name', 'Befestigung')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Befestigung')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -908,9 +932,9 @@ class ElementMaterialRelationshipSeeder extends Seeder
         $el = $elements->where('name', 'Rohrschelle')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Rohrschelle 125 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Rohrschelle 135 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
-            $m = $materials->where('name', 'Inkl. Rohrschelle')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Rohrschelle 125 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Rohrschelle 135 mm')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
+            $m = $materials->where('name', 'Inkl. Rohrschelle')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
@@ -931,28 +955,28 @@ class ElementMaterialRelationshipSeeder extends Seeder
         $el = $elements->where('name', 'Inkl. Rohrschelle')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Inkl. Rohrschelle')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Inkl. Rohrschelle')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
         $el = $elements->where('name', 'Inkl. E-Muffen')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Inkl. E-Muffen')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Inkl. E-Muffen')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
         $el = $elements->where('name', 'Inkl. Schalungsschoner')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Inkl. Schalungsschoner')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Inkl. Schalungsschoner')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
         $el = $elements->where('name', 'Inkl. Kanisparblöck')->first();
         if ($el) {
             $attach = [];
-            $m = $materials->where('name', 'Inkl. Kanisparblöck')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0]; }
+            $m = $materials->where('name', 'Inkl. Kanisparblöck')->first(); if ($m) { $attach[$m->id] = ['quantity' => 0.0]; }
             if ($attach) { $el->materials()->syncWithoutDetaching($attach); }
         }
 
