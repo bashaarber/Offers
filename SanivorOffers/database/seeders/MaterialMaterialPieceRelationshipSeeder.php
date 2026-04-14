@@ -13,621 +13,160 @@ class MaterialMaterialPieceRelationshipSeeder extends Seeder
         $materials = Material::all();
         $pieces    = MaterialPiece::all();
 
-        $m = $materials->where('name', 'UP320, Typ 112')->first();
-        $p = $pieces->where('name', 'UP320, Typ 112 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'UP320, Duofresh, Typ 112')->first();
-        $p = $pieces->where('name', 'UP320, Duofresh, Typ 112 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'UP320, Typ 112, Geruchsabsaugeanschluss')->first();
-        $p = $pieces->where('name', 'UP320, Typ 112, Geruchsabsaugeanschluss Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'UP200, Omega, Typ 85')->first();
-        $p = $pieces->where('name', 'UP200, Omega, Typ 85 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'UP200, Omega, Typ 98')->first();
-        $p = $pieces->where('name', 'UP200, Omega, Typ 98 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'UP200, Omega, Typ 114')->first();
-        $p = $pieces->where('name', 'UP200, Omega, Typ 114 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Behinderten-Wt. mit Siphon')->first();
-        $p = $pieces->where('name', 'Behinderten-Wt. mit Siphon Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Bad AP 153')->first();
-        $p = $pieces->where('name', 'Bad AP 153 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Gleitstange')->first();
-        $p = $pieces->where('name', 'Gleitstange Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Glasstrenwand')->first();
-        $p = $pieces->where('name', 'Glasstrenwand Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Bad UP')->first();
-        $p = $pieces->where('name', 'Bad UP Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Kopfbrause')->first();
-        $p = $pieces->where('name', 'Kopfbrause Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Handbrause')->first();
-        $p = $pieces->where('name', 'Handbrause Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Holz (Sperrholz) 24 mm fur Gleitstange')->first();
-        $p = $pieces->where('name', 'Holz (Sperrholz) 24 mm fur Gleitstange Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Holz (Sperrholz) 24 mm fur Glasstrenwande')->first();
-        $p = $pieces->where('name', 'Holz (Sperrholz) 24 mm fur Glasstrenwande Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Div. Holz einlagen')->first();
-        $p = $pieces->where('name', 'Div. Holz einlagen Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Dusche AP 153')->first();
-        $p = $pieces->where('name', 'Dusche AP 153 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Dusche UP')->first();
-        $p = $pieces->where('name', 'Dusche UP Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Urinal 137cm')->first();
-        $p = $pieces->where('name', 'Geberit Urinal 137cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Urinal Universal 114cm')->first();
-        $p = $pieces->where('name', 'Geberit Urinal Universal 114cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Urinal 114cm')->first();
-        $p = $pieces->where('name', 'Geberit Urinal 114cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Urinal 123cm')->first();
-        $p = $pieces->where('name', 'Geberit Urinal 123cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Urinal ohne steurung mit wasseranschl.')->first();
-        $p = $pieces->where('name', 'Urinal ohne steurung mit wasseranschl. Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Urinal 0 Liter')->first();
-        $p = $pieces->where('name', 'Urinal 0 Liter Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Holz fur Küchenkombination')->first();
-        $p = $pieces->where('name', 'Holz fur Küchenkombination Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Langmuffe 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Langmuffe 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Langmuffe 125 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Langmuffe 125 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Bidet')->first();
-        $p = $pieces->where('name', 'Bidet Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Abzweig 88 1/2° 110/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Abzweig 88 1/2° 110/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Doppel-Abzweig 180° 110/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Doppel-Abzweig 180° 110/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Doppel-Abzweig 180° 125/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Doppel-Abzweig 180° 125/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Rohrschelle 125 mm')->first();
-        $p = $pieces->where('name', 'Rohrschelle 125 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Rohrschelle 135 mm')->first();
-        $p = $pieces->where('name', 'Rohrschelle 135 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr 125 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr 125 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Abzweig 88 1/2° 125/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Abzweig 88 1/2° 125/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr 135 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr 135 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogenabzweig 88 1/2° 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogenabzweig 88 1/2° 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172)')->first();
-        $p = $pieces->where('name', 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Doppel-Abzweig 180° 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Doppel-Abzweig 180° 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Langmuffe 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Langmuffe 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Langmuffe 135 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Langmuffe 135 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Rohrschelle Fixpunkt')->first();
-        $p = $pieces->where('name', 'Geberit Rohrschelle Fixpunkt Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 88 1/2° 135/110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 88 1/2° 135/110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogen 45° 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogen 45° 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogen 45° 56 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogen 45° 56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogen 45° 63 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogen 45° 63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogen 45° 75 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogen 45° 75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Bogen 45° 90 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Bogen 45° 90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/56 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/63 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/75 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/90 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 56 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Küche')->first();
-        $p = $pieces->where('name', 'Küche Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 63 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 75 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 90 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr im Stangen 56 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr im Stangen 63 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr im Stangen 75 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr im Stangen 90 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit PE Rohr im Stangen 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 56 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'WM ohne Siphon')->first();
-        $p = $pieces->where('name', 'WM ohne Siphon Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 63 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 75 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 90 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/56 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/63 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/75 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogen 45° 56 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogen 45° 56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogen 45° 63 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogen 45° 63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogen 45° 75 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogen 45° 75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'WM mit Siphon')->first();
-        $p = $pieces->where('name', 'WM mit Siphon Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogen 45° 90 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogen 45° 90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Bogen 45° 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Bogen 45° 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/56 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/56 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/63 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/63 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/75 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/75 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/90 mm')->first();
-        $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/90 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Silent Apparate (anschl.)')->first();
-        $p = $pieces->where('name', 'Silent Apparate (anschl.) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'PE Apparate (anschl.)')->first();
-        $p = $pieces->where('name', 'PE Apparate (anschl.) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'WC AP 95')->first();
-        $p = $pieces->where('name', 'WC AP 95 Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Steigleitungen')->first();
-        $p = $pieces->where('name', 'Steigleitungen Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Internal Anschlüsse16 mm')->first();
-        $p = $pieces->where('name', 'Internal Anschlüsse16 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Internal Anschlüsse 20 mm')->first();
-        $p = $pieces->where('name', 'Internal Anschlüsse 20 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex  2x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex  2x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 2x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 2x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 3x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 3x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 4x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 4x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 5x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 5x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse iFIT 16/20 mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse iFIT 16/20 mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse iFIT 2x16/20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse iFIT 2x16/20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse iFIT 3x16/20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse iFIT 3x16/20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse iFIT 4x16/20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse iFIT 4x16/20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse iFIT 5x16/20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse iFIT 5x16/20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 2x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 2x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 3x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 3x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 4x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 4x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x16mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 5x16mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x20mm')->first();
-        $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 5x20mm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'KQ-Wasserzählertstrecke')->first();
-        $p = $pieces->where('name', 'KQ-Wasserzählertstrecke Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Freistehend Aufstock')->first();
-        $p = $pieces->where('name', 'Freistehend Aufstock Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Aufstock')->first();
-        $p = $pieces->where('name', 'Vorwand Aufstock Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2"')->first();
-        $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2" Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2"')->first();
-        $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2" Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse')->first();
-        $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Nische ca. 50cmx30cm (für  Dusche/Bad)')->first();
-        $p = $pieces->where('name', 'Nische ca. 50cmx30cm (für  Dusche/Bad) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Nische für Spiegelschrank 80cm x 80cm')->first();
-        $p = $pieces->where('name', 'Nische für Spiegelschrank 80cm x 80cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Freistehend Aufstock mit Seiten-Abschl.')->first();
-        $p = $pieces->where('name', 'Freistehend Aufstock mit Seiten-Abschl. Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Aufstock mit Seiten-Abschl.')->first();
-        $p = $pieces->where('name', 'Vorwand Aufstock mit Seiten-Abschl. Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Grundrahme')->first();
-        $p = $pieces->where('name', 'Vorwand Grundrahme Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Grundrahme Teilhoch')->first();
-        $p = $pieces->where('name', 'Vorwand Grundrahme Teilhoch Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Grundrahme Telihoch und Rahmhoch')->first();
-        $p = $pieces->where('name', 'Vorwand Grundrahme Telihoch und Rahmhoch Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Freistehend Grundrahme')->first();
-        $p = $pieces->where('name', 'Freistehend Grundrahme Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Freistehend Grundrahme Hinten leer')->first();
-        $p = $pieces->where('name', 'Freistehend Grundrahme Hinten leer Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Nische für Spiegelschrank 120cm x 80cm')->first();
-        $p = $pieces->where('name', 'Nische für Spiegelschrank 120cm x 80cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Nische für Spiegelschrank 90cm x 60cm')->first();
-        $p = $pieces->where('name', 'Nische für Spiegelschrank 90cm x 60cm Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Waschtisch UP')->first();
-        $p = $pieces->where('name', 'Waschtisch UP Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Isoliert mit schwer Schallschutzmatte')->first();
-        $p = $pieces->where('name', 'Isoliert mit schwer Schallschutzmatte Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Deckeneinlagen WAS')->first();
-        $p = $pieces->where('name', 'Deckeneinlagen WAS Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Grundelement DeBo')->first();
-        $p = $pieces->where('name', 'Vorwand Grundelement DeBo Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Vorwand Aufstockelement DeBo')->first();
-        $p = $pieces->where('name', 'Vorwand Aufstockelement DeBo Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Befestigung DeBo')->first();
-        $p = $pieces->where('name', 'Befestigung DeBo Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Trennwand Grundelement DeBo')->first();
-        $p = $pieces->where('name', 'Trennwand Grundelement DeBo Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Trennwand Aufstockelement DeBo')->first();
-        $p = $pieces->where('name', 'Trennwand Aufstockelement DeBo Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN')->first();
-        $p = $pieces->where('name', 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Lüftungsgehäuse (Lieferung bauseits)')->first();
-        $p = $pieces->where('name', 'Lüftungsgehäuse (Lieferung bauseits) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Inkl. Rohrschelle')->first();
-        $p = $pieces->where('name', 'Inkl. Rohrschelle Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Deckeneinlagen WAR')->first();
-        $p = $pieces->where('name', 'Deckeneinlagen WAR Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Fallstrang Umlenkung Geberit Isol. (90/ 110)')->first();
-        $p = $pieces->where('name', 'Fallstrang Umlenkung Geberit Isol. (90/ 110) Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Inkl. E-Muffen')->first();
-        $p = $pieces->where('name', 'Inkl. E-Muffen Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Inkl. Schalungsschoner')->first();
-        $p = $pieces->where('name', 'Inkl. Schalungsschoner Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Inkl. Kanisparblöck')->first();
-        $p = $pieces->where('name', 'Inkl. Kanisparblöck Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Befestigung')->first();
-        $p = $pieces->where('name', 'Befestigung Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Waschtisch')->first();
-        $p = $pieces->where('name', 'Waschtisch Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
-        $m = $materials->where('name', 'Behinderten-Wt. ohne Siphon')->first();
-        $p = $pieces->where('name', 'Behinderten-Wt. ohne Siphon Piece')->first();
-        if ($m && $p && !$m->material_pieces()->where('material_piece_id', $p->id)->exists()) { $m->material_pieces()->attach($p->id); }
-
+        { $m = $materials->where('name', 'WC AP 95')->first(); $p = $pieces->where('name', 'WC AP 95 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Waschtisch')->first(); $p = $pieces->where('name', 'Waschtisch Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Behinderten-Wt. ohne Siphon')->first(); $p = $pieces->where('name', 'Behinderten-Wt. ohne Siphon Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Dusche AP 153')->first(); $p = $pieces->where('name', 'Dusche AP 153 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Bidet')->first(); $p = $pieces->where('name', 'Bidet Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Küche')->first(); $p = $pieces->where('name', 'Küche Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'WM ohne Siphon')->first(); $p = $pieces->where('name', 'WM ohne Siphon Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'WM mit Siphon')->first(); $p = $pieces->where('name', 'WM mit Siphon Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Befestigung')->first(); $p = $pieces->where('name', 'Befestigung Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP320, Typ 112')->first(); $p = $pieces->where('name', 'UP320, Typ 112 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP320, Duofresh, Typ 112')->first(); $p = $pieces->where('name', 'UP320, Duofresh, Typ 112 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP320, Typ 112, Geruchsabsaugeanschluss')->first(); $p = $pieces->where('name', 'UP320, Typ 112, Geruchsabsaugeanschluss Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP200, Omega, Typ 85')->first(); $p = $pieces->where('name', 'UP200, Omega, Typ 85 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP200, Omega, Typ 98')->first(); $p = $pieces->where('name', 'UP200, Omega, Typ 98 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'UP200, Omega, Typ 114')->first(); $p = $pieces->where('name', 'UP200, Omega, Typ 114 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Behinderten-Wt. mit Siphon')->first(); $p = $pieces->where('name', 'Behinderten-Wt. mit Siphon Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Bad AP 153')->first(); $p = $pieces->where('name', 'Bad AP 153 Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Gleitstange')->first(); $p = $pieces->where('name', 'Gleitstange Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Glasstrenwand')->first(); $p = $pieces->where('name', 'Glasstrenwand Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Bad UP')->first(); $p = $pieces->where('name', 'Bad UP Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Kopfbrause')->first(); $p = $pieces->where('name', 'Kopfbrause Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Handbrause')->first(); $p = $pieces->where('name', 'Handbrause Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Holz (Sperrholz) 24 mm fur Gleitstange')->first(); $p = $pieces->where('name', 'Holz (Sperrholz) 24 mm fur Gleitstange Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Holz (Sperrholz) 24 mm fur Glasstrenwande')->first(); $p = $pieces->where('name', 'Holz (Sperrholz) 24 mm fur Glasstrenwande Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Div. Holz einlagen')->first(); $p = $pieces->where('name', 'Div. Holz einlagen Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Dusche UP')->first(); $p = $pieces->where('name', 'Dusche UP Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Urinal 137cm')->first(); $p = $pieces->where('name', 'Geberit Urinal 137cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Urinal Universal 114cm')->first(); $p = $pieces->where('name', 'Geberit Urinal Universal 114cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Urinal 114cm')->first(); $p = $pieces->where('name', 'Geberit Urinal 114cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Urinal 123cm')->first(); $p = $pieces->where('name', 'Geberit Urinal 123cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Urinal ohne steurung mit wasseranschl.')->first(); $p = $pieces->where('name', 'Urinal ohne steurung mit wasseranschl. Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Urinal 0 Liter')->first(); $p = $pieces->where('name', 'Urinal 0 Liter Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Holz fur Küchenkombination')->first(); $p = $pieces->where('name', 'Holz fur Küchenkombination Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Langmuffe 110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Langmuffe 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Langmuffe 125 mm')->first(); $p = $pieces->where('name', 'Geberit PE Langmuffe 125 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Abzweig 88 1/2° 110/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Abzweig 88 1/2° 110/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogenabzweig 88 1/2° 110/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 110/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Doppel-Abzweig 180° 110/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Doppel-Abzweig 180° 110/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Doppel-Abzweig 180° 125/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Doppel-Abzweig 180° 125/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Mehrfachabzweig 3-teilig 135° 125/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Rohrschelle 125 mm')->first(); $p = $pieces->where('name', 'Rohrschelle 125 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Rohrschelle 135 mm')->first(); $p = $pieces->where('name', 'Rohrschelle 135 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr 110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr 125 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr 125 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Abzweig 88 1/2° 125/110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Abzweig 88 1/2° 125/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr 135 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr 135 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogenabzweig 88 1/2° 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogenabzweig 88 1/2° 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172)')->first(); $p = $pieces->where('name', 'Geberit Silent Doppel-Abzweig 180° (L/R)110 mm (310.171 / 172) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Doppel-Abzweig 180° 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Doppel-Abzweig 180° 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Langmuffe 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Langmuffe 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Langmuffe 135 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Langmuffe 135 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Rohrschelle Fixpunkt')->first(); $p = $pieces->where('name', 'Geberit Rohrschelle Fixpunkt Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 88 1/2° 135/110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 88 1/2° 135/110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogen 45° 110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogen 45° 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogen 45° 56 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogen 45° 56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogen 45° 63 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogen 45° 63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogen 45° 75 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogen 45° 75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Bogen 45° 90 mm')->first(); $p = $pieces->where('name', 'Geberit PE Bogen 45° 90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/56 mm')->first(); $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/63 mm')->first(); $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/75 mm')->first(); $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Reduktion zentrich 110/90 mm')->first(); $p = $pieces->where('name', 'Geberit PE Reduktion zentrich 110/90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 56 mm')->first(); $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 63 mm')->first(); $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 75 mm')->first(); $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 90 mm')->first(); $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Elektromuffe mit Indikator 110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Elektromuffe mit Indikator 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr im Stangen 56 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr im Stangen 63 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr im Stangen 75 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr im Stangen 90 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit PE Rohr im Stangen 110 mm')->first(); $p = $pieces->where('name', 'Geberit PE Rohr im Stangen 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 56 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 63 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 75 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Rohr im Stangen 90 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Rohr im Stangen 90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/56 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/63 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Reduktion zentrich 110/75 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Reduktion zentrich 110/75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogen 45° 56 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogen 45° 56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogen 45° 63 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogen 45° 63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogen 45° 75 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogen 45° 75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogen 45° 90 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogen 45° 90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Bogen 45° 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Bogen 45° 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/56 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/56 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/63 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/63 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/75 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/75 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Geberit Silent Abzweig 45° 110/90 mm')->first(); $p = $pieces->where('name', 'Geberit Silent Abzweig 45° 110/90 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Silent Apparate (anschl.)')->first(); $p = $pieces->where('name', 'Silent Apparate (anschl.) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'PE Apparate (anschl.)')->first(); $p = $pieces->where('name', 'PE Apparate (anschl.) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Steigleitungen')->first(); $p = $pieces->where('name', 'Steigleitungen Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Internal Anschlüsse16 mm')->first(); $p = $pieces->where('name', 'Internal Anschlüsse16 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Internal Anschlüsse 20 mm')->first(); $p = $pieces->where('name', 'Internal Anschlüsse 20 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex  2x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex  2x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 2x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 2x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 3x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 3x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 3x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 4x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 4x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 4x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 5x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Sanipex 5x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Sanipex 5x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse iFIT 16/20 mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse iFIT 16/20 mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse iFIT 2x16/20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse iFIT 2x16/20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse iFIT 3x16/20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse iFIT 3x16/20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse iFIT 4x16/20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse iFIT 4x16/20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse iFIT 5x16/20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse iFIT 5x16/20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 2x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 2x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 2x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 3x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 3x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 3x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 4x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 4x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 4x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x16mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 5x16mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Externe Anschlüsse Nussbaum 5x20mm')->first(); $p = $pieces->where('name', 'Externe Anschlüsse Nussbaum 5x20mm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'KQ-Wasserzählertstrecke')->first(); $p = $pieces->where('name', 'KQ-Wasserzählertstrecke Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Freistehend Aufstock')->first(); $p = $pieces->where('name', 'Freistehend Aufstock Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Aufstock')->first(); $p = $pieces->where('name', 'Vorwand Aufstock Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2"')->first(); $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4" 1 Zählergehäuse Koax 2" Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2"')->first(); $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4"  2 Zählergehäuse Koax 2" Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse')->first(); $p = $pieces->where('name', 'Kompakteinheit, Absperrventile 3/4" Ohne Zählergehäuse Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Nische ca. 50cmx30cm (für  Dusche/Bad)')->first(); $p = $pieces->where('name', 'Nische ca. 50cmx30cm (für  Dusche/Bad) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Nische für Spiegelschrank 80cm x 80cm')->first(); $p = $pieces->where('name', 'Nische für Spiegelschrank 80cm x 80cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Freistehend Aufstock mit Seiten-Abschl.')->first(); $p = $pieces->where('name', 'Freistehend Aufstock mit Seiten-Abschl. Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Aufstock mit Seiten-Abschl.')->first(); $p = $pieces->where('name', 'Vorwand Aufstock mit Seiten-Abschl. Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Grundrahme')->first(); $p = $pieces->where('name', 'Vorwand Grundrahme Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Grundrahme Teilhoch')->first(); $p = $pieces->where('name', 'Vorwand Grundrahme Teilhoch Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Grundrahme Telihoch und Rahmhoch')->first(); $p = $pieces->where('name', 'Vorwand Grundrahme Telihoch und Rahmhoch Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Freistehend Grundrahme')->first(); $p = $pieces->where('name', 'Freistehend Grundrahme Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Freistehend Grundrahme Hinten leer')->first(); $p = $pieces->where('name', 'Freistehend Grundrahme Hinten leer Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Nische für Spiegelschrank 120cm x 80cm')->first(); $p = $pieces->where('name', 'Nische für Spiegelschrank 120cm x 80cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Nische für Spiegelschrank 90cm x 60cm')->first(); $p = $pieces->where('name', 'Nische für Spiegelschrank 90cm x 60cm Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Waschtisch UP')->first(); $p = $pieces->where('name', 'Waschtisch UP Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Isoliert mit schwer Schallschutzmatte')->first(); $p = $pieces->where('name', 'Isoliert mit schwer Schallschutzmatte Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Deckeneinlagen WAS')->first(); $p = $pieces->where('name', 'Deckeneinlagen WAS Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Grundelement DeBo')->first(); $p = $pieces->where('name', 'Vorwand Grundelement DeBo Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Vorwand Aufstockelement DeBo')->first(); $p = $pieces->where('name', 'Vorwand Aufstockelement DeBo Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Befestigung DeBo')->first(); $p = $pieces->where('name', 'Befestigung DeBo Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Trennwand Grundelement DeBo')->first(); $p = $pieces->where('name', 'Trennwand Grundelement DeBo Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Trennwand Aufstockelement DeBo')->first(); $p = $pieces->where('name', 'Trennwand Aufstockelement DeBo Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN')->first(); $p = $pieces->where('name', 'GF-JRG UP-Absperr-/Zählereiheit kompakt 3/4\'\' -PN Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Lüftungsgehäuse (Lieferung bauseits)')->first(); $p = $pieces->where('name', 'Lüftungsgehäuse (Lieferung bauseits) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Inkl. Rohrschelle')->first(); $p = $pieces->where('name', 'Inkl. Rohrschelle Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Deckeneinlagen WAR')->first(); $p = $pieces->where('name', 'Deckeneinlagen WAR Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Fallstrang Umlenkung Geberit Isol. (90/ 110)')->first(); $p = $pieces->where('name', 'Fallstrang Umlenkung Geberit Isol. (90/ 110) Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Inkl. E-Muffen')->first(); $p = $pieces->where('name', 'Inkl. E-Muffen Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Inkl. Schalungsschoner')->first(); $p = $pieces->where('name', 'Inkl. Schalungsschoner Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Inkl. Kanisparblöck')->first(); $p = $pieces->where('name', 'Inkl. Kanisparblöck Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
+        { $m = $materials->where('name', 'Tragschalle')->first(); $p = $pieces->where('name', 'Tragschalle Piece')->first(); if ($m && $p) { $m->material_pieces()->syncWithoutDetaching([$p->id]); } }
     }
 }
