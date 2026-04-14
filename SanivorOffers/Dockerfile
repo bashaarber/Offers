@@ -59,6 +59,8 @@ CMD sh -c "\
   php artisan migrate --force && \
   echo 'Running seeders...' && \
   (php artisan db:seed --force || echo 'Warning: db:seed exited non-zero (see logs).') && \
+  echo 'Running element-material repair check...' && \
+  (php artisan elements:check-materials --repair || echo 'Warning: element-material repair check failed (see logs).') && \
   echo 'Migrations complete!' && \
   php artisan config:cache && \
   php artisan route:cache && \

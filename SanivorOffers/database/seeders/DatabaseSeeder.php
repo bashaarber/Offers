@@ -16,29 +16,34 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(CoefficientSeeder::class);
 
-        $allowJsonImport = ! app()->environment('production')
-            || filter_var(env('RUN_JSON_IMPORT', false), FILTER_VALIDATE_BOOLEAN);
+        try {
+            $allowJsonImport = ! app()->environment('production')
+                || filter_var(env('RUN_JSON_IMPORT', false), FILTER_VALIDATE_BOOLEAN);
 
-        if ($allowJsonImport) {
-            try {
-                $this->call(JsonImportSeeder::class);
-            } catch (\Exception $e) {
-                $this->command?->warn('JSON import failed, using default seeders: '.$e->getMessage());
+            if ($allowJsonImport) {
+                try {
+                    $this->call(JsonImportSeeder::class);
+                } catch (\Throwable $e) {
+                    $this->command?->warn('JSON import failed, using default seeders: '.$e->getMessage());
+                    $this->resetAndRunFallbackCatalogSeeders();
+                }
+            }
+
+            // If catalog is empty OR has wrong/old placeholder data, re-seed with correct data.
+            // We detect wrong data by checking for a known correct organigram name ('Rahme').
+            $hasCorrectCatalog = Organigram::where('name', 'Rahme')->exists();
+            if (! $hasCorrectCatalog) {
+                $this->command?->warn('Catalog missing or outdated; re-seeding with correct catalog data.');
                 $this->resetAndRunFallbackCatalogSeeders();
             }
+        } finally {
+            // Final safety net: always attempt pivot repair, even if earlier seeding failed.
+            try {
+                $this->call(RepairConnectionsSeeder::class);
+            } catch (\Throwable $e) {
+                $this->command?->warn('RepairConnectionsSeeder failed: '.$e->getMessage());
+            }
         }
-
-        // If catalog is empty OR has wrong/old placeholder data, re-seed with correct data.
-        // We detect wrong data by checking for a known correct organigram name ('Rahme').
-        $hasCorrectCatalog = Organigram::where('name', 'Rahme')->exists();
-        if (! $hasCorrectCatalog) {
-            $this->command?->warn('Catalog missing or outdated; re-seeding with correct catalog data.');
-            $this->resetAndRunFallbackCatalogSeeders();
-        }
-
-        // Final safety net: if any pivot relationships are missing/corrupt,
-        // repair them (with JSON if available, otherwise static fallback seeders).
-        $this->call(RepairConnectionsSeeder::class);
     }
 
     private function resetAndRunFallbackCatalogSeeders(): void
