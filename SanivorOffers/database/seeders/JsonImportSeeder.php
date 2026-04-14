@@ -27,14 +27,7 @@ class JsonImportSeeder extends Seeder
             return;
         }
 
-        // Load JSON file - try env path first, then known fallback locations
-        $envJsonPath = env('JSON_IMPORT_PATH');
-        $jsonPaths = [
-            $envJsonPath,
-            base_path('database/seeders/DB___proj_98_2026-01-19 18_03_10.json'), // In repository
-            storage_path('app/DB___proj_98_2026-01-19 18_03_10.json'), // In storage
-            '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json', // Local development
-        ];
+        $jsonPaths = JsonCatalogPaths::candidateFilePaths();
         
         $jsonData = null;
         $jsonPath = null;
