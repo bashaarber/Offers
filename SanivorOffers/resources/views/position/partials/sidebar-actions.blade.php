@@ -12,6 +12,17 @@
     <div class="position-sidebar-section">
         <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
+            Allgemeine Parameter
+        </div>
+        <a href="{{ route('offert.edit', ['offert' => $offertId, 'from_position' => 1, 'return_url' => url()->full()]) }}"
+            data-overview-popup="true"
+            onclick="return window.openOffertOverviewPopup ? window.openOffertOverviewPopup(this) : true;"
+            class="btn btn-sm btn-primary mt-1"
+            style="width:100%;border-radius:8px;font-size:12px;display:block;">
+            <i class="fa-solid fa-sliders"></i> Allgemeine Parameter
+        </a>
+        <hr style="border-color:rgba(255,255,255,0.08);margin:8px 0 4px;">
+        <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
             Positions
         </div>
         <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
@@ -72,6 +83,23 @@
     </div>
 </div>
 
+<div id="offert-overview-modal-template" style="display:none;">
+    <div id="offert-overview-modal-backdrop"
+        style="position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;">
+        <div
+            style="background:#fff;width:min(1200px,96vw);height:min(90vh,920px);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.35);display:flex;flex-direction:column;">
+            <div
+                style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;">
+                <strong style="font-size:14px;color:#111827;">Allgemeine Parameter</strong>
+                <button type="button" data-overview-modal-close
+                    style="border:none;background:transparent;color:#334155;font-size:20px;line-height:1;cursor:pointer;">&times;</button>
+            </div>
+            <iframe data-overview-modal-iframe src="about:blank"
+                style="border:0;width:100%;height:100%;background:#fff;"></iframe>
+        </div>
+    </div>
+</div>
+
 <div id="external-pdf-footer-slot-template" style="display:none;">
     <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
         <i class="fa-solid fa-file-export"></i><span>External PDF</span>
@@ -106,6 +134,68 @@
             const pdfLink = pdfWrap.firstElementChild;
             if (pdfLink) {
                 footer.insertBefore(pdfLink, footer.firstElementChild);
+            }
+        }
+
+        const modalTemplate = document.getElementById('offert-overview-modal-template');
+        let modalBackdrop = null;
+        let modalIframe = null;
+        if (modalTemplate) {
+            const modalWrap = document.createElement('div');
+            modalWrap.innerHTML = modalTemplate.innerHTML.trim();
+            const modalNode = modalWrap.firstElementChild;
+            if (modalNode) {
+                document.body.appendChild(modalNode);
+                modalBackdrop = modalNode;
+                modalIframe = modalNode.querySelector('[data-overview-modal-iframe]');
+                const closeBtn = modalNode.querySelector('[data-overview-modal-close]');
+
+                const closeModal = () => {
+                    if (!modalBackdrop || !modalIframe) return;
+                    modalBackdrop.style.display = 'none';
+                    modalIframe.src = 'about:blank';
+                    document.body.style.overflow = '';
+                };
+
+                if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                if (modalBackdrop) {
+                    modalBackdrop.addEventListener('click', function(e) {
+                        if (e.target === modalBackdrop) closeModal();
+                    });
+                }
+
+                window.addEventListener('message', function(e) {
+                    if (!e || !e.data || e.data.type !== 'offert-overview-close') return;
+                    closeModal();
+                });
+
+                if (modalIframe) {
+                    modalIframe.addEventListener('load', function() {
+                        try {
+                            const href = modalIframe.contentWindow.location.href || '';
+                            if (href.includes('/position/') && href !== 'about:blank') {
+                                closeModal();
+                                window.location.href = href;
+                            }
+                        } catch (err) {}
+                    });
+                }
+
+                window.openOffertOverviewPopup = function(linkEl) {
+                    if (!linkEl || !modalBackdrop || !modalIframe) return true;
+                    const separator = linkEl.href.includes('?') ? '&' : '?';
+                    modalIframe.src = `${linkEl.href}${separator}embed=1`;
+                    modalBackdrop.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    return false;
+                };
+
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[data-overview-popup="true"]');
+                    if (!link || !modalBackdrop || !modalIframe) return;
+                    e.preventDefault();
+                    window.openOffertOverviewPopup(link);
+                });
             }
         }
 

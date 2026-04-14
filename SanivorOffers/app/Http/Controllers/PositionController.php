@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Schema;
 
 class PositionController extends Controller
 {
+    private function normalizeDecimal(mixed $value, float $default = 0.0): float
+    {
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        $normalized = str_replace(',', '.', (string) $value);
+        return is_numeric($normalized) ? (float) $normalized : $default;
+    }
+
     private function hasElementPivotOptionalColumn(): bool
     {
         static $hasColumn = null;
@@ -249,7 +259,7 @@ class PositionController extends Controller
         $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
-                $pivotData = ['quantity' => $quantity];
+                $pivotData = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
                 if ($supportsElementOptionalPivot) {
                     $pivotData['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                 }
@@ -265,7 +275,7 @@ class PositionController extends Controller
                         'position_id' => $position->id,
                         'element_id' => $elementId,
                         'material_id' => $material->id,
-                        'quantity' => $materialQuantity,
+                        'quantity' => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity),
                     ]);
                 }
             }
@@ -408,7 +418,7 @@ class PositionController extends Controller
         $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
-                $pivotData = ['quantity' => $quantity];
+                $pivotData = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
                 if ($supportsElementOptionalPivot) {
                     $pivotData['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                 }
@@ -435,14 +445,14 @@ class PositionController extends Controller
                             'position_id' => $position->id,
                             'element_id' => $elementId,
                             'material_id' => $material->id
-                        ])->update(['quantity' => $materialQuantity]);
+                        ])->update(['quantity' => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity)]);
                     } else {
                         // Create a new record
                         PositionMaterial::create([
                             'position_id' => $position->id,
                             'element_id' => $elementId,
                             'material_id' => $material->id,
-                            'quantity' => $materialQuantity,
+                            'quantity' => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity),
                         ]);
                     }
                 }
@@ -594,33 +604,30 @@ class PositionController extends Controller
                 $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
                 foreach ($data['selected_elements'] as $elementId) {
                     $quantity = $data['element_quantity'][$elementId] ?? 1;
-                    $elementsToAttach[$elementId] = ['quantity' => $quantity];
+                    $elementsToAttach[$elementId] = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
                     if ($supportsElementOptionalPivot) {
                         $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                     }
                 }
                 $position->elements()->sync($elementsToAttach);
+            }
 
-                // Update PositionMaterial records
-                if (isset($data['material_quantity'])) {
-                    foreach ($data['selected_elements'] as $elementId) {
-                        if (isset($data['material_quantity'][$elementId])) {
-                            $element = Element::find($elementId);
-                            if ($element) {
-                                foreach ($element->materials as $material) {
-                                    $materialQuantity = $data['material_quantity'][$elementId][$material->id] ?? $material->pivot->quantity;
-                                    
-                                    PositionMaterial::updateOrCreate(
-                                        [
-                                            'position_id' => $position->id,
-                                            'element_id' => $elementId,
-                                            'material_id' => $material->id,
-                                        ],
-                                        ['quantity' => $materialQuantity]
-                                    );
-                                }
-                            }
-                        }
+            // Always persist posted material quantities (including decimals),
+            // independent from selected_elements payload to avoid stale rollbacks.
+            if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
+                foreach ($data['material_quantity'] as $elementId => $materials) {
+                    if (!is_array($materials)) {
+                        continue;
+                    }
+                    foreach ($materials as $materialId => $materialQuantity) {
+                        PositionMaterial::updateOrCreate(
+                            [
+                                'position_id' => $position->id,
+                                'element_id' => (int) $elementId,
+                                'material_id' => (int) $materialId,
+                            ],
+                            ['quantity' => $this->normalizeDecimal($materialQuantity, 0.0)]
+                        );
                     }
                 }
             }

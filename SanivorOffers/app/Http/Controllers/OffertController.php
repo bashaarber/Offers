@@ -14,6 +14,26 @@ use Illuminate\Support\Facades\Schema;
 
 class OffertController extends Controller
 {
+    private function resolveSafeReturnUrl(?string $returnUrl): ?string
+    {
+        if (empty($returnUrl)) {
+            return null;
+        }
+
+        $appUrl = rtrim(url('/'), '/');
+        $candidate = trim($returnUrl);
+
+        if (str_starts_with($candidate, $appUrl . '/')) {
+            return $candidate;
+        }
+
+        if (str_starts_with($candidate, '/')) {
+            return url($candidate);
+        }
+
+        return null;
+    }
+
     private function hasDefaultRabattColumn(): bool
     {
         static $hasColumn = null;
@@ -217,12 +237,15 @@ class OffertController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
         $offert = Offert::find($id);
         $clients = Client::all();
+        $fromPositionOverview = $request->boolean('from_position');
+        $returnUrl = $this->resolveSafeReturnUrl($request->input('return_url'));
+        $embeddedOverview = $request->boolean('embed');
 
-        return view('offert.edit', compact('offert', 'clients'));
+        return view('offert.edit', compact('offert', 'clients', 'fromPositionOverview', 'returnUrl', 'embeddedOverview'));
     }
 
     /**
@@ -231,6 +254,8 @@ class OffertController extends Controller
     public function update(Request $request, string $id)
     {
         $user = auth()->user();
+        $fromPositionOverview = $request->boolean('from_position');
+        $returnUrl = $this->resolveSafeReturnUrl($request->input('return_url'));
 
         $formFields = $request->validate([
             'user_sign' => 'required',
@@ -269,6 +294,10 @@ class OffertController extends Controller
 
         $offert = Offert::find($id);
         $offert->update($formFields);
+
+        if ($fromPositionOverview && $returnUrl) {
+            return redirect()->to($returnUrl);
+        }
 
         return redirect()->route('offert.index');
     }

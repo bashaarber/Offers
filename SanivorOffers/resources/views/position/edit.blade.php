@@ -511,13 +511,11 @@
                                     $materialCoeff = (float) ($offert->material ?: 1);
                                     $calculatedMaterialTotal = ((float) $material->price_out * $materialCoeff)
                                         + ((float) $material->total_arbeit / ($difficultyCoeff ?: 1));
-                                    $displayMaterialTotal = $isRahmeElement
-                                        ? ($calculatedMaterialTotal / ($difficultyCoeff ?: 1))
-                                        : $calculatedMaterialTotal;
+                                    $displayMaterialTotal = $calculatedMaterialTotal;
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="any" type="number"
+                                        mit <input style="width: 100px" min="0" step="0.01" inputmode="decimal" type="number"
                                             class="quantity-input" value="{{ $quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
@@ -958,7 +956,7 @@
             // Auto-save (same flow as create): persists Menge (quantity) and other fields on change / tab away
             let autoSaveTimeout;
             let currentPositionId = {{ (int) $position->id }};
-            const autoSaveDelay = 2000;
+            const autoSaveDelay = 0;
 
             function triggerAutoSave() {
                 clearTimeout(autoSaveTimeout);
@@ -995,14 +993,21 @@
                     }
                 });
                 const materialQuantities = {};
-                selectedElements.forEach(elementId => {
-                    materialQuantities[elementId] = {};
-                    document.querySelectorAll(`#element-materials-${elementId} .quantity-input`).forEach(input => {
-                        const materialId = input.dataset.materialId;
-                        if (materialId) {
-                            materialQuantities[elementId][materialId] = input.value;
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    let elementId = input.dataset.elementId;
+                    let materialId = input.dataset.materialId;
+                    if ((!elementId || !materialId) && input.name) {
+                        const match = input.name.match(/material_quantity\[(\d+)\]\[(\d+)\]/);
+                        if (match) {
+                            elementId = match[1];
+                            materialId = match[2];
                         }
-                    });
+                    }
+                    if (!elementId || !materialId) return;
+                    if (!materialQuantities[elementId]) {
+                        materialQuantities[elementId] = {};
+                    }
+                    materialQuantities[elementId][materialId] = input.value;
                 });
                 return {
                     index: typeIndex,
