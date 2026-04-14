@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use App\Models\Element;
 use App\Models\Material;
 use Database\Seeders\ElementMaterialRelationshipSeeder;
+use Database\Seeders\JsonCatalogPaths;
 use Database\Seeders\RepairConnectionsSeeder;
 
 /**
@@ -98,15 +99,10 @@ class CheckElementMaterials extends Command
         }
 
         // Check if JSON file is available for repair
-        $jsonPaths = [
-            base_path('database/seeders/DB___proj_98_2026-01-19 18_03_10.json'),
-            '/Users/arberbasha/Downloads/DB___proj_98_2026-01-19 18_03_10.json',
-            storage_path('app/DB___proj_98_2026-01-19 18_03_10.json'),
-        ];
         $jsonAvailable = false;
         $jsonFoundAt   = null;
-        foreach ($jsonPaths as $path) {
-            if (File::exists($path)) {
+        foreach (JsonCatalogPaths::candidateFilePaths() as $path) {
+            if ($path && File::exists($path)) {
                 $jsonAvailable = true;
                 $jsonFoundAt   = $path;
                 break;
