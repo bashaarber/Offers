@@ -195,20 +195,17 @@ class JsonImportSeeder extends Seeder
         foreach ($materialsMap as $key => $materialId) {
             $material = Material::find($materialId);
             if ($material) {
-                // Create a Material Piece for each Material with unique name
-                $materialPiece = MaterialPiece::firstOrCreate(
+                // Keep piece prices aligned with material prices.
+                $materialPiece = MaterialPiece::updateOrCreate(
                     ['name' => $material->name . ' Piece'],
                     [
-                        'name' => $material->name . ' Piece',
                         'price_in' => $material->price_in ?? 0,
                         'price_out' => $material->price_out ?? 0,
                     ]
                 );
 
-                // Connect Material to Material Piece (only if not already connected)
-                if (!$material->material_pieces()->where('material_piece_id', $materialPiece->id)->exists()) {
-                    $material->material_pieces()->attach($materialPiece->id);
-                }
+                // Allow many pieces per material; only ensure this one exists.
+                $material->material_pieces()->syncWithoutDetaching([$materialPiece->id]);
                 $count++;
             }
         }
