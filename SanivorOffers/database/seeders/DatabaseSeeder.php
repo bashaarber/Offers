@@ -35,6 +35,10 @@ class DatabaseSeeder extends Seeder
             $this->command?->warn('Catalog missing or outdated; re-seeding with correct catalog data.');
             $this->resetAndRunFallbackCatalogSeeders();
         }
+
+        // Final safety net: if any pivot relationships are missing/corrupt,
+        // repair them (with JSON if available, otherwise static fallback seeders).
+        $this->call(RepairConnectionsSeeder::class);
     }
 
     private function resetAndRunFallbackCatalogSeeders(): void
