@@ -1000,7 +1000,7 @@
             // Auto-save (same flow as create): persists Menge (quantity) and other fields on change / tab away
             let autoSaveTimeout;
             let currentPositionId = {{ (int) $position->id }};
-            const autoSaveDelay = 0;
+            const autoSaveDelay = 1500; // 1.5s debounce — prevents a save on every keystroke
 
             function triggerAutoSave() {
                 clearTimeout(autoSaveTimeout);
@@ -1135,26 +1135,19 @@
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 const offertId = document.getElementById('offert_id').value;
+                // Fire-and-forget with keepalive so the browser sends the request even after navigation.
+                // We navigate immediately instead of waiting for the response — this removes the 1-3s lag.
                 fetch('{{ route("position.auto-save") }}', {
                     method: 'POST',
+                    keepalive: true,
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
                                       document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.success && data.position_id) {
-                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
-                    }
-                    window.location.href = nextUrl;
-                })
-                .catch(error => {
-                    console.error('Save before navigate error:', error);
-                    window.location.href = nextUrl;
-                });
+                }).catch(() => {});
+                window.location.href = nextUrl;
             };
 
             window.openExternalPdfAfterSave = function(pdfUrl) {

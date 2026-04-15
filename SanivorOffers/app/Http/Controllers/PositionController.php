@@ -413,48 +413,56 @@ class PositionController extends Controller
         // Detach existing elements for the position
         $position->elements()->detach();
 
+        // Pre-load ALL needed elements with their materials in ONE query (fixes N+1)
+        $elementsWithMaterials = Element::with('materials')
+            ->whereIn('id', array_keys($elementIdsWithQuantities))
+            ->get()
+            ->keyBy('id');
+
         $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
+        $elementsPivot    = [];  // batched attach data
+        $materialsToUpsert = []; // batched upsert data
+        $now = now();
+
         foreach ($elementIdsWithQuantities as $elementId => $quantity) {
             if (in_array($elementId, $selectedElementIds)) {
                 $pivotData = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
                 if ($supportsElementOptionalPivot) {
                     $pivotData['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                 }
-                $position->elements()->attach([
-                    $elementId => $pivotData,
-                ]);
+                // Collect pivot data — attach all at once after the loop
+                $elementsPivot[$elementId] = $pivotData;
 
-                // Store material_id, element_id, and quantity in the new table
-                $elements = Element::find($elementId);
-                foreach ($elements->materials as $material) {
-                    $materialQuantityKey = "material_quantity.{$elementId}.{$material->id}";
-                    $materialQuantity = $request->input($materialQuantityKey, $material->pivot->quantity);
-
-                    // Check if the record exists
-                    $existingRecord = PositionMaterial::where([
-                        'position_id' => $position->id,
-                        'element_id' => $elementId,
-                        'material_id' => $material->id
-                    ])->first();
-
-                    if ($existingRecord) {
-                        // Update the existing record
-                        PositionMaterial::where([
+                $element = $elementsWithMaterials->get($elementId);
+                if ($element) {
+                    foreach ($element->materials as $material) {
+                        $materialQuantityKey = "material_quantity.{$elementId}.{$material->id}";
+                        $materialQuantity = $request->input($materialQuantityKey, $material->pivot->quantity);
+                        $materialsToUpsert[] = [
                             'position_id' => $position->id,
-                            'element_id' => $elementId,
-                            'material_id' => $material->id
-                        ])->update(['quantity' => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity)]);
-                    } else {
-                        // Create a new record
-                        PositionMaterial::create([
-                            'position_id' => $position->id,
-                            'element_id' => $elementId,
+                            'element_id'  => (int) $elementId,
                             'material_id' => $material->id,
-                            'quantity' => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity),
-                        ]);
+                            'quantity'    => $this->normalizeDecimal($materialQuantity, (float) $material->pivot->quantity),
+                            'created_at'  => $now,
+                            'updated_at'  => $now,
+                        ];
                     }
                 }
             }
+        }
+
+        // Single attach call for all elements (instead of one per element)
+        if (!empty($elementsPivot)) {
+            $position->elements()->attach($elementsPivot);
+        }
+
+        // Single upsert for all materials (instead of find+update/create per material)
+        if (!empty($materialsToUpsert)) {
+            DB::table('position_materials')->upsert(
+                $materialsToUpsert,
+                ['position_id', 'element_id', 'material_id'],
+                ['quantity', 'updated_at']
+            );
         }
 
         $position->organigrams()->sync($selectedOrganigramIds);
