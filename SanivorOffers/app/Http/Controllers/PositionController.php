@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Offert;
 use App\Models\Element;
-use App\Models\Material;
 use App\Models\Position;
 use App\Models\Organigram;
 use Illuminate\Http\Request;
@@ -153,12 +152,11 @@ class PositionController extends Controller
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
 
-        $materials = Material::get();
         $organigrams = Organigram::with(['group_elements.elements'])->get();
         $elements = $this->orderElementsByOrganigramTree(Element::with('materials')->get(), $organigrams);
         $nextPositionNumber = (int) $index + 1;
 
-        return view('position.create', compact('positions', 'materials', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
+        return view('position.create', compact('positions', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
     }
 
     /**
@@ -311,7 +309,6 @@ class PositionController extends Controller
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
 
-        $materials = Material::get();
         $organigrams = Organigram::with(['group_elements.elements'])->get();
         $elements = $this->orderElementsByOrganigramTree(
             Element::with([
@@ -325,7 +322,7 @@ class PositionController extends Controller
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
-        return view('position.edit', compact('positions', 'offertId', 'position', 'materials', 'organigrams', 'elements', 'positionMaterials','offert'));
+        return view('position.edit', compact('positions', 'offertId', 'position', 'organigrams', 'elements', 'positionMaterials','offert'));
     }
 
     /**

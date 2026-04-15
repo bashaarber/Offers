@@ -59,7 +59,10 @@ class OffertController extends Controller
      */
     public function index(Request $request)
     {
-        $offerts = Offert::orderBy('id', 'DESC')->paginate(50);
+        $offerts = Offert::with([
+            'client:id,name',
+            'user:id,username',
+        ])->orderBy('id', 'DESC')->paginate(50);
 
         return view('offert.index', compact('offerts'));
     }
@@ -159,15 +162,13 @@ class OffertController extends Controller
 
     public function show(string $id)
     {
-        $offert = Offert::find($id);
-
-        // Order positions by position_number
-        $offert->load(['positions' => function ($query) {
-            $query->orderBy('position_number', 'ASC');
-        }]);
+        $offert = Offert::findOrFail($id);
+        $firstPosition = $offert->positions()
+            ->orderBy('position_number', 'ASC')
+            ->select('positions.id')
+            ->first();
 
         // Redirect to first position edit if positions exist, otherwise to create
-        $firstPosition = $offert->positions->first();
         if ($firstPosition) {
             return redirect()->route('position.edit', $firstPosition->id);
         } else {
