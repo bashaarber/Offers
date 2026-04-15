@@ -402,8 +402,8 @@
                                             <div class="elements">
                                                 @foreach ($group_element->elements as $element)
                                                     @php
-                                                        $elPos = $position->elements->firstWhere('id', $element->id);
-                                                        $elOptionalSaved = $elPos ? (bool) ($elPos->pivot->is_optional ?? false) : false;
+                                                        $elPivot = $elementPivots->get($element->id);
+                                                        $elOptionalSaved = $elPivot ? (bool) ($elPivot->is_optional ?? false) : false;
                                                     @endphp
                                                     <div class="card" style="padding:1px;margin-bottom:1px;">
                                                         <div class="card-body" style="padding:4px;">
@@ -415,7 +415,7 @@
                                                                         data-group-element-id="{{ $group_element->id }}"
                                                                         data-organigram-id="{{ $organigram->id }}"
                                                                         value="{{ $element->id }}"
-                                                                        {{ $position->elements->contains($element->id) ? 'checked' : '' }}>
+                                                                        {{ $elementPivots->has($element->id) ? 'checked' : '' }}>
                                                                     <span>{{ $element->name }}</span>
                                                                 </span>
                                                                 <label class="element-optional-inline mb-0">
@@ -459,7 +459,7 @@
                 </table>
                 @foreach ($elements as $element)
                     @php
-                        $isSelected = $position->elements->contains($element->id);
+                        $isSelected = $elementPivots->has($element->id);
                         $isRahmeElement = $element
                             ->group_elements()
                             ->whereHas('organigrams', function ($query) {
@@ -469,7 +469,7 @@
                             ->exists();
                     @endphp
                     @php
-                        $pivotQuantity = $element->positions->first()->pivot->quantity ?? 1;
+                        $pivotQuantity = $elementPivots->get($element->id)->quantity ?? 1;
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">

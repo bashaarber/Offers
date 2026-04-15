@@ -11,6 +11,7 @@ use App\Models\PositionMaterial;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class PositionController extends Controller
 {
@@ -26,12 +27,10 @@ class PositionController extends Controller
 
     private function hasElementPivotOptionalColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('element_position', 'is_optional');
-        }
-
-        return $hasColumn;
+        // Cache for 24 hours — this column never changes after the migration runs.
+        return Cache::remember('schema_element_position_has_is_optional', 86400, function () {
+            return Schema::hasColumn('element_position', 'is_optional');
+        });
     }
 
     /**
@@ -152,8 +151,15 @@ class PositionController extends Controller
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
 
-        $organigrams = Organigram::with(['group_elements.elements'])->get();
-        $elements = $this->orderElementsByOrganigramTree(Element::with('materials')->get(), $organigrams);
+        $organigrams = Cache::remember('organigrams_tree', 600, function () {
+            return Organigram::with(['group_elements.elements'])->get();
+        });
+        $elements = $this->orderElementsByOrganigramTree(
+            Cache::remember('elements_with_materials', 600, function () {
+                return Element::with('materials')->get();
+            }),
+            $organigrams
+        );
         $nextPositionNumber = (int) $index + 1;
 
         return view('position.create', compact('positions', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
@@ -300,7 +306,6 @@ class PositionController extends Controller
      */
     public function edit(Request $request, string $id)
     {
-        // $offertId = $request->input('offert_id');
         $position = Position::find($id);
         $offertId = $position->offerts()->first()->id;
         $offert = Offert::find($offertId);
@@ -309,20 +314,35 @@ class PositionController extends Controller
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
 
-        $organigrams = Organigram::with(['group_elements.elements'])->get();
-        $elements = $this->orderElementsByOrganigramTree(
-            Element::with([
-                'materials',
-                'positions' => function ($query) use ($id) {
-                    $query->where('position_id', $id);
-                },
-            ])->get(),
-            $organigrams
-        );
+        // Cache the heavy tree queries (organigrams + all elements with materials).
+        // These are admin-managed data that rarely change — safe to cache for 10 minutes.
+        $organigrams = Cache::remember('organigrams_tree', 600, function () {
+            return Organigram::with(['group_elements.elements'])->get();
+        });
+
+        $allElements = Cache::remember('elements_with_materials', 600, function () {
+            return Element::with('materials')->get();
+        });
+
+        // Lightweight single-query: pivot data for this position only.
+        // Replaces the position-specific eager-load that prevented caching elements.
+        $supportsOptional = $this->hasElementPivotOptionalColumn();
+        $pivotColumns = $supportsOptional
+            ? ['element_id', 'quantity', 'is_optional']
+            : ['element_id', 'quantity'];
+        $elementPivots = DB::table('element_position')
+            ->where('position_id', $id)
+            ->get($pivotColumns)
+            ->keyBy('element_id');
+
+        $elements = $this->orderElementsByOrganigramTree($allElements, $organigrams);
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
-        return view('position.edit', compact('positions', 'offertId', 'position', 'organigrams', 'elements', 'positionMaterials','offert'));
+        return view('position.edit', compact(
+            'positions', 'offertId', 'position', 'organigrams',
+            'elements', 'positionMaterials', 'offert', 'elementPivots'
+        ));
     }
 
     /**
