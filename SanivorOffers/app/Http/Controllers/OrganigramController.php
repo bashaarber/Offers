@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GroupElement;
 use App\Models\Organigram;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class OrganigramController extends Controller
 {
@@ -43,6 +44,7 @@ class OrganigramController extends Controller
         $organigrams->save();
         $organigrams->group_elements()->attach($group_elements);
 
+        Cache::forget('organigrams_tree');
         return redirect()->route('organigram.index');
     }
 
@@ -81,6 +83,7 @@ class OrganigramController extends Controller
 
         $organigram->group_elements()->sync($request->input('materials'));
 
+        Cache::forget('organigrams_tree');
         return redirect()->route('organigram.index');
     }
 
@@ -91,6 +94,7 @@ class OrganigramController extends Controller
     {
         $organigram = Organigram::find($id);
         $organigram->delete();
+        Cache::forget('organigrams_tree');
         return redirect()->route('organigram.index');
     }
 }

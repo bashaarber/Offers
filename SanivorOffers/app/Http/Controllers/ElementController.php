@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Element;
 use App\Models\Material;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ElementController extends Controller
 {
@@ -53,6 +54,7 @@ class ElementController extends Controller
             $element->materials()->attach($materialId, ['quantity' => $quantity]);
         }
 
+        Cache::forget('elements_with_materials');
         return redirect()->route('element.index');
     }
 
@@ -101,6 +103,7 @@ class ElementController extends Controller
 
         $element->materials()->sync($syncData);
 
+        Cache::forget('elements_with_materials');
         return redirect()->route('element.index');
     }
 
@@ -111,6 +114,7 @@ class ElementController extends Controller
     {
         $element = Element::find($id);
         $element->delete();
+        Cache::forget('elements_with_materials');
         return redirect()->route('element.index');
     }
 }
