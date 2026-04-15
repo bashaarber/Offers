@@ -353,7 +353,7 @@
                                         </tr>
                                     </thead>
                                 <tbody>
-                                    <tr class="table-active" style="display:none;">
+                                    <tr class="table-active">
                                         <td><strong>Materiale Pro Typ</strong></td>
                                         <td id="price-out-input" name="price-out-input">0.00</td>
                                         <td id="price-out-input2">0.00</td>
@@ -361,7 +361,7 @@
                                         <td id="price-in-input" name="material-costo">0.00</td>
                                         <td id="price-profit" name="material-profit">0.00</td>
                                     </tr>
-                                    <tr class="table-active" style="display:none;">
+                                    <tr class="table-active">
                                         <td><strong>Zeit Pro Typ</strong></td>
                                         <td id="zeit-cost-input" name="zeit-cost-input">0.00</td>
                                         <td id="zeit-cost-input2">0.00</td>
@@ -516,7 +516,8 @@
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="0.01" inputmode="decimal" type="number"
+                                        mit <input style="width: 100px" inputmode="decimal" type="text"
+                                            pattern="[0-9]*[.,]?[0-9]+"
                                             class="quantity-input" value="{{ $material->pivot->quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
@@ -593,7 +594,11 @@
                 var totalElement = quantityInput.closest('tr').find('.total');
 
                 // Get the current quantity value
-                var currentQuantity = parseFloat(quantityInput.val());
+                var normalizedQuantity = (quantityInput.val() || '').toString().replace(',', '.');
+                var currentQuantity = parseFloat(normalizedQuantity);
+                if (Number.isNaN(currentQuantity)) {
+                    currentQuantity = 0;
+                }
 
                 // Check if the quantity has changed
                 if (quantityInput.data('currentQuantity') !== currentQuantity) {

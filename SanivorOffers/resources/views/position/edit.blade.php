@@ -337,7 +337,7 @@
                                         </tr>
                                     </thead>
                                 <tbody>
-                                    <tr class="table-active" style="display:none;">
+                                    <tr class="table-active">
                                         <td><strong>Materiale Pro Typ</strong></td>
                                         <td id="price-out-input">{{ $position->material_brutto }}</td>
                                         <td id="price-out-input2">{{ $position->material_brutto }}</td>
@@ -345,7 +345,7 @@
                                         <td id="price-in-input">{{ $position->material_costo }}</td>
                                         <td id="price-profit">{{ $position->material_profit }}</td>
                                     </tr>
-                                    <tr class="table-active" style="display:none;">
+                                    <tr class="table-active">
                                         <td><strong>Zeit Pro Typ</strong></td>
                                         <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
                                         <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
@@ -515,7 +515,8 @@
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
-                                        mit <input style="width: 100px" min="0" step="0.01" inputmode="decimal" type="number"
+                                        mit <input style="width: 100px" inputmode="decimal" type="text"
+                                            pattern="[0-9]*[.,]?[0-9]+"
                                             class="quantity-input" value="{{ $quantity }}"
                                             name="material_quantity[{{ $element->id }}][{{ $material->id }}]"
                                             data-element-id="{{ $element->id }}"
@@ -580,6 +581,7 @@
             $('.quantity-input').on('input', function() {
                 updateMaterial($(this));
                 updateTotalMaterialsPrice();
+                saveSingleMaterialQuantity($(this));
             });
 
             // Function to update material details based on the quantity input
@@ -589,7 +591,11 @@
                 var totalElement = quantityInput.closest('tr').find('.total');
 
                 // Get the current quantity value
-                var currentQuantity = parseFloat(quantityInput.val());
+                var normalizedQuantity = (quantityInput.val() || '').toString().replace(',', '.');
+                var currentQuantity = parseFloat(normalizedQuantity);
+                if (Number.isNaN(currentQuantity)) {
+                    currentQuantity = 0;
+                }
 
                 // Check if the quantity has changed
                 if (quantityInput.data('currentQuantity') !== currentQuantity) {
@@ -606,6 +612,44 @@
                     quantityInput.data('currentQuantity', currentQuantity);
                     updateTotalProTypPrice();
                 }
+            }
+
+            function saveSingleMaterialQuantity(quantityInput) {
+                const elementId = quantityInput.attr('data-element-id');
+                const materialId = quantityInput.attr('data-material-id');
+                if (!elementId || !materialId) return;
+
+                const offertIdInput = document.getElementById('offert_id');
+                if (!offertIdInput) return;
+                const currentIndex = parseInt(document.getElementById('index')?.value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                if (!formData.material_quantity[elementId]) {
+                    formData.material_quantity[elementId] = {};
+                }
+                formData.material_quantity[elementId][materialId] = quantityInput.val();
+
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        position_id: currentPositionId,
+                        offert_id: offertIdInput.value,
+                        auto_save: 1,
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                })
+                .catch(() => {});
             }
 
             $('.element-quantity-input').on('input', function() {

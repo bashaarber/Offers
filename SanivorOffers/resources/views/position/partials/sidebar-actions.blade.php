@@ -38,6 +38,8 @@
                             <i class="fa-solid fa-grip-vertical drag-handle"
                                 style="cursor:grab;color:rgba(255,255,255,0.45);font-size:10px;"></i>
                             <a href="{{ route('position.edit', $pos->id) }}"
+                                data-position-nav-link="1"
+                                onclick="return window.handlePositionSidebarNavigate ? window.handlePositionSidebarNavigate(this, event) : true;"
                                 style="color:{{ isset($currentPositionId) && (int) $currentPositionId === (int) $pos->id ? '#3b82f6' : 'rgba(255,255,255,0.7)' }};font-size:12px;font-weight:500;">
                                 <strong class="position-number-label">Pos. {{ $pos->position_number }}</strong>
                                 @if ($pos->is_optional)
@@ -107,7 +109,26 @@
 </div>
 
 <script>
+    window.handlePositionSidebarNavigate = function(linkEl, event) {
+        if (!linkEl || !linkEl.href) return true;
+        if (event) event.preventDefault();
+        const nextUrl = linkEl.href;
+        if (typeof window.doAutoSaveAndNavigate === 'function') {
+            window.doAutoSaveAndNavigate(nextUrl);
+        } else {
+            window.location.href = nextUrl;
+        }
+        return false;
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(event) {
+            const navLink = event.target.closest('a[data-position-nav-link="1"]');
+            if (!navLink) return;
+            event.preventDefault();
+            window.handlePositionSidebarNavigate(navLink, event);
+        });
+
         const sidebar = document.querySelector('.sidebar');
         const footer = sidebar?.querySelector('.sidebar-footer');
         const template = document.getElementById('position-sidebar-template');
@@ -253,5 +274,6 @@
                 window.location.href = nextUrl;
             }
         };
+
     });
 </script>

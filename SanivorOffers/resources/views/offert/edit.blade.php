@@ -5,11 +5,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 </head>
 <style>
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f0f2f5;
+    }
+
     h6 {
-        background-color: skyblue;
-        padding: 10px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        padding: 8px 14px;
+        color: #fff;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1.5px solid #d1d5db;
+        padding: 6px 10px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 12px;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-info {
+        background: #06b6d4;
+        border-color: #06b6d4;
+        color: #fff;
+    }
+
+    .btn-info:hover {
+        background: #0891b2;
+        border-color: #0891b2;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        border-color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        border-color: #4b5563;
     }
 
     .select-users+.select2-container .select2-selection--single {
@@ -34,18 +105,8 @@
         margin: 0;
     }
 
-    .embedded-overview-body {
-        background: #f1f5f9;
-    }
-
     .embedded-overview-body .content {
         margin-left: 0;
-        padding: 14px;
-    }
-
-    .embedded-overview-body .container {
-        max-width: 100%;
-        padding: 0;
     }
 </style>
 
