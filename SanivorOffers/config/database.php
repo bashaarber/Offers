@@ -78,6 +78,12 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            // Persistent connections reuse the existing TCP connection to PostgreSQL
+            // across sequential requests (php artisan serve is single-process).
+            // This eliminates the 2-3s TCP handshake + auth cost on every page load.
+            'options' => [
+                PDO::ATTR_PERSISTENT => true,
+            ],
         ],
 
         'sqlsrv' => [
