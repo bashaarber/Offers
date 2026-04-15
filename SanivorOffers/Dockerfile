@@ -43,7 +43,11 @@ RUN mkdir -p /app/storage/logs || true
 # Expose port (Render will provide PORT env variable)
 EXPOSE 8000
 
-# Run migrations, seeders, caching, and start server (Render sets PORT)
+# Run app startup tasks and start server (Render sets PORT)
+# Optional env flags:
+# - RUN_MIGRATIONS=true|false (default: true)
+# - RUN_SEEDERS=true|false (default: false)
+# - RUN_ELEMENTS_REPAIR=true|false (default: false)
 CMD sh -c "\
   chmod -R 777 storage bootstrap/cache && \
   mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs && \
@@ -55,13 +59,22 @@ CMD sh -c "\
     echo 'CLEANUP_PG_ENUMS=true: running enum cleanup (recovery only)...' && \
     php cleanup-enums.php 2>/dev/null || true; \
   fi && \
-  echo 'Running migrations...' && \
-  php artisan migrate --force && \
-  echo 'Running seeders...' && \
-  (php artisan db:seed --force || echo 'Warning: db:seed exited non-zero (see logs).') && \
-  echo 'Running element-material repair check...' && \
-  (php artisan elements:check-materials --repair || echo 'Warning: element-material repair check failed (see logs).') && \
-  echo 'Migrations complete!' && \
+  if [ \"${RUN_MIGRATIONS:-true}\" = \"true\" ]; then \
+    echo 'Running migrations...' && php artisan migrate --force; \
+  else \
+    echo 'Skipping migrations (RUN_MIGRATIONS=false).'; \
+  fi && \
+  if [ \"${RUN_SEEDERS:-false}\" = \"true\" ]; then \
+    echo 'Running seeders...' && (php artisan db:seed --force || echo 'Warning: db:seed exited non-zero (see logs).'); \
+  else \
+    echo 'Skipping seeders (RUN_SEEDERS=false).'; \
+  fi && \
+  if [ \"${RUN_ELEMENTS_REPAIR:-false}\" = \"true\" ]; then \
+    echo 'Running element-material repair check...' && (php artisan elements:check-materials --repair || echo 'Warning: element-material repair check failed (see logs).'); \
+  else \
+    echo 'Skipping element-material repair check (RUN_ELEMENTS_REPAIR=false).'; \
+  fi && \
+  echo 'Startup tasks complete.' && \
   php artisan config:cache && \
   php artisan route:cache && \
   php artisan view:cache && \
