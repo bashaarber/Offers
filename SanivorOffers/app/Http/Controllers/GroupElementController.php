@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Element;
 use App\Models\GroupElement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class GroupElementController extends Controller
 {
@@ -43,6 +44,8 @@ class GroupElementController extends Controller
         $group_elements->save();
         $group_elements->elements()->attach($elements);
 
+        Cache::forget('organigrams_tree');
+        Cache::forget('elements_with_materials');
         return redirect()->route('group_element.index');
     }
 
@@ -81,6 +84,8 @@ class GroupElementController extends Controller
 
         $group_element->elements()->sync($request->input('materials'));
 
+        Cache::forget('organigrams_tree');
+        Cache::forget('elements_with_materials');
         return redirect()->route('group_element.index');
     }
 
@@ -91,6 +96,8 @@ class GroupElementController extends Controller
     {
         $group_element = GroupElement::find($id);
         $group_element->delete();
+        Cache::forget('organigrams_tree');
+        Cache::forget('elements_with_materials');
         return redirect()->route('group_element.index');
     }
 }
