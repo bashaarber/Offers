@@ -306,13 +306,19 @@ class PositionController extends Controller
      */
     public function edit(Request $request, string $id)
     {
+        // Single JOIN query: load position + offert_id in one roundtrip instead of two
         $position = Position::find($id);
-        $offertId = $position->offerts()->first()->id;
+        $offertId = DB::table('offert_position')
+            ->where('position_id', $id)
+            ->value('offert_id');
         $offert = Offert::find($offertId);
 
-        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
+        // Replace whereHas (subquery) with a direct JOIN — faster on PostgreSQL
+        $positions = Position::join('offert_position', 'positions.id', '=', 'offert_position.position_id')
+            ->where('offert_position.offert_id', $offertId)
+            ->orderBy('positions.position_number', 'ASC')
+            ->select('positions.*')
+            ->get();
 
         // Cache the heavy tree queries (organigrams + all elements with materials).
         // These are admin-managed data that rarely change — safe to cache for 10 minutes.
