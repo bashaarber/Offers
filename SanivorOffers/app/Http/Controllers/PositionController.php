@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\PositionMaterial;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class PositionController extends Controller
 {
@@ -620,13 +621,17 @@ class PositionController extends Controller
                         continue;
                     }
                     foreach ($materials as $materialId => $materialQuantity) {
-                        PositionMaterial::updateOrCreate(
+                        DB::table('position_materials')->updateOrInsert(
                             [
                                 'position_id' => $position->id,
                                 'element_id' => (int) $elementId,
                                 'material_id' => (int) $materialId,
                             ],
-                            ['quantity' => $this->normalizeDecimal($materialQuantity, 0.0)]
+                            [
+                                'quantity' => $this->normalizeDecimal($materialQuantity, 0.0),
+                                'updated_at' => now(),
+                                'created_at' => now(),
+                            ]
                         );
                     }
                 }
