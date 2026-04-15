@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PositionMaterial;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class OffertController extends Controller
 {
@@ -36,22 +37,16 @@ class OffertController extends Controller
 
     private function hasDefaultRabattColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('offerts', 'default_rabatt');
-        }
-
-        return $hasColumn;
+        return Cache::remember('schema_offerts_has_default_rabatt', 86400, function () {
+            return Schema::hasColumn('offerts', 'default_rabatt');
+        });
     }
 
     private function hasCoefficientDefaultRabattColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('coefficients', 'default_rabatt');
-        }
-
-        return $hasColumn;
+        return Cache::remember('schema_coefficients_has_default_rabatt', 86400, function () {
+            return Schema::hasColumn('coefficients', 'default_rabatt');
+        });
     }
 
     /**

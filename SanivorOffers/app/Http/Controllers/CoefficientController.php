@@ -6,37 +6,29 @@ use App\Models\Coefficient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class CoefficientController extends Controller
 {
     private function hasDefaultRabattColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('coefficients', 'default_rabatt');
-        }
-
-        return $hasColumn;
+        return Cache::remember('schema_coefficients_has_default_rabatt', 86400, function () {
+            return Schema::hasColumn('coefficients', 'default_rabatt');
+        });
     }
 
     private function hasDefaultUnsereReferenzColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('coefficients', 'default_unsere_referenz');
-        }
-
-        return $hasColumn;
+        return Cache::remember('schema_coefficients_has_default_unsere_referenz', 86400, function () {
+            return Schema::hasColumn('coefficients', 'default_unsere_referenz');
+        });
     }
 
     private function hasPdfExternalClosingTextColumn(): bool
     {
-        static $hasColumn = null;
-        if ($hasColumn === null) {
-            $hasColumn = Schema::hasColumn('coefficients', 'pdf_external_closing_text');
-        }
-
-        return $hasColumn;
+        return Cache::remember('schema_coefficients_has_pdf_closing_text', 86400, function () {
+            return Schema::hasColumn('coefficients', 'pdf_external_closing_text');
+        });
     }
     /**
      * Display a listing of the resource.
