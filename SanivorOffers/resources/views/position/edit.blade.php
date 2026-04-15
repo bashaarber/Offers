@@ -1000,6 +1000,7 @@
             // Auto-save (same flow as create): persists Menge (quantity) and other fields on change / tab away
             let autoSaveTimeout;
             let currentPositionId = {{ (int) $position->id }};
+            let autoSaveController = null;
             const autoSaveDelay = 0;
 
             function triggerAutoSave() {
@@ -1036,6 +1037,7 @@
                         elementQuantities[elementId] = quantityInput.value || 1;
                     }
                 });
+                const selectedElementSet = new Set(selectedElements.map(id => String(id)));
                 const materialQuantities = {};
                 document.querySelectorAll('.quantity-input').forEach(input => {
                     let elementId = input.dataset.elementId;
@@ -1048,6 +1050,7 @@
                         }
                     }
                     if (!elementId || !materialId) return;
+                    if (!selectedElementSet.has(String(elementId))) return;
                     if (!materialQuantities[elementId]) {
                         materialQuantities[elementId] = {};
                     }
@@ -1084,6 +1087,11 @@
             }
 
             function savePositionForType(formData, typeIndex, isLast) {
+                if (autoSaveController) {
+                    autoSaveController.abort();
+                }
+                autoSaveController = new AbortController();
+
                 fetch('{{ route("position.auto-save") }}', {
                     method: 'POST',
                     headers: {
@@ -1091,6 +1099,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
                                       document.querySelector('input[name="_token"]').value
                     },
+                    signal: autoSaveController.signal,
                     body: JSON.stringify({
                         ...formData,
                         position_id: currentPositionId,
@@ -1107,7 +1116,11 @@
                     }
                 })
                 .catch(error => {
+                    if (error?.name === 'AbortError') return;
                     console.error('Auto-save error:', error);
+                })
+                .finally(() => {
+                    autoSaveController = null;
                 });
             }
 
@@ -1132,10 +1145,14 @@
 
             window.doAutoSaveAndNavigate = function(nextUrl) {
                 clearTimeout(autoSaveTimeout);
+                if (autoSaveController) {
+                    autoSaveController.abort();
+                    autoSaveController = null;
+                }
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 const offertId = document.getElementById('offert_id').value;
-                fetch('{{ route("position.auto-save") }}', {
+                const navigationSave = fetch('{{ route("position.auto-save") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1144,10 +1161,18 @@
                     },
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 })
-                .then(response => response.json())
-                .then(data => {
+                }).then(response => response.json());
+
+                const saveTimeout = new Promise((resolve) => {
+                    setTimeout(() => resolve({ success: false, timed_out: true }), 8000);
+                });
+
+                Promise.race([navigationSave, saveTimeout]).then(data => {
                     if (data && data.success && data.position_id) {
                         currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                    if (data && data.timed_out) {
+                        console.warn('Navigation auto-save timed out; continuing navigation.');
                     }
                     window.location.href = nextUrl;
                 })
