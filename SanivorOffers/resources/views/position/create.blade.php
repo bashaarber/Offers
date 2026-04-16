@@ -219,7 +219,20 @@
         }
 
         /* Compact density: right-hand materials panel only (not the organigram column) */
-        .position-materials-panel {
+        .materials-scroll-area {
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+            border-radius: 10px;
+        }
+
+        .materials-scroll-area .element-materials thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #111827;
+            color: #fff;
+        }
+
             font-size: 12px;
             line-height: 1.3;
         }
@@ -445,6 +458,7 @@
                 @php
     $totalZTotal = 0; // Initialize the variable to store the sum
 @endphp
+                <div class="materials-scroll-area">
                 {{-- Single column header shown only once at the top --}}
                 <table class="table element-materials" style="margin-bottom:0; border-radius:10px 10px 0 0; overflow:hidden;">
                     <colgroup>
@@ -465,6 +479,7 @@
                 {{-- All elements are unselected on create — zero HTML tables rendered.
                      Tables are built from JSON on demand when the user checks an element. --}}
                 <div id="element-materials-container"></div>
+                </div>
 
                 <script>
                 window._unselectedElements = @json($allElementsData);

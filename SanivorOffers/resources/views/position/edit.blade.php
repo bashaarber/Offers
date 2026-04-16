@@ -185,6 +185,20 @@
         }
 
         /* Compact density: right-hand materials panel only (not the organigram column) */
+        .materials-scroll-area {
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+            border-radius: 10px;
+        }
+
+        .materials-scroll-area .element-materials thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #111827;
+            color: #fff;
+        }
+
         .position-materials-panel {
             font-size: 12px;
             line-height: 1.3;
@@ -440,6 +454,7 @@
                 </div>
             </div>
             <div class="col-md-9 position position-materials-panel">
+                <div class="materials-scroll-area">
                 {{-- Single column header shown only once at the top --}}
                 <table class="table element-materials" style="margin-bottom:0; border-radius:10px 10px 0 0; overflow:hidden;">
                     <colgroup>
@@ -535,6 +550,7 @@
                     </div>
                 @endforeach
                 </div>
+                </div>{{-- /.materials-scroll-area --}}
 
                 {{-- JSON data for unselected elements — rendered into DOM on first check --}}
                 <script>
