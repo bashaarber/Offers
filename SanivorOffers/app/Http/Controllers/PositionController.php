@@ -617,6 +617,15 @@ class PositionController extends Controller
         $offertId = $position->offerts()->first()->id;
         $position->delete();
 
+        // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
+        $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->orderBy('position_number', 'ASC')->get();
+
+        foreach ($remaining as $i => $pos) {
+            $pos->update(['position_number' => $i + 1]);
+        }
+
         // Redirect to the latest position related to the offert_id
         $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
