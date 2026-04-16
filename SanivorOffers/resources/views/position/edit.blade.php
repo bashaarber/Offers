@@ -457,15 +457,16 @@
                         </tr>
                     </thead>
                 </table>
+                {{-- Only render HTML for SELECTED elements. Unselected elements are stored as
+                     JSON below and built into the DOM on demand by buildElementTable() when
+                     the user first checks them. This removes ~100 hidden table renders per load. --}}
+                <div id="element-materials-container">
                 @foreach ($elements as $element)
                     @php
-                        $isSelected = $elementPivots->has($element->id);
-                        $isRahmeElement = $rahmeElementIds->has($element->id);
-                    @endphp
-                    @php
+                        if (!$elementPivots->has($element->id)) continue;
                         $pivotQuantity = $elementPivots->get($element->id)->quantity ?? 1;
                     @endphp
-                    <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
+                    <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display:block;">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">
                         <colgroup>
                             <col style="width:14%">
@@ -496,16 +497,10 @@
 
                             @foreach ($element->materials as $material)
                                 @php
-                                    $positionMaterial = $positionMaterials
-                                        ->where('element_id', $element->id)
-                                        ->where('material_id', $material->id)
-                                        ->first();
-                                    $quantity = $positionMaterial ? $positionMaterial->quantity : $material->pivot->quantity;
-                                    $difficultyCoeff = (float) ($offert->difficulty ?: 1);
-                                    $materialCoeff = (float) ($offert->material ?: 1);
-                                    $calculatedMaterialTotal = ((float) $material->price_out * $materialCoeff)
-                                        + ((float) $material->total_arbeit / ($difficultyCoeff ?: 1));
-                                    $displayMaterialTotal = $calculatedMaterialTotal;
+                                    $quantity = $positionMaterialsMap[(int) $element->id][(int) $material->id]
+                                        ?? (float) ($material->pivot->quantity ?? 1);
+                                    $calcTotal = ((float) $material->price_out * $materialCoeff)
+                                        + ((float) $material->total_arbeit / $difficultyCoeff);
                                 @endphp
                                 <tr style="text-align: left">
                                     <td>
@@ -516,13 +511,11 @@
                                             data-element-id="{{ $element->id }}"
                                             data-material-id="{{ $material->id }}"> {{ $material->unit }}
                                     </td>
-                                    <td class="col-name">
-                                        {{ $material->name }}
-                                    </td>
+                                    <td class="col-name">{{ $material->name }}</td>
                                     <td class="col-pstk price-details"
                                         data-material-id="{{ $material->id }}"
-                                        data-material-price="{{ $displayMaterialTotal }}">
-                                        CHF <span class="price-in">{{ number_format($displayMaterialTotal, 2, '.', '') }}</span> X <span
+                                        data-material-price="{{ $calcTotal }}">
+                                        CHF <span class="price-in">{{ number_format($calcTotal, 2, '.', '') }}</span> X <span
                                             class="quantity">{{ $quantity }}</span>
                                         {{ $material->unit }}
                                         <div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">
@@ -533,15 +526,79 @@
                                     </td>
                                     <td class="total" data-material-id="{{ $material->id }}"
                                         data-element-id="{{ $element->id }}">
-                                        {{ number_format($displayMaterialTotal * $quantity, 2, '.', '') }}
+                                        {{ number_format($calcTotal * $quantity, 2, '.', '') }}
                                     </td>
                                 </tr>
                             @endforeach
-
                         </tbody>
                     </table>
                     </div>
                 @endforeach
+                </div>
+
+                {{-- JSON data for unselected elements — rendered into DOM on first check --}}
+                <script>
+                window._unselectedElements = @json($unselectedElementsData);
+
+                function buildElementTable(elementId) {
+                    if (document.getElementById('element-materials-wrap-' + elementId)) return;
+                    var el = window._unselectedElements[elementId];
+                    if (!el) return;
+
+                    var qty = el.qty || 1;
+                    var rows = '';
+                    el.mats.forEach(function(m) {
+                        var total = (m.calc * m.qty).toFixed(2);
+                        rows += '<tr style="text-align:left">'
+                            + '<td>mit <input style="width:100px" inputmode="decimal" type="text"'
+                            + ' pattern="[0-9]*[.,]?[0-9]+" class="quantity-input" value="' + m.qty + '"'
+                            + ' name="material_quantity[' + elementId + '][' + m.id + ']"'
+                            + ' data-element-id="' + elementId + '" data-material-id="' + m.id + '"> ' + m.unit + '</td>'
+                            + '<td class="col-name">' + m.name + '</td>'
+                            + '<td class="col-pstk price-details" data-material-id="' + m.id + '" data-material-price="' + m.calc + '">'
+                            + 'CHF <span class="price-in">' + m.calc.toFixed(2) + '</span>'
+                            + ' X <span class="quantity">' + m.qty + '</span> ' + m.unit
+                            + '<div class="element-materials-hidden-metrics" style="display:none" aria-hidden="true">'
+                            + '<span class="material-price-out">CHF <span class="price-out">' + m.price_out + '</span></span>'
+                            + '<span class="material-price-in">CHF <span class="price-in">' + m.price_in + '</span></span>'
+                            + '<span class="material-zeit-cost">CHF <span class="zeit-cost">' + m.zeit_cost + '</span></span>'
+                            + '</div></td>'
+                            + '<td class="total" data-material-id="' + m.id + '" data-element-id="' + elementId + '">' + total + '</td>'
+                            + '</tr>';
+                    });
+
+                    var wrap = document.createElement('div');
+                    wrap.className = 'element-materials-wrap';
+                    wrap.id = 'element-materials-wrap-' + elementId;
+                    wrap.style.display = 'none';
+                    wrap.innerHTML = '<table class="table element-materials" id="element-materials-' + elementId + '">'
+                        + '<colgroup><col style="width:14%"><col style="width:38%"><col style="width:30%"><col style="width:18%"></colgroup>'
+                        + '<tbody>'
+                        + '<tr style="text-align:left" class="table-dark">'
+                        + '<th><input type="number" min="1" style="width:130px" class="element-quantity-input"'
+                        + ' data-element-id="' + elementId + '" name="element_quantity[' + elementId + ']" value="' + qty + '"></th>'
+                        + '<th class="col-name"><span class="element-summary-name">' + el.name + '</span></th>'
+                        + '<th class="col-pstk total-materials-header" data-element-id="' + elementId + '">'
+                        + 'CHF <span class="total-materials-value">0</span> X <span class="element-quantity">' + qty + '</span></th>'
+                        + '<th class="col-total total-materials-header" data-element-id="' + elementId + '">'
+                        + '<span class="total-materials-value-header">0</span></th>'
+                        + '</tr>' + rows + '</tbody></table>';
+
+                    document.getElementById('element-materials-container').appendChild(wrap);
+
+                    // Wire up jQuery quantity-input listeners (mirrors the static ones set up on DOMContentLoaded)
+                    $(wrap).find('.quantity-input').on('input', function() {
+                        updateMaterial($(this));
+                        updateTotalMaterialsPrice();
+                        saveSingleMaterialQuantity($(this));
+                    });
+                    $(wrap).find('.element-quantity-input').on('input', function() {
+                        var eId = $(this).data('element-id');
+                        $('.total-materials-header[data-element-id="' + eId + '"] .element-quantity').text($(this).val() || 1);
+                        updateTotalProTypPrice();
+                    });
+                }
+                </script>
             </div>
         </div>
         </form>
@@ -664,22 +721,21 @@
             elementCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const elementId = this.getAttribute('data-element-id');
-                    const elementMaterialsTable = document.querySelector(
-                        `#element-materials-wrap-${elementId}`);
 
+                    // Build the table from JSON on first check (only runs once per element per session)
+                    if (typeof buildElementTable === 'function') {
+                        buildElementTable(elementId);
+                    }
+
+                    const elementMaterialsTable = document.getElementById(`element-materials-wrap-${elementId}`);
                     if (elementMaterialsTable) {
                         elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
-
-                        // Calculate the total materials price when the checkbox is clicked
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
-
-                        // Update the running total based on the checkbox state
                         if (this.checked) {
                             runningTotalMaterialsPrice += elementPrice;
                         } else {
                             runningTotalMaterialsPrice -= elementPrice;
                         }
-
                         updateTotalProTypPrice();
                     }
                 });
