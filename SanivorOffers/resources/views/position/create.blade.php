@@ -566,32 +566,20 @@
 
             // Function to update material details based on the quantity input
             function updateMaterial(quantityInput) {
-                // Get the related elements
                 var priceDetails = quantityInput.closest('tr').find('.price-details');
                 var totalElement = quantityInput.closest('tr').find('.total');
 
-                // Get the current quantity value
                 var normalizedQuantity = (quantityInput.val() || '').toString().replace(',', '.');
                 var currentQuantity = parseFloat(normalizedQuantity);
-                if (Number.isNaN(currentQuantity)) {
-                    currentQuantity = 0;
-                }
+                if (Number.isNaN(currentQuantity)) currentQuantity = 0;
 
-                // Check if the quantity has changed
-                if (quantityInput.data('currentQuantity') !== currentQuantity) {
-                    // Update the quantity in the price details
-                    priceDetails.find('.quantity').text(currentQuantity);
+                priceDetails.find('.quantity').text(currentQuantity);
 
-                    // Update the total based on the new quantity
-                    var priceIn = parseFloat(priceDetails.data('material-price'));
-                    var totalPrice = priceIn * currentQuantity;
+                var priceIn = parseFloat(priceDetails.data('material-price'));
+                var totalPrice = priceIn * currentQuantity;
+                totalElement.text(totalPrice.toFixed(2));
 
-                    totalElement.text(totalPrice.toFixed(2));
-
-                    // Update the currentQuantity data attribute
-                    quantityInput.data('currentQuantity', currentQuantity);
-                    updateTotalProTypPrice();
-                }
+                updateTotalProTypPrice();
             }
 
             $('.element-quantity-input').on('input', function() {
@@ -660,16 +648,11 @@
 
             // Function to calculate the total materials price for an element
             function calculateTotalMaterialsPrice(elementId) {
-                const materials = document.querySelectorAll(`#element-materials-${elementId} tbody tr`);
                 let totalMaterialsPrice = 0;
-
-                materials.forEach(materialRow => {
-                    const priceCell = materialRow.querySelector('td:last-child');
-                    if (priceCell) {
-                        totalMaterialsPrice += parseFloat(priceCell.textContent);
-                    }
+                document.querySelectorAll(`#element-materials-${elementId} tbody tr td.total`).forEach(cell => {
+                    const v = parseFloat(cell.textContent.trim());
+                    if (!isNaN(v)) totalMaterialsPrice += v;
                 });
-
                 return totalMaterialsPrice;
             }
 
