@@ -56,7 +56,7 @@
                                 </button>
                             </form>
                             <form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;"
-                                onsubmit='return confirm("Are you sure?");'>
+                                onsubmit='if(!confirm("Are you sure?")) return false; window._autoSaveLock = true;'>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm"

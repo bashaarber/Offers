@@ -1175,6 +1175,8 @@
             }
 
             function persistPositionBeforeLeave() {
+                if (window._autoSaveLock) return;
+                window._autoSaveLock = true;
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 fetch('{{ route("position.auto-save") }}', {
@@ -1194,6 +1196,8 @@
             }
 
             window.doAutoSaveAndNavigate = function(nextUrl) {
+                if (window._autoSaveLock) return;
+                window._autoSaveLock = true;
                 clearTimeout(autoSaveTimeout);
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
