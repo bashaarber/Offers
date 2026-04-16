@@ -319,14 +319,10 @@
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
                                         <option value="" selected> - </option>
-                                        <option value="Vorwand-Raumhoch" {{ $index == 1 ? 'selected' : '' }}>
-                                            Vorwand-Raumhoch</option>
-                                        <option value="Vorwand-Raumhoch und Teilhoch"
-                                            {{ $index == 3 ? 'selected' : '' }}>Vorwand-Raumhoch und Teilhoch
-                                        </option>
+                                        <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
+                                        <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch</option>
                                         <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
-                                        <option value="Freistehend-Raumhoch"{{ $index == 2 ? 'selected' : '' }}>
-                                            Freistehend-Raumhoch</option>
+                                        <option value="Freistehend-Raumhoch">Freistehend-Raumhoch</option>
                                         <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
                                         <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
                                         <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
