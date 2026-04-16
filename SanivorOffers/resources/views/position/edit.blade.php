@@ -186,8 +186,6 @@
 
         /* Compact density: right-hand materials panel only (not the organigram column) */
         .materials-scroll-area {
-            overflow-y: auto;
-            max-height: calc(100vh - 160px);
             border-radius: 10px;
         }
 
@@ -197,6 +195,12 @@
             z-index: 10;
             background: #111827;
             color: #fff;
+        }
+
+        .position-materials-panel.panel-sticky {
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
         }
 
         .position-materials-panel {
@@ -634,6 +638,15 @@
             let percentage = 0;
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
+            // Stick the right panel to the viewport only when its content fits
+            function syncPanelSticky() {
+                const panel = document.querySelector('.position-materials-panel');
+                if (!panel) return;
+                panel.classList.toggle('panel-sticky', panel.scrollHeight <= window.innerHeight);
+            }
+            syncPanelSticky();
+            window.addEventListener('resize', syncPanelSticky);
+
             // Update the total materials price on document ready, then recalculate totals
             updateTotalMaterialsPrice();
             updateTotalProTypPrice();
@@ -741,6 +754,7 @@
                             runningTotalMaterialsPrice -= elementPrice;
                         }
                         updateTotalProTypPrice();
+                        syncPanelSticky();
                     }
                 });
             });
