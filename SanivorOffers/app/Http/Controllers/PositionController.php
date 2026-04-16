@@ -646,25 +646,30 @@ class PositionController extends Controller
 
             // Always persist posted material quantities (including decimals),
             // independent from selected_elements payload to avoid stale rollbacks.
+            // Bulk delete + insert replaces N×M individual updateOrInsert calls,
+            // cutting this from potentially 100+ queries down to 2.
             if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
+                $rows = [];
+                $now = now()->toDateTimeString();
                 foreach ($data['material_quantity'] as $elementId => $materials) {
                     if (!is_array($materials)) {
                         continue;
                     }
                     foreach ($materials as $materialId => $materialQuantity) {
-                        DB::table('position_materials')->updateOrInsert(
-                            [
-                                'position_id' => $position->id,
-                                'element_id' => (int) $elementId,
-                                'material_id' => (int) $materialId,
-                            ],
-                            [
-                                'quantity' => $this->normalizeDecimal($materialQuantity, 0.0),
-                                'updated_at' => now(),
-                                'created_at' => now(),
-                            ]
-                        );
+                        $rows[] = [
+                            'position_id' => $position->id,
+                            'element_id'  => (int) $elementId,
+                            'material_id' => (int) $materialId,
+                            'quantity'    => $this->normalizeDecimal($materialQuantity, 0.0),
+                            'created_at'  => $now,
+                            'updated_at'  => $now,
+                        ];
                     }
+                }
+                // 2 queries total regardless of how many materials there are
+                DB::table('position_materials')->where('position_id', $position->id)->delete();
+                if (!empty($rows)) {
+                    DB::table('position_materials')->insert($rows);
                 }
             }
 
