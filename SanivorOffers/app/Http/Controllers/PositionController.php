@@ -25,6 +25,32 @@ class PositionController extends Controller
         return is_numeric($normalized) ? (float) $normalized : $default;
     }
 
+    /**
+     * Build a lookup set of element IDs that belong to Rahme organigram groups
+     * (Grundrahme, Aufstock, Nische). Uses the already-loaded organigrams collection
+     * so zero extra DB queries are needed.
+     *
+     * @param  \Illuminate\Support\Collection  $organigrams  (with group_elements.elements eager-loaded)
+     * @return \Illuminate\Support\Collection  keyed by element_id for O(1) has() lookups
+     */
+    private function computeRahmeElementIds(\Illuminate\Support\Collection $organigrams): \Illuminate\Support\Collection
+    {
+        $ids = [];
+        foreach ($organigrams as $organigram) {
+            if ($organigram->name !== 'Rahme') {
+                continue;
+            }
+            foreach ($organigram->group_elements as $ge) {
+                if (in_array($ge->name, ['Grundrahme', 'Aufstock', 'Nische'], true)) {
+                    foreach ($ge->elements as $el) {
+                        $ids[$el->id] = true;
+                    }
+                }
+            }
+        }
+        return collect($ids);
+    }
+
     private function hasElementPivotOptionalColumn(): bool
     {
         // Cache for 24 hours — this column never changes after the migration runs.
@@ -161,8 +187,9 @@ class PositionController extends Controller
             $organigrams
         );
         $nextPositionNumber = (int) $index + 1;
+        $rahmeElementIds = $this->computeRahmeElementIds($organigrams);
 
-        return view('position.create', compact('positions', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber'));
+        return view('position.create', compact('positions', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber', 'rahmeElementIds'));
     }
 
     /**
@@ -345,9 +372,14 @@ class PositionController extends Controller
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
+        // Pre-compute Rahme element IDs from the already-loaded organigrams tree.
+        // Without this, the blade fires one DB query per element in the foreach loop (N+1).
+        // With 110+ elements at ~30ms each on Render that was ~3s of extra latency per page load.
+        $rahmeElementIds = $this->computeRahmeElementIds($organigrams);
+
         return view('position.edit', compact(
             'positions', 'offertId', 'position', 'organigrams',
-            'elements', 'positionMaterials', 'offert', 'elementPivots'
+            'elements', 'positionMaterials', 'offert', 'elementPivots', 'rahmeElementIds'
         ));
     }
 

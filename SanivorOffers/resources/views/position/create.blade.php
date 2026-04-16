@@ -468,13 +468,7 @@
                 </table>
                 @foreach ($elements as $element)
                     @php
-                        $isRahmeElement = $element
-                            ->group_elements()
-                            ->whereHas('organigrams', function ($query) {
-                                $query->where('name', 'Rahme');
-                            })
-                            ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
-                            ->exists();
+                        $isRahmeElement = $rahmeElementIds->has($element->id);
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display:none;">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">

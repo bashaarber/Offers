@@ -460,13 +460,7 @@
                 @foreach ($elements as $element)
                     @php
                         $isSelected = $elementPivots->has($element->id);
-                        $isRahmeElement = $element
-                            ->group_elements()
-                            ->whereHas('organigrams', function ($query) {
-                                $query->where('name', 'Rahme');
-                            })
-                            ->whereIn('name', ['Grundrahme', 'Aufstock', 'Nische'])
-                            ->exists();
+                        $isRahmeElement = $rahmeElementIds->has($element->id);
                     @endphp
                     @php
                         $pivotQuantity = $elementPivots->get($element->id)->quantity ?? 1;
