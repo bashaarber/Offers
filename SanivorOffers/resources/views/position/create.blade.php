@@ -1103,6 +1103,8 @@
             }
 
             function persistPositionBeforeLeave() {
+                if (window._autoSaveLock) return;
+                window._autoSaveLock = true;
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
                 fetch('{{ route("position.auto-save") }}', {
@@ -1123,6 +1125,9 @@
 
             // Expose auto-save-and-navigate for the "New Position" button
             window.doAutoSaveAndNavigate = function(nextUrl) {
+                // Guard: prevent double-invocation (double-click or visibilitychange race)
+                if (window._autoSaveLock) return;
+                window._autoSaveLock = true;
                 // Cancel any pending auto-save timer
                 clearTimeout(autoSaveTimeout);
 
