@@ -187,9 +187,43 @@ class PositionController extends Controller
             $organigrams
         );
         $nextPositionNumber = (int) $index + 1;
-        $rahmeElementIds = $this->computeRahmeElementIds($organigrams);
+        $rahmeElementIds    = $this->computeRahmeElementIds($organigrams);
 
-        return view('position.create', compact('positions', 'organigrams', 'elements', 'index', 'offert', 'nextPositionNumber', 'rahmeElementIds'));
+        $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
+        $materialCoeff   = (float) ($offert->material ?: 1);
+
+        // On create ALL elements are unselected — build full JSON, render zero HTML tables.
+        $allElementsData = [];
+        foreach ($elements as $element) {
+            $mats = [];
+            foreach ($element->materials as $material) {
+                $qty      = (float) ($material->pivot->quantity ?? 1);
+                $calcTotal = ((float) $material->price_out * $materialCoeff)
+                            + ((float) $material->total_arbeit / $difficultyCoeff);
+                $mats[] = [
+                    'id'        => $material->id,
+                    'name'      => $material->name,
+                    'unit'      => $material->unit ?? '',
+                    'price_out' => (float) $material->price_out,
+                    'price_in'  => (float) $material->price_in,
+                    'zeit_cost' => (float) $material->zeit_cost,
+                    'calc'      => round($calcTotal, 4),
+                    'qty'       => $qty,
+                ];
+            }
+            $allElementsData[$element->id] = [
+                'id'      => $element->id,
+                'name'    => $element->name,
+                'isRahme' => $rahmeElementIds->has($element->id),
+                'qty'     => 1,
+                'mats'    => $mats,
+            ];
+        }
+
+        return view('position.create', compact(
+            'positions', 'organigrams', 'elements', 'index', 'offert',
+            'nextPositionNumber', 'rahmeElementIds', 'allElementsData'
+        ));
     }
 
     /**
@@ -372,14 +406,59 @@ class PositionController extends Controller
 
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
-        // Pre-compute Rahme element IDs from the already-loaded organigrams tree.
-        // Without this, the blade fires one DB query per element in the foreach loop (N+1).
-        // With 110+ elements at ~30ms each on Render that was ~3s of extra latency per page load.
         $rahmeElementIds = $this->computeRahmeElementIds($organigrams);
+
+        // Pre-index saved material quantities for O(1) lookup in the blade.
+        // Replaces $positionMaterials->where(element)->where(material)->first() scan per row.
+        $positionMaterialsMap = [];
+        foreach ($positionMaterials as $pm) {
+            $positionMaterialsMap[(int) $pm->element_id][(int) $pm->material_id] = (float) $pm->quantity;
+        }
+
+        // Pre-compute offert coefficients once (same for every element/material row).
+        $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
+        $materialCoeff   = (float) ($offert->material ?: 1);
+
+        // Build JSON data for UNSELECTED elements only.
+        // The blade will skip rendering HTML tables for these — JS renders them on demand
+        // the first time the user checks one. This is the main reason the page was slow:
+        // PHP was generating 110+ hidden tables on every load even though most were invisible.
+        $unselectedElementsData = [];
+        foreach ($elements as $element) {
+            if ($elementPivots->has($element->id)) {
+                continue; // selected elements render as HTML in the blade as normal
+            }
+            $mats = [];
+            foreach ($element->materials as $material) {
+                $qty      = $positionMaterialsMap[(int) $element->id][(int) $material->id]
+                            ?? (float) ($material->pivot->quantity ?? 1);
+                $calcTotal = ((float) $material->price_out * $materialCoeff)
+                            + ((float) $material->total_arbeit / $difficultyCoeff);
+                $mats[] = [
+                    'id'        => $material->id,
+                    'name'      => $material->name,
+                    'unit'      => $material->unit ?? '',
+                    'price_out' => (float) $material->price_out,
+                    'price_in'  => (float) $material->price_in,
+                    'zeit_cost' => (float) $material->zeit_cost,
+                    'calc'      => round($calcTotal, 4),
+                    'qty'       => $qty,
+                ];
+            }
+            $unselectedElementsData[$element->id] = [
+                'id'      => $element->id,
+                'name'    => $element->name,
+                'isRahme' => $rahmeElementIds->has($element->id),
+                'qty'     => 1,
+                'mats'    => $mats,
+            ];
+        }
 
         return view('position.edit', compact(
             'positions', 'offertId', 'position', 'organigrams',
-            'elements', 'positionMaterials', 'offert', 'elementPivots', 'rahmeElementIds'
+            'elements', 'offert', 'elementPivots', 'rahmeElementIds',
+            'positionMaterialsMap', 'difficultyCoeff', 'materialCoeff',
+            'unselectedElementsData'
         ));
     }
 
