@@ -9,7 +9,7 @@ return new class extends Migration
     // Prevent Laravel from wrapping this migration in a transaction.
     // On PostgreSQL, a single failure inside a transaction aborts all subsequent
     // statements with 25P02 — so we run each DDL statement independently.
-    public bool $withinTransaction = false;
+    public $withinTransaction = false;
 
     public function up(): void
     {
