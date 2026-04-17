@@ -27,6 +27,7 @@ RUN docker-php-ext-install pdo pdo_pgsql pdo_mysql mbstring exif pcntl bcmath gd
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy application files
+# (cache-bust 2026-04-18: force rebuild to pick up renamed lock-fields migration)
 COPY . /app
 
 # Install PHP dependencies
