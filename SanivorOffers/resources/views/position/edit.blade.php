@@ -1284,6 +1284,33 @@
             });
         });
     </script>
+    <script>
+    (function () {
+        var el = document.getElementById('offert_id');
+        if (!el || !el.value) return;
+        var offertId = el.value;
+        var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content
+                || (document.querySelector('input[name="_token"]') || {}).value || '';
+
+        function acquireLock() {
+            fetch('/offert/' + offertId + '/lock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: '{}'
+            }).catch(function () {});
+        }
+
+        acquireLock();
+        var heartbeat = setInterval(acquireLock, 60000);
+
+        window.addEventListener('pagehide', function () {
+            clearInterval(heartbeat);
+            var fd = new FormData();
+            fd.append('_token', csrf);
+            navigator.sendBeacon('/offert/' + offertId + '/unlock', fd);
+        });
+    })();
+    </script>
 </body>
 
 </html>

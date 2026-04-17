@@ -57,6 +57,7 @@ class OffertController extends Controller
         $offerts = Offert::with([
             'client:id,name',
             'user:id,username',
+            'lockingUser:id,username',
         ])->orderBy('id', 'DESC')->paginate(50);
 
         return view('offert.index', compact('offerts'));
@@ -343,5 +344,32 @@ class OffertController extends Controller
         }
 
         return redirect()->route('offert.index');
+    }
+
+    public function lock(string $id)
+    {
+        $offert = Offert::find($id);
+        if (! $offert) {
+            return response()->json(['success' => false], 404);
+        }
+        if ($offert->isLockedByOther()) {
+            return response()->json([
+                'success' => false,
+                'locked_by' => $offert->lockingUser?->username ?? 'another user',
+            ], 423);
+        }
+        $offert->acquireLock();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function unlock(string $id)
+    {
+        $offert = Offert::find($id);
+        if ($offert) {
+            $offert->releaseLock();
+        }
+
+        return response()->json(['success' => true]);
     }
 }
