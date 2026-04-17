@@ -629,6 +629,15 @@ class PositionController extends Controller
     {
         $position = Position::find($id);
         $offertId = $position->offerts()->first()->id;
+
+        $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->count();
+
+        if ($positionCount <= 1) {
+            return redirect()->back()->with('error', 'Cannot delete the only remaining position.');
+        }
+
         $position->delete();
 
         // Re-number remaining positions for this offert sequentially (1, 2, 3, …)

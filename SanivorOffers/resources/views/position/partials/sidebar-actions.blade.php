@@ -55,6 +55,7 @@
                                     <i class="fa-solid fa-copy"></i>
                                 </button>
                             </form>
+                            @if ($positions->count() > 1)
                             <form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;"
                                 onsubmit='if(!confirm("Are you sure?")) return false; window._autoSaveLock = true;'>
                                 @csrf
@@ -64,6 +65,13 @@
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </form>
+                            @else
+                            <button type="button" class="btn btn-danger btn-sm" disabled
+                                title="Cannot delete the only position"
+                                style="padding:1px 5px;font-size:10px;opacity:0.35;cursor:not-allowed;">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            @endif
                         </div>
                     </div>
                 @endforeach
