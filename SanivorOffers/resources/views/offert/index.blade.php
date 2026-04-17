@@ -23,6 +23,13 @@
                 </a>
             </div>
 
+            @if (session('lock_error'))
+                <div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+                    <i class="fas fa-lock mr-2"></i>{{ session('lock_error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+            @endif
+
             @include('layouts.partials.list-filter')
 
             {{-- Table --}}
@@ -64,7 +71,12 @@
                         <tbody>
                             @forelse ($offerts as $offert)
                                 <tr>
-                                    <td><strong>{{ $offert->id }}</strong></td>
+                                    <td>
+                                        <strong>{{ $offert->id }}</strong>
+                                        @if($offert->isLockedByOther())
+                                            <span title="Being edited by {{ $offert->lockingUser?->username ?? 'another user' }}" style="color:#dc3545; margin-left:4px;"><i class="fas fa-lock" style="font-size:11px;"></i></span>
+                                        @endif
+                                    </td>
                                     <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
                                     <td>{{ $offert->client->name }}</td>
                                     <td>{{ $offert->client_sign }}</td>
@@ -126,5 +138,7 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>

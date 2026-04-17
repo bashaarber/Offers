@@ -28,11 +28,47 @@ class Offert extends Model
         'labor_price',
         'default_rabatt',
         'user_id',
+        'locked_by',
+        'locked_at',
+    ];
+
+    protected $casts = [
+        'locked_at' => 'datetime',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function lockingUser()
+    {
+        return $this->belongsTo(User::class, 'locked_by');
+    }
+
+    /** True when another user holds a non-expired lock (expires after 2 minutes). */
+    public function isLockedByOther(): bool
+    {
+        if (! $this->locked_by || ! $this->locked_at) {
+            return false;
+        }
+        if ($this->locked_at->lt(now()->subMinutes(2))) {
+            return false;
+        }
+
+        return (int) $this->locked_by !== (int) auth()->id();
+    }
+
+    public function acquireLock(): void
+    {
+        $this->update(['locked_by' => auth()->id(), 'locked_at' => now()]);
+    }
+
+    public function releaseLock(): void
+    {
+        if ((int) $this->locked_by === (int) auth()->id()) {
+            $this->update(['locked_by' => null, 'locked_at' => null]);
+        }
     }
 
     public function client()

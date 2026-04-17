@@ -172,7 +172,14 @@ class PositionController extends Controller
     public function create(Request $request, $index)
     {
         $offertId = $request->input('offert_id');
-        $offert = Offert::find($offertId);
+        $offert = Offert::with('lockingUser')->find($offertId);
+
+        if ($offert && $offert->isLockedByOther()) {
+            $who = $offert->lockingUser?->username ?? 'another user';
+
+            return redirect()->route('offert.index')
+                ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
+        }
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
@@ -372,7 +379,14 @@ class PositionController extends Controller
         $offertId = DB::table('offert_position')
             ->where('position_id', $id)
             ->value('offert_id');
-        $offert = Offert::find($offertId);
+        $offert = Offert::with('lockingUser')->find($offertId);
+
+        if ($offert && $offert->isLockedByOther()) {
+            $who = $offert->lockingUser?->username ?? 'another user';
+
+            return redirect()->route('offert.index')
+                ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
+        }
 
         // Replace whereHas (subquery) with a direct JOIN — faster on PostgreSQL
         $positions = Position::join('offert_position', 'positions.id', '=', 'offert_position.position_id')
