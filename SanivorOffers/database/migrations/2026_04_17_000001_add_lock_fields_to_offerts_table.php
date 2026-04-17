@@ -1,45 +1,52 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public bool $withinTransaction = false;
+
     public function up(): void
     {
-        if (! Schema::hasColumn('offerts', 'locked_by')) {
-            Schema::table('offerts', function (Blueprint $table) {
-                $table->unsignedBigInteger('locked_by')->nullable()->after('user_id');
-            });
-        }
+        // ADD COLUMN IF NOT EXISTS is idempotent — safe to re-run if a previous attempt partially succeeded
+        DB::statement('ALTER TABLE offerts ADD COLUMN IF NOT EXISTS locked_by bigint NULL');
+        DB::statement('ALTER TABLE offerts ADD COLUMN IF NOT EXISTS locked_at timestamp NULL');
 
-        if (! Schema::hasColumn('offerts', 'locked_at')) {
-            Schema::table('offerts', function (Blueprint $table) {
-                $table->timestamp('locked_at')->nullable()->after('locked_by');
-            });
-        }
-
-        // Add FK only if it doesn't already exist
-        $constraints = DB::select(
-            "SELECT constraint_name FROM information_schema.table_constraints
-             WHERE table_name = 'offerts' AND constraint_name = 'offerts_locked_by_foreign'"
-        );
-        if (empty($constraints)) {
-            Schema::table('offerts', function (Blueprint $table) {
-                $table->foreign('locked_by')->references('id')->on('users')->onDelete('set null');
-            });
-        }
+        // Add FK only if it does not already exist
+        DB::statement("
+            DO \$do\$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.table_constraints
+                    WHERE table_name = 'offerts'
+                      AND constraint_name = 'offerts_locked_by_foreign'
+                ) THEN
+                    ALTER TABLE offerts
+                        ADD CONSTRAINT offerts_locked_by_foreign
+                        FOREIGN KEY (locked_by) REFERENCES users(id) ON DELETE SET NULL;
+                END IF;
+            END
+            \$do\$
+        ");
     }
 
     public function down(): void
     {
-        Schema::table('offerts', function (Blueprint $table) {
-            if (Schema::hasColumn('offerts', 'locked_by')) {
-                $table->dropForeign(['locked_by']);
-            }
-            $table->dropColumn(array_filter(['locked_by', 'locked_at'], fn($col) => Schema::hasColumn('offerts', $col)));
-        });
+        DB::statement("
+            DO \$do\$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.table_constraints
+                    WHERE table_name = 'offerts'
+                      AND constraint_name = 'offerts_locked_by_foreign'
+                ) THEN
+                    ALTER TABLE offerts DROP CONSTRAINT offerts_locked_by_foreign;
+                END IF;
+            END
+            \$do\$
+        ");
+        DB::statement('ALTER TABLE offerts DROP COLUMN IF EXISTS locked_at');
+        DB::statement('ALTER TABLE offerts DROP COLUMN IF EXISTS locked_by');
     }
 };
