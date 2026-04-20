@@ -1273,6 +1273,13 @@
                 expandSelected: true
             });
 
+            // Expose local functions needed by buildElementTable (defined in outer script scope)
+            window.updateMaterial = updateMaterial;
+            window.updateTotalMaterialsPrice = updateTotalMaterialsPrice;
+            window.updateTotalProTypPrice = updateTotalProTypPrice;
+            window.triggerAutoSave = triggerAutoSave;
+            window.saveSingleMaterialQuantity = saveSingleMaterialQuantity;
+
         });
         // Add an event listener to toggle sublinks
         document.querySelectorAll('.toggle-sublinks').forEach(link => {

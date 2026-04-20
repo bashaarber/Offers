@@ -537,7 +537,7 @@
                     $(wrap).find('.quantity-input').on('input', function() {
                         updateMaterial($(this));
                         updateTotalMaterialsPrice();
-                        saveSingleMaterialQuantity($(this));
+                        triggerAutoSave();
                     });
                     $(wrap).find('.element-quantity-input').on('input', function() {
                         var eId = $(this).data('element-id');
@@ -1187,6 +1187,12 @@
             window.addEventListener('pagehide', function() {
                 persistPositionBeforeLeave();
             });
+
+            // Expose local functions needed by buildElementTable (defined in outer script scope)
+            window.updateMaterial = updateMaterial;
+            window.updateTotalMaterialsPrice = updateTotalMaterialsPrice;
+            window.updateTotalProTypPrice = updateTotalProTypPrice;
+            window.triggerAutoSave = triggerAutoSave;
 
         });
         // Toggle sublinks handled by sidebar partial
