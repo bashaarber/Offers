@@ -615,6 +615,7 @@
                     $(wrap).find('.element-quantity-input').on('input', function() {
                         var eId = $(this).data('element-id');
                         $('.total-materials-header[data-element-id="' + eId + '"] .element-quantity').text($(this).val() || 1);
+                        updateTotalMaterialsPrice();
                         updateTotalProTypPrice();
                     });
                 }
@@ -753,6 +754,7 @@
                         } else {
                             runningTotalMaterialsPrice -= elementPrice;
                         }
+                        updateTotalMaterialsPrice();
                         updateTotalProTypPrice();
                         syncPanelSticky();
                     }
