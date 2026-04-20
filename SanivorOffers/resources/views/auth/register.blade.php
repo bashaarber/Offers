@@ -55,6 +55,17 @@
                                     @endif
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="role" class="form-label">{{ __('User Type') }}</label>
+                                    <select id="role" name="role" class="form-control" required>
+                                        <option value="seller" {{ old('role', 'seller') === 'seller' ? 'selected' : '' }}>Seller</option>
+                                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    </select>
+                                    @if ($errors->has('role'))
+                                        <div class="text-danger mt-2">{{ $errors->first('role') }}</div>
+                                    @endif
+                                </div>
+
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary">{{ __('Register') }}</button>
                                     <a href="{{ url('/users') }}" class="btn btn-secondary ml-2">Back</a>
