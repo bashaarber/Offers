@@ -92,9 +92,6 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::resource('organigram', OrganigramController::class)->except(['index']);
     Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
 
-    Route::put('/coefficient/{id}', [CoefficientController::class, 'update'])->name('coefficient.update');
-    Route::get('/coefficient', [CoefficientController::class, 'index'])->name('coefficient.index');
-
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
     Route::post('/client/{id}/archive', [ClientController::class, 'archive'])->name('client.archive');
@@ -102,6 +99,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::put('/coefficient/{id}', [CoefficientController::class, 'update'])->name('coefficient.update');
+    Route::get('/coefficient', [CoefficientController::class, 'index'])->name('coefficient.index');
     Route::resource('offert', OffertController::class)->except(['index', 'copy']);
     Route::get('/offert', [OffertController::class, 'index'])->name('offert.index');
     Route::get('/offert/{offert_id}/copy', [OffertController::class, 'copy'])->name('offert.copy');
