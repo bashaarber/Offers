@@ -319,9 +319,17 @@
                     </a>
                 </div>
                 @endif
+                @else
+                {{-- Seller: show only Coefficient --}}
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">@lang('public.settings')</div>
+                    <a href="{{ url('/coefficient') }}" class="{{ request()->is('coefficient*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-calculator"></i><span>@lang('public.coefficient')</span>
+                    </a>
+                </div>
                 @endif
-            @endif
-        @endauth
+            @endauth
+        @endif
     </div>
 
     <div class="sidebar-footer">
