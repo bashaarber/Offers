@@ -641,7 +641,7 @@
             let percentage = 0;
             const materialCoeff = {{ $materialCoeff ?? 1 }};
             const difficultyCoeff = {{ $difficultyCoeff ?? 1 }};
-            const inLaborPrice = {{ $inLaborPrice ?? 0 }};
+            const inLaborPrice = {{ $inLaborPrice ?? 60 }};
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
             // Stick the right panel to the viewport only when its content fits

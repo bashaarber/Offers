@@ -23,7 +23,8 @@ return new class extends Migration
     public function up(): void
     {
         $this->safeRun('ROLLBACK');
-        $this->safeRun('ALTER TABLE coefficients ADD COLUMN IF NOT EXISTS in_labor_price numeric(15,4) NULL');
+        $this->safeRun('ALTER TABLE coefficients ADD COLUMN IF NOT EXISTS in_labor_price numeric(15,4) DEFAULT 60');
+        $this->safeRun('UPDATE coefficients SET in_labor_price = 60 WHERE in_labor_price IS NULL');
     }
 
     public function down(): void

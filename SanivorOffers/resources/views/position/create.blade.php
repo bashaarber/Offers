@@ -569,7 +569,7 @@
             let percentage = parseFloat({{ $offert->default_rabatt ?? 0 }});
             const materialCoeff = {{ $materialCoeff ?? 1 }};
             const difficultyCoeff = {{ $difficultyCoeff ?? 1 }};
-            const inLaborPrice = {{ $inLaborPrice ?? 0 }};
+            const inLaborPrice = {{ $inLaborPrice ?? 60 }};
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
 

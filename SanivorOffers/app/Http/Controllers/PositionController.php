@@ -200,7 +200,7 @@ class PositionController extends Controller
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
         $coefficient     = Coefficient::first();
-        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 0);
+        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 60);
 
         // On create ALL elements are unselected — build full JSON, render zero HTML tables.
         $allElementsData = [];
@@ -438,7 +438,7 @@ class PositionController extends Controller
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
         $coefficient     = Coefficient::first();
-        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 0);
+        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 60);
 
         // Build JSON data for UNSELECTED elements only.
         // The blade will skip rendering HTML tables for these — JS renders them on demand

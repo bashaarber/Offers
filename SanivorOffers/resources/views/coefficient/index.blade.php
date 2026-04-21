@@ -44,8 +44,8 @@
                                 <td>
                                     @if (\Illuminate\Support\Facades\Schema::hasColumn('coefficients', 'in_labor_price'))
                                         <input type="text" class="form-control" name="in_labor_price"
-                                            value="{{ old('in_labor_price', $coefficient->in_labor_price ?? '') }}"
-                                            inputmode="decimal" placeholder="0.00">
+                                            value="{{ old('in_labor_price', $coefficient->in_labor_price ?? 60) }}"
+                                            inputmode="decimal" placeholder="60">
                                         <small class="form-text text-muted">Used in Kosto CHF formula: Price In × Mat.Coeff + Hours × In Labor Price ÷ Difficulty</small>
                                     @else
                                         <span class="text-muted">Run migrations to enable.</span>
