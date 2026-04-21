@@ -13,6 +13,7 @@ class Coefficient extends Model
         'validity',
         'labor_cost',
         'labor_price',
+        'in_labor_price',
         'service',
         'material',
         'difficulty',

@@ -541,6 +541,7 @@
                                             <span class="material-price-out">CHF <span class="price-out">{{ $material->price_out }}</span></span>
                                             <span class="material-price-in">CHF <span class="price-in">{{ $material->price_in }}</span></span>
                                             <span class="material-zeit-cost">CHF <span class="zeit-cost">{{ $material->zeit_cost }}</span></span>
+                                            <span class="material-z-total"><span class="z-total">{{ $material->z_total }}</span></span>
                                         </div>
                                     </td>
                                     <td class="total" data-material-id="{{ $material->id }}"
@@ -582,6 +583,7 @@
                             + '<span class="material-price-out">CHF <span class="price-out">' + m.price_out + '</span></span>'
                             + '<span class="material-price-in">CHF <span class="price-in">' + m.price_in + '</span></span>'
                             + '<span class="material-zeit-cost">CHF <span class="zeit-cost">' + m.zeit_cost + '</span></span>'
+                            + '<span class="material-z-total"><span class="z-total">' + (m.z_total || 0) + '</span></span>'
                             + '</div></td>'
                             + '<td class="total" data-material-id="' + m.id + '" data-element-id="' + elementId + '">' + total + '</td>'
                             + '</tr>';
@@ -637,6 +639,9 @@
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
+            const materialCoeff = {{ $materialCoeff ?? 1 }};
+            const difficultyCoeff = {{ $difficultyCoeff ?? 1 }};
+            const inLaborPrice = {{ $inLaborPrice ?? 0 }};
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
             // Stick the right panel to the viewport only when its content fits
@@ -949,6 +954,7 @@
                     let totalPriceOut = 0;
                     let totalZeitCost = 0;
                     let totalPriceIn = 0;
+                    let totalZHours = 0;
 
                     // Loop through all element checkboxes
                     elementCheckboxes.forEach(checkbox => {
@@ -971,7 +977,7 @@
                                 elementQuantity;
                             totalProTypPrice += elementTotalProTypPrice;
 
-                            // Fetch and accumulate price_out and zeit_cost values
+                            // Fetch and accumulate price_out, zeit_cost, and z_total values
                             const materials = document.querySelectorAll(
                                 `#element-materials-${elementId} tbody tr`);
                             materials.forEach(materialRow => {
@@ -981,12 +987,15 @@
                                     '.material-price-in .price-in');
                                 const zeitCostCell = materialRow.querySelector(
                                     '.material-zeit-cost .zeit-cost');
+                                const zTotalCell = materialRow.querySelector(
+                                    '.material-z-total .z-total');
                                 const quantityInput = materialRow.querySelector('.quantity-input');
 
                                 if (priceOutCell && priceInCell && zeitCostCell && quantityInput) {
                                     const priceOutValue = parseFloat(priceOutCell.textContent);
                                     const priceInValue = parseFloat(priceInCell.textContent);
                                     const zeitCostValue = parseFloat(zeitCostCell.textContent);
+                                    const zTotalValue = zTotalCell ? parseFloat(zTotalCell.textContent) : 0;
                                     const quantityValue = parseFloat(quantityInput.value) || 0;
 
                                     totalPriceOut += priceOutValue * quantityValue *
@@ -994,6 +1003,8 @@
                                     totalPriceIn += priceInValue * quantityValue *
                                         elementQuantity;
                                     totalZeitCost += zeitCostValue * quantityValue *
+                                        elementQuantity;
+                                    totalZHours += zTotalValue * quantityValue *
                                         elementQuantity;
                                 }
                             });
@@ -1018,27 +1029,27 @@
                     priceOutInput.textContent = formatSwissNumber(totalPriceOut);
                     priceOutInput2.textContent = formatSwissNumber(totalPriceOut);
 
+                    const laborKosto = difficultyCoeff > 0 ? totalZHours * inLaborPrice / difficultyCoeff : 0;
+
                     zeitCostInput.textContent = formatSwissNumber(totalZeitCost);
                     zeitCostInput2.textContent = formatSwissNumber(totalZeitCost);
-                    zeitCosto.textContent = formatSwissNumber(totalZeitCost / 2.5);
-                    zeitProfit.textContent = formatSwissNumber(totalZeitCost - (totalZeitCost / 2.5));
+                    zeitCosto.textContent = formatSwissNumber(laborKosto);
+                    zeitProfit.textContent = formatSwissNumber(totalZeitCost - laborKosto);
 
                     priceInInput.textContent = formatSwissNumber(totalPriceIn);
                     priceProfit.textContent = formatSwissNumber(totalPriceOut - totalPriceIn);
 
-                    const costoTotalValue = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    const costoTotalValue = (totalPriceIn * materialCoeff + laborKosto).toFixed(2);
                     costoTotal.textContent = formatSwissNumber(costoTotalValue);
 
-                    const profitTotalValue = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
-                        2.5)).toFixed(2);
+                    const profitTotalValue = ((totalPriceOut - totalPriceIn) + (totalZeitCost - laborKosto)).toFixed(2);
                     const discountedProfitTotalValue = profitTotalValue * (1 - (percentage / 100)).toFixed(2);
                     profitTotal.textContent = formatSwissNumber(discountedProfitTotalValue);
 
-                    const costoTotalValue2 = (totalPriceIn + (totalZeitCost / 2.5)).toFixed(2);
+                    const costoTotalValue2 = costoTotalValue;
                     costoTotal2.textContent = formatSwissNumber(costoTotalValue2);
 
-                    const profitTotalValue2 = ((totalPriceOut - totalPriceIn) + totalZeitCost - (totalZeitCost /
-                        2.5)).toFixed(2);
+                    const profitTotalValue2 = profitTotalValue;
                     const discountedProfitTotalValue2 = profitTotalValue2 * (1 - (percentage / 100)).toFixed(2);
                     profitTotal2.textContent = formatSwissNumber(discountedProfitTotalValue2);
 
@@ -1046,9 +1057,8 @@
                     document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);
 
                     document.getElementById('zeitCostInput').value = totalZeitCost.toFixed(2);
-                    document.getElementById('zeitCosto').value = (totalZeitCost / 2.5).toFixed(2);
-                    document.getElementById('zeitProfit').value = (totalZeitCost - (totalZeitCost / 2.5)).toFixed(
-                        2);
+                    document.getElementById('zeitCosto').value = laborKosto.toFixed(2);
+                    document.getElementById('zeitProfit').value = (totalZeitCost - laborKosto).toFixed(2);
 
                     document.getElementById('priceInInput').value = totalPriceIn.toFixed(2);
                     document.getElementById('priceProfit').value = (totalPriceOut - totalPriceIn).toFixed(2);

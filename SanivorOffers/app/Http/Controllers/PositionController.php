@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coefficient;
 use App\Models\Offert;
 use App\Models\Element;
 use App\Models\Position;
@@ -198,6 +199,8 @@ class PositionController extends Controller
 
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
+        $coefficient     = Coefficient::first();
+        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 0);
 
         // On create ALL elements are unselected — build full JSON, render zero HTML tables.
         $allElementsData = [];
@@ -214,6 +217,7 @@ class PositionController extends Controller
                     'price_out' => (float) $material->price_out,
                     'price_in'  => (float) $material->price_in,
                     'zeit_cost' => (float) $material->zeit_cost,
+                    'z_total'   => (float) $material->z_total,
                     'calc'      => round($calcTotal, 4),
                     'qty'       => $qty,
                 ];
@@ -229,7 +233,8 @@ class PositionController extends Controller
 
         return view('position.create', compact(
             'positions', 'organigrams', 'elements', 'index', 'offert',
-            'nextPositionNumber', 'rahmeElementIds', 'allElementsData'
+            'nextPositionNumber', 'rahmeElementIds', 'allElementsData',
+            'materialCoeff', 'difficultyCoeff', 'inLaborPrice'
         ));
     }
 
@@ -432,6 +437,8 @@ class PositionController extends Controller
         // Pre-compute offert coefficients once (same for every element/material row).
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
+        $coefficient     = Coefficient::first();
+        $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 0);
 
         // Build JSON data for UNSELECTED elements only.
         // The blade will skip rendering HTML tables for these — JS renders them on demand
@@ -455,6 +462,7 @@ class PositionController extends Controller
                     'price_out' => (float) $material->price_out,
                     'price_in'  => (float) $material->price_in,
                     'zeit_cost' => (float) $material->zeit_cost,
+                    'z_total'   => (float) $material->z_total,
                     'calc'      => round($calcTotal, 4),
                     'qty'       => $qty,
                 ];
@@ -472,7 +480,7 @@ class PositionController extends Controller
             'positions', 'offertId', 'position', 'organigrams',
             'elements', 'offert', 'elementPivots', 'rahmeElementIds',
             'positionMaterialsMap', 'difficultyCoeff', 'materialCoeff',
-            'unselectedElementsData'
+            'unselectedElementsData', 'inLaborPrice'
         ));
     }
 

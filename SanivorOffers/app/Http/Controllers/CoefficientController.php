@@ -30,6 +30,13 @@ class CoefficientController extends Controller
             return Schema::hasColumn('coefficients', 'pdf_external_closing_text');
         });
     }
+
+    private function hasInLaborPriceColumn(): bool
+    {
+        return Cache::remember('schema_coefficients_has_in_labor_price', 86400, function () {
+            return Schema::hasColumn('coefficients', 'in_labor_price');
+        });
+    }
     /**
      * Display a listing of the resource.
      */
@@ -82,6 +89,7 @@ class CoefficientController extends Controller
             'validity' => 'required',
             'labor_cost' => 'required',
             'labor_price' => 'required',
+            'in_labor_price' => 'nullable|numeric|min:0',
             'service' => 'required',
             'material' => 'required',
             'difficulty' => 'required',
@@ -111,6 +119,10 @@ class CoefficientController extends Controller
 
         if ($this->hasPdfExternalClosingTextColumn()) {
             $payload['pdf_external_closing_text'] = $request->input('pdf_external_closing_text');
+        }
+
+        if ($this->hasInLaborPriceColumn()) {
+            $payload['in_labor_price'] = $request->input('in_labor_price');
         }
 
         $coefficient = Coefficient::findOrFail($id);
