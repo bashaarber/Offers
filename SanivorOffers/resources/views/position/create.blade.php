@@ -923,16 +923,13 @@
                     const costoTotalValue = (totalPriceIn * materialCoeff + laborKosto).toFixed(2);
                     costoTotal.textContent = formatSwissNumber(costoTotalValue);
 
-                    const profitTotalValue = ((totalPriceOut - totalPriceIn) + (totalZeitCost - laborKosto)).toFixed(2);
-                    const discountedProfitTotalValue = profitTotalValue * (1 - (percentage / 100)).toFixed(2);
-                    profitTotal.textContent = formatSwissNumber(discountedProfitTotalValue);
+                    const profitTotalValue = (discountedTotal - parseFloat(costoTotalValue)).toFixed(2);
+                    profitTotal.textContent = formatSwissNumber(profitTotalValue);
 
                     const costoTotalValue2 = costoTotalValue;
                     costoTotal2.textContent = formatSwissNumber(costoTotalValue2);
 
-                    const profitTotalValue2 = profitTotalValue;
-                    const discountedProfitTotalValue2 = profitTotalValue2 * (1 - (percentage / 100)).toFixed(2);
-                    profitTotal2.textContent = formatSwissNumber(discountedProfitTotalValue2);
+                    profitTotal2.textContent = formatSwissNumber(profitTotalValue);
 
                     // Update the hidden input values
                     document.getElementById('priceOutInput').value = totalPriceOut.toFixed(2);
@@ -945,7 +942,7 @@
                     document.getElementById('priceProfit').value = (totalPriceOut - totalPriceIn).toFixed(2);
 
                     document.getElementById('costoTotal').value = costoTotalValue;
-                    document.getElementById('profitTotal').value = discountedProfitTotalValue.toFixed(2);
+                    document.getElementById('profitTotal').value = profitTotalValue;
 
                     // Update the hidden input fields
                     totalProTypPriceInput.value = (totalProTypPrice * mengeValue).toFixed(2);
