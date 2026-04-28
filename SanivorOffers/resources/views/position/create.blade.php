@@ -232,12 +232,7 @@
             color: #fff;
         }
 
-        .position-materials-panel.panel-sticky {
-            position: sticky;
-            top: 0;
-            align-self: flex-start;
-        }
-
+        .position-materials-panel {
             font-size: 12px;
             line-height: 1.3;
         }
@@ -604,15 +599,6 @@
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
 
-            // Stick the right panel to the viewport only when its content fits
-            function syncPanelSticky() {
-                const panel = document.querySelector('.position-materials-panel');
-                if (!panel) return;
-                panel.classList.toggle('panel-sticky', panel.scrollHeight <= window.innerHeight);
-            }
-            syncPanelSticky();
-            window.addEventListener('resize', syncPanelSticky);
-
             // Update the total materials price on document ready, then recalculate totals
             updateTotalMaterialsPrice();
             updateTotalProTypPrice();
@@ -721,7 +707,6 @@
                         }
                         updateTotalMaterialsPrice();
                         updateTotalProTypPrice();
-                        syncPanelSticky();
                     }
                 });
             });
