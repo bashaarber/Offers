@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Offert;
+use App\Models\Position;
 use App\Models\Coefficient;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PositionMaterial;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
@@ -153,7 +155,44 @@ class OffertController extends Controller
 
         $offert = Offert::create($formFields);
 
-        return redirect()->route('position.create', ['index' => 0,'offert_id' => $offert->id]);
+        // Automatically create Position 1 so every new offer starts with at
+        // least one position and lands directly on its edit page.
+        try {
+            $position = DB::transaction(function () use ($offert) {
+                $pos = Position::create([
+                    'description'     => '',
+                    'description2'    => '',
+                    'blocktype'       => null,
+                    'b'               => null,
+                    'h'               => null,
+                    't'               => null,
+                    'quantity'        => 1,
+                    'price_brutto'    => 0,
+                    'price_discount'  => 0,
+                    'discount'        => 0,
+                    'material_brutto' => 0,
+                    'zeit_brutto'     => 0,
+                    'material_costo'  => 0,
+                    'material_profit' => 0,
+                    'ziet_costo'      => 0,
+                    'ziet_profit'     => 0,
+                    'costo_total'     => 0,
+                    'profit_total'    => 0,
+                    'position_number' => 1,
+                ]);
+                $pos->offerts()->syncWithoutDetaching([$offert->id]);
+                return $pos;
+            });
+
+            return redirect()->route('position.edit', $position->id);
+        } catch (\Throwable $e) {
+            Log::error('offert.store.auto-position.failed', [
+                'offert_id' => $offert->id,
+                'error'     => $e->getMessage(),
+            ]);
+            // Fall back to the manual create form if something went wrong.
+            return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offert->id]);
+        }
     }
 
     /**

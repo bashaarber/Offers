@@ -398,41 +398,78 @@ class PositionController extends Controller
                 ]);
             }
 
-            // Clear any stale aborted transaction that may linger on a reused
-            // connection from PHP-FPM / PgBouncer connection pooling.
-            // PostgreSQL error 25P02 ("current transaction is aborted") happens
-            // when a previous request left the connection in a failed-transaction
-            // state without rolling back.  A bare ROLLBACK is safe even when no
-            // transaction is active (it is a no-op in that case).
+            // Pre-fetch schema column metadata OUTSIDE the transaction so that
+            // legacyPositionColumns() populates its static cache now.  That way,
+            // no Schema::hasColumn() SQL is issued while a DB transaction is open,
+            // eliminating a possible source of 25P02 (in-transaction query failure
+            // that aborts the transaction before the INSERT can run).
+            $this->legacyPositionColumns();
+
+            // Best-effort cleanup: issue a bare ROLLBACK to clear any stale
+            // aborted-transaction state left on a reused connection by a previous
+            // request (PHP-FPM persistent connections / PgBouncer session mode).
+            // ROLLBACK is a no-op when no transaction is active.
             try {
                 DB::unprepared('ROLLBACK');
-            } catch (\Throwable $ignored) {
-                // Ignore — if we can't rollback we'll find out soon enough.
+            } catch (\Throwable $ignored) {}
+
+            // Try up to 2 times.  On the first attempt we rely on the ROLLBACK
+            // above.  If we still get SQLSTATE 25P02, we do a full reconnect on
+            // the second attempt to guarantee a pristine connection.
+            $position  = null;
+            $lastError = null;
+            for ($attempt = 1; $attempt <= 2; $attempt++) {
+                try {
+                    if ($attempt === 2) {
+                        // Nuclear option: close the pooled connection and open a
+                        // fresh one.  Guaranteed to clear any aborted-transaction
+                        // state that survived the ROLLBACK above.
+                        try {
+                            DB::reconnect();
+                        } catch (\Throwable $ignored) {}
+                    }
+
+                    // Wrap only the write operations in a transaction for atomicity.
+                    // We intentionally skip SELECT … FOR UPDATE: the JS layer flushes
+                    // any pending auto-save before calling this endpoint, so there is
+                    // no concurrent writer to guard against in practice, and the
+                    // pessimistic lock was the most common source of timeouts on
+                    // production PostgreSQL.
+                    $position = DB::transaction(function () use ($offertId) {
+                        // Use a plain DB::table join instead of Eloquent whereHas to
+                        // keep the query simple and avoid any Eloquent overhead.
+                        $nextPositionNumber = (int) DB::table('positions')
+                            ->join('offert_position', 'positions.id', '=', 'offert_position.position_id')
+                            ->where('offert_position.offert_id', $offertId)
+                            ->max('positions.position_number') + 1;
+
+                        $pos = Position::create(
+                            $this->emptyPositionPayload($nextPositionNumber, $offertId)
+                        );
+
+                        $pos->offerts()->syncWithoutDetaching([$offertId]);
+
+                        return $pos;
+                    });
+
+                    break; // success — exit the retry loop
+
+                } catch (\Throwable $e) {
+                    $lastError = $e;
+                    $is25P02   = str_contains((string) $e->getMessage(), '25P02')
+                              || str_contains((string) $e->getMessage(), 'current transaction is aborted');
+                    if ($attempt < 2 && $is25P02) {
+                        Log::warning('position.create-empty.retrying-25p02', [
+                            'request_id' => $requestId,
+                            'offert_id'  => $offertId,
+                            'attempt'    => $attempt,
+                            'error'      => $e->getMessage(),
+                        ]);
+                        continue; // retry with reconnect
+                    }
+                    throw $e; // non-retryable or already on last attempt
+                }
             }
-
-            // Wrap only the write operations in a transaction for atomicity.
-            // We intentionally skip SELECT … FOR UPDATE here: the JS layer
-            // flushes any pending auto-save before calling this endpoint, so
-            // there is no concurrent writer to guard against in practice, and
-            // the pessimistic lock was the most common source of timeouts on
-            // production PostgreSQL.
-            $position = DB::transaction(function () use ($offertId) {
-                // Use a plain DB::table join instead of Eloquent whereHas to
-                // avoid triggering the Eloquent query builder on a connection
-                // that might still be recovering, and to keep the query simple.
-                $nextPositionNumber = (int) DB::table('positions')
-                    ->join('offert_position', 'positions.id', '=', 'offert_position.position_id')
-                    ->where('offert_position.offert_id', $offertId)
-                    ->max('positions.position_number') + 1;
-
-                $position = Position::create(
-                    $this->emptyPositionPayload($nextPositionNumber, $offertId)
-                );
-
-                $position->offerts()->syncWithoutDetaching([$offertId]);
-
-                return $position;
-            });
 
             Log::info('position.create-empty.success', [
                 'request_id'      => $requestId,
