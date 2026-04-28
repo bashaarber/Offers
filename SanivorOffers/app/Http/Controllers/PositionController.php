@@ -174,6 +174,10 @@ class PositionController extends Controller
     {
         $offertId = $request->input('offert_id');
         $offert = Offert::with('lockingUser')->find($offertId);
+        if (! $offert) {
+            return redirect()->route('offert.index')
+                ->with('error', 'Offer not found. Please open the position from a valid offer.');
+        }
 
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
@@ -216,6 +220,12 @@ class PositionController extends Controller
                 ];
                 if (Schema::hasColumn('positions', 'is_optional')) {
                     $payload['is_optional'] = false;
+                }
+                if (Schema::hasColumn('positions', 'offert_id')) {
+                    $payload['offert_id'] = (int) $offertId;
+                }
+                if (Schema::hasColumn('positions', 'user_id')) {
+                    $payload['user_id'] = auth()->id();
                 }
 
                 $position = Position::create($payload);
