@@ -181,57 +181,6 @@ class PositionController extends Controller
             return redirect()->route('offert.index')
                 ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
         }
-
-        if ($request->boolean('add_new')) {
-            $newPosition = DB::transaction(function () use ($offertId) {
-                $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-                if (! $offert) {
-                    return null;
-                }
-
-                $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })->max('position_number') + 1;
-
-                $payload = [
-                    'description' => '',
-                    'description2' => '',
-                    'blocktype' => null,
-                    'b' => null,
-                    'h' => null,
-                    't' => null,
-                    'quantity' => 1,
-                    'price_brutto' => 0,
-                    'price_discount' => 0,
-                    'discount' => 0,
-                    'material_brutto' => 0,
-                    'zeit_brutto' => 0,
-                    'material_costo' => 0,
-                    'material_profit' => 0,
-                    'ziet_costo' => 0,
-                    'ziet_profit' => 0,
-                    'costo_total' => 0,
-                    'profit_total' => 0,
-                    'position_number' => $nextPositionNumber,
-                ];
-                if (Schema::hasColumn('positions', 'is_optional')) {
-                    $payload['is_optional'] = false;
-                }
-
-                $position = Position::create($payload);
-                $position->offerts()->syncWithoutDetaching([$offertId]);
-
-                return $position;
-            });
-
-            if (! $newPosition) {
-                return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offertId])
-                    ->with('error', 'Could not create position. Please try again.');
-            }
-
-            return redirect()->route('position.edit', $newPosition->id);
-        }
-
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
