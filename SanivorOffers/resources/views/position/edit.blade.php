@@ -264,7 +264,7 @@
         'positions' => $positions,
         'offertId' => $offertId,
         'currentPositionId' => $position->id,
-        'nextCreateIndex' => (int) $positions->count(),
+        'nextCreateIndex' => (int) ($positions->max('position_number') ?? 0),
         'showSaveButton' => false,
         'saveFormId' => null,
     ])

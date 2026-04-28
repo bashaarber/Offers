@@ -297,8 +297,8 @@
         'positions' => $positions,
         'offertId' => request()->query('offert_id'),
         'currentPositionId' => null,
-        'currentCreateNumber' => (int) ($index ?? 0) + 1,
-        'nextCreateIndex' => max((int) $positions->count(), ((int) ($index ?? 0)) + 1),
+        'currentCreateNumber' => ((int) ($positions->max('position_number') ?? 0)) + 1,
+        'nextCreateIndex' => (int) ($positions->max('position_number') ?? 0),
         'showSaveButton' => true,
         'saveFormId' => 'createPositionForm',
     ])

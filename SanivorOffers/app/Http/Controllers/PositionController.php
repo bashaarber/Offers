@@ -194,7 +194,8 @@ class PositionController extends Controller
             }),
             $organigrams
         );
-        $nextPositionNumber = (int) $index + 1;
+        $maxPositionNumber = (int) $positions->max('position_number');
+        $nextPositionNumber = $maxPositionNumber + 1;
         $rahmeElementIds    = $this->computeRahmeElementIds($organigrams);
 
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
