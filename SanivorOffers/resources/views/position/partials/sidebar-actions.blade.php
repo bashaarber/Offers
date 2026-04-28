@@ -272,14 +272,23 @@
 
         window.addNewPos = function() {
             const offertId = '{{ $offertId }}';
-            const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
-            const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Auto-save current position before navigating (if available)
+            const doCreate = function() {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("position.createEmpty") }}';
+                form.innerHTML = `<input type="hidden" name="_token" value="${csrfToken}">
+                                  <input type="hidden" name="offert_id" value="${offertId}">`;
+                document.body.appendChild(form);
+                form.submit();
+            };
+
+            // Auto-save current position first, then create the new empty one
             if (typeof window.doAutoSaveAndNavigate === 'function') {
-                window.doAutoSaveAndNavigate(nextUrl);
+                window.doAutoSaveAndNavigate(null, doCreate);
             } else {
-                window.location.href = nextUrl;
+                doCreate();
             }
         };
 

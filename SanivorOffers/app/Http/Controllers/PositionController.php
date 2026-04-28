@@ -167,6 +167,28 @@ class PositionController extends Controller
         return redirect()->back();
     }
 
+    public function createEmpty(Request $request)
+    {
+        $offertId = $request->input('offert_id');
+        $offert = Offert::find($offertId);
+
+        if (!$offert) {
+            abort(404);
+        }
+
+        $maxPositionNumber = (int) $offert->positions()->max('position_number');
+
+        $position = Position::create([
+            'description'     => '',
+            'position_number' => $maxPositionNumber + 1,
+            'quantity'        => 1,
+        ]);
+
+        $position->offerts()->attach($offert);
+
+        return redirect()->route('position.edit', $position->id);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

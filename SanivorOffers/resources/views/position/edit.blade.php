@@ -1246,7 +1246,7 @@
                 }).catch(() => {});
             }
 
-            window.doAutoSaveAndNavigate = function(nextUrl) {
+            window.doAutoSaveAndNavigate = function(nextUrl, callback) {
                 if (window._autoSaveLock) return;
                 window._autoSaveLock = true;
                 clearTimeout(autoSaveTimeout);
@@ -1265,7 +1265,11 @@
                     },
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 }).catch(() => {});
-                window.location.href = nextUrl;
+                if (typeof callback === 'function') {
+                    callback();
+                } else {
+                    window.location.href = nextUrl;
+                }
             };
 
             window.openExternalPdfAfterSave = function(pdfUrl) {

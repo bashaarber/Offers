@@ -110,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/offert/{id}/unlock', [OffertController::class, 'unlock'])->name('offert.unlock');
 
     Route::resource('position', PositionController::class)->except('create');
+    Route::post('/position/create-empty', [PositionController::class, 'createEmpty'])->name('position.createEmpty');
     Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');
     Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');
     Route::post('position/{id}/copy', [PositionController::class, 'copy'])->name('position.copy');

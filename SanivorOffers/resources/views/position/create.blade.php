@@ -1175,7 +1175,7 @@
             }
 
             // Expose auto-save-and-navigate for the "New Position" button
-            window.doAutoSaveAndNavigate = function(nextUrl) {
+            window.doAutoSaveAndNavigate = function(nextUrl, callback) {
                 // Guard: prevent double-invocation (double-click or visibilitychange race)
                 if (window._autoSaveLock) return;
                 window._autoSaveLock = true;
@@ -1197,7 +1197,11 @@
                     },
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 }).catch(() => {});
-                window.location.href = nextUrl;
+                if (typeof callback === 'function') {
+                    callback();
+                } else {
+                    window.location.href = nextUrl;
+                }
             };
 
             window.openExternalPdfAfterSave = function(pdfUrl) {
