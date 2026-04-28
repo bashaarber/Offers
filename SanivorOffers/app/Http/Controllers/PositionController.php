@@ -355,140 +355,100 @@ class PositionController extends Controller
     public function createEmpty(Request $request)
     {
         $requestId = (string) Str::uuid();
-        $offertId = (int) $request->input('offert_id');
-        $maxAttempts = 3;
-        $legacyColumns = $this->legacyPositionColumns();
-
-        Log::info('position.create-empty.input', [
-            'request_id' => $requestId,
-            'offert_id' => $offertId,
-            'user_id' => auth()->id(),
-        ]);
+        $offertId  = (int) $request->input('offert_id');
 
         if ($offertId <= 0) {
             return response()->json([
-                'success' => false,
-                'message' => 'Invalid offert_id',
+                'success'    => false,
+                'message'    => 'Invalid offert_id',
                 'request_id' => $requestId,
             ], 422);
         }
 
-        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+        try {
+            // Resolve the offert and check its lock state BEFORE opening the
+            // transaction — this avoids holding the DB transaction open while
+            // waiting on potentially slow advisory-lock or lock-timeout logic.
+            $offert = Offert::with('lockingUser')->find($offertId);
+
+            if (! $offert) {
+                return response()->json([
+                    'success'    => false,
+                    'message'    => 'Offer not found',
+                    'request_id' => $requestId,
+                ], 404);
+            }
+
             try {
-                $position = DB::transaction(function () use ($offertId, $legacyColumns, $requestId, $attempt) {
-                    $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-                    if (! $offert) {
-                        return null;
-                    }
-
-                    try {
-                        if ($offert->isLockedByOther()) {
-                            return [
-                                'locked' => true,
-                                'who' => $offert->lockingUser?->username ?? 'another user',
-                            ];
-                        }
-                    } catch (\Throwable $lockStateError) {
-                        Log::warning('position.create-empty.lock-state-check-failed', [
-                            'request_id' => $requestId,
-                            'offert_id' => $offertId,
-                            'attempt' => $attempt,
-                            'error' => $lockStateError->getMessage(),
-                        ]);
-                    }
-
-                    Log::info('position.create-empty.lock-acquired', [
-                        'request_id' => $requestId,
-                        'offert_id' => $offertId,
-                        'attempt' => $attempt,
-                    ]);
-
-                    $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                        $query->where('id', $offertId);
-                    })->max('position_number') + 1;
-
-                    $payload = $this->emptyPositionPayload($nextPositionNumber, $offertId);
-
-                    $position = Position::create($payload);
-                    Log::info('position.create-empty.position-inserted', [
-                        'request_id' => $requestId,
-                        'offert_id' => $offertId,
-                        'position_id' => $position->id,
-                        'position_number' => $position->position_number,
-                        'legacy_columns' => $legacyColumns,
-                    ]);
-
-                    $position->offerts()->syncWithoutDetaching([$offertId]);
-                    Log::info('position.create-empty.pivot-attached', [
-                        'request_id' => $requestId,
-                        'offert_id' => $offertId,
-                        'position_id' => $position->id,
-                    ]);
-
-                    return $position;
-                }, 1);
-
-                if (! $position) {
+                if ($offert->isLockedByOther()) {
+                    $who = $offert->lockingUser?->username ?? 'another user';
                     return response()->json([
-                        'success' => false,
-                        'message' => 'Offer not found',
-                        'request_id' => $requestId,
-                    ], 404);
-                }
-
-                if (is_array($position) && ($position['locked'] ?? false)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Offer is currently locked by ' . $position['who'] . '. Please try again shortly.',
+                        'success'    => false,
+                        'message'    => "Offer is currently locked by \"{$who}\". Please try again shortly.",
                         'request_id' => $requestId,
                     ], 423);
                 }
-
-                Log::info('position.create-empty.response-sent', [
+            } catch (\Throwable $lockErr) {
+                // Lock-state check failed — log and continue; better to create
+                // the position than to block the user indefinitely.
+                Log::warning('position.create-empty.lock-check-failed', [
                     'request_id' => $requestId,
-                    'offert_id' => $offertId,
-                    'position_id' => $position->id,
-                    'position_number' => (int) $position->position_number,
+                    'offert_id'  => $offertId,
+                    'error'      => $lockErr->getMessage(),
                 ]);
-
-                return response()->json([
-                    'success' => true,
-                    'position_id' => $position->id,
-                    'position_number' => (int) $position->position_number,
-                    'edit_url' => route('position.edit', $position->id),
-                    'request_id' => $requestId,
-                ]);
-            } catch (\Throwable $e) {
-                $retryable = $this->isRetryableCreateEmptyException($e);
-
-                Log::error('position.create-empty.failed-attempt', [
-                    'request_id' => $requestId,
-                    'offert_id' => $offertId,
-                    'user_id' => auth()->id(),
-                    'attempt' => $attempt,
-                    'retryable' => $retryable,
-                    'sql_state' => (string) ($e->getCode() ?? ''),
-                    'error' => $e->getMessage(),
-                ]);
-
-                if (! $retryable || $attempt >= $maxAttempts) {
-                    report($e);
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Could not create a new empty position.',
-                        'request_id' => $requestId,
-                    ], 500);
-                }
-
-                usleep(150000 * $attempt);
             }
-        }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Could not create a new empty position.',
-            'request_id' => $requestId,
-        ], 500);
+            // Wrap only the write operations in a transaction for atomicity.
+            // We intentionally skip SELECT … FOR UPDATE here: the JS layer
+            // flushes any pending auto-save before calling this endpoint, so
+            // there is no concurrent writer to guard against in practice, and
+            // the pessimistic lock was the most common source of timeouts on
+            // production PostgreSQL.
+            $position = DB::transaction(function () use ($offertId) {
+                $nextPositionNumber = (int) Position::whereHas('offerts', function ($q) use ($offertId) {
+                    $q->where('id', $offertId);
+                })->max('position_number') + 1;
+
+                $position = Position::create(
+                    $this->emptyPositionPayload($nextPositionNumber, $offertId)
+                );
+
+                $position->offerts()->syncWithoutDetaching([$offertId]);
+
+                return $position;
+            });
+
+            Log::info('position.create-empty.success', [
+                'request_id'      => $requestId,
+                'offert_id'       => $offertId,
+                'position_id'     => $position->id,
+                'position_number' => $position->position_number,
+            ]);
+
+            return response()->json([
+                'success'         => true,
+                'position_id'     => $position->id,
+                'position_number' => (int) $position->position_number,
+                'edit_url'        => route('position.edit', $position->id),
+                'request_id'      => $requestId,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+            Log::error('position.create-empty.failed', [
+                'request_id' => $requestId,
+                'offert_id'  => $offertId,
+                'error'      => $e->getMessage(),
+                'sql_state'  => (string) ($e->getCode() ?? ''),
+            ]);
+
+            return response()->json([
+                'success'    => false,
+                // Surface the real error so it is visible in the sidebar feedback
+                // and can be reported — prevents silent failures.
+                'message'    => 'Could not create position: ' . $e->getMessage(),
+                'request_id' => $requestId,
+            ], 500);
+        }
     }
 
     /**
