@@ -6,16 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('offerts', function (Blueprint $table) {
-            if (!Schema::hasColumn('offerts', 'client_address')) {
+        if (!Schema::hasColumn('offerts', 'client_address')) {
+            Schema::table('offerts', function (Blueprint $table) {
                 $table->text('client_address')->nullable()->after('client_id');
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -23,10 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('offerts', function (Blueprint $table) {
-            if (Schema::hasColumn('offerts', 'client_address')) {
+        if (Schema::hasColumn('offerts', 'client_address')) {
+            Schema::table('offerts', function (Blueprint $table) {
                 $table->dropColumn('client_address');
-            }
-        });
+            });
+        }
     }
 };
