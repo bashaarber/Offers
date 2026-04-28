@@ -182,6 +182,17 @@ class PositionController extends Controller
             'description'     => '',
             'position_number' => $maxPositionNumber + 1,
             'quantity'        => 1,
+            'price_brutto'    => 0,
+            'price_discount'  => 0,
+            'discount'        => 0,
+            'material_brutto' => 0,
+            'zeit_brutto'     => 0,
+            'material_costo'  => 0,
+            'material_profit' => 0,
+            'ziet_costo'      => 0,
+            'ziet_profit'     => 0,
+            'costo_total'     => 0,
+            'profit_total'    => 0,
         ]);
 
         $position->offerts()->attach($offert);
