@@ -187,59 +187,69 @@ class PositionController extends Controller
         }
 
         if ($request->boolean('add_new')) {
-            $newPosition = DB::transaction(function () use ($offertId) {
-                $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-                if (! $offert) {
-                    return null;
+            try {
+                $hasOptionalColumn = Schema::hasColumn('positions', 'is_optional');
+                $hasOffertColumn = Schema::hasColumn('positions', 'offert_id');
+                $hasUserColumn = Schema::hasColumn('positions', 'user_id');
+
+                $newPosition = DB::transaction(function () use ($offertId, $hasOptionalColumn, $hasOffertColumn, $hasUserColumn) {
+                    $offert = Offert::find($offertId);
+                    if (! $offert) {
+                        return null;
+                    }
+
+                    $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
+                        $query->where('id', $offertId);
+                    })->max('position_number') + 1;
+
+                    $payload = [
+                        'description' => '',
+                        'description2' => '',
+                        'blocktype' => null,
+                        'b' => null,
+                        'h' => null,
+                        't' => null,
+                        'quantity' => 1,
+                        'price_brutto' => 0,
+                        'price_discount' => 0,
+                        'discount' => 0,
+                        'material_brutto' => 0,
+                        'zeit_brutto' => 0,
+                        'material_costo' => 0,
+                        'material_profit' => 0,
+                        'ziet_costo' => 0,
+                        'ziet_profit' => 0,
+                        'costo_total' => 0,
+                        'profit_total' => 0,
+                        'position_number' => $nextPositionNumber,
+                    ];
+                    if ($hasOptionalColumn) {
+                        $payload['is_optional'] = false;
+                    }
+                    if ($hasOffertColumn) {
+                        $payload['offert_id'] = (int) $offertId;
+                    }
+                    if ($hasUserColumn) {
+                        $payload['user_id'] = auth()->id();
+                    }
+
+                    $position = Position::create($payload);
+                    $position->offerts()->syncWithoutDetaching([$offertId]);
+
+                    return $position;
+                });
+
+                if (! $newPosition) {
+                    return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offertId])
+                        ->with('error', 'Could not create position. Please try again.');
                 }
 
-                $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })->max('position_number') + 1;
-
-                $payload = [
-                    'description' => '',
-                    'description2' => '',
-                    'blocktype' => null,
-                    'b' => null,
-                    'h' => null,
-                    't' => null,
-                    'quantity' => 1,
-                    'price_brutto' => 0,
-                    'price_discount' => 0,
-                    'discount' => 0,
-                    'material_brutto' => 0,
-                    'zeit_brutto' => 0,
-                    'material_costo' => 0,
-                    'material_profit' => 0,
-                    'ziet_costo' => 0,
-                    'ziet_profit' => 0,
-                    'costo_total' => 0,
-                    'profit_total' => 0,
-                    'position_number' => $nextPositionNumber,
-                ];
-                if (Schema::hasColumn('positions', 'is_optional')) {
-                    $payload['is_optional'] = false;
-                }
-                if (Schema::hasColumn('positions', 'offert_id')) {
-                    $payload['offert_id'] = (int) $offertId;
-                }
-                if (Schema::hasColumn('positions', 'user_id')) {
-                    $payload['user_id'] = auth()->id();
-                }
-
-                $position = Position::create($payload);
-                $position->offerts()->syncWithoutDetaching([$offertId]);
-
-                return $position;
-            });
-
-            if (! $newPosition) {
+                return redirect()->route('position.edit', $newPosition->id);
+            } catch (\Throwable $e) {
+                report($e);
                 return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offertId])
                     ->with('error', 'Could not create position. Please try again.');
             }
-
-            return redirect()->route('position.edit', $newPosition->id);
         }
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
