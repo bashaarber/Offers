@@ -13,90 +13,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class PositionController extends Controller
 {
-    private function legacyPositionColumns(): array
-    {
-        static $columns = null;
-
-        if ($columns !== null) {
-            return $columns;
-        }
-
-        try {
-            $columns = [
-                'has_is_optional' => Schema::hasColumn('positions', 'is_optional'),
-                'has_offert_id' => Schema::hasColumn('positions', 'offert_id'),
-                'has_user_id' => Schema::hasColumn('positions', 'user_id'),
-            ];
-        } catch (\Throwable $e) {
-            report($e);
-            $columns = [
-                'has_is_optional' => false,
-                'has_offert_id' => false,
-                'has_user_id' => false,
-            ];
-        }
-
-        return $columns;
-    }
-
-    private function emptyPositionPayload(int $positionNumber, int $offertId): array
-    {
-        $columns = $this->legacyPositionColumns();
-
-        $payload = [
-            'description' => '',
-            'description2' => '',
-            'blocktype' => null,
-            'b' => null,
-            'h' => null,
-            't' => null,
-            'quantity' => 1,
-            'price_brutto' => 0,
-            'price_discount' => 0,
-            'discount' => 0,
-            'material_brutto' => 0,
-            'zeit_brutto' => 0,
-            'material_costo' => 0,
-            'material_profit' => 0,
-            'ziet_costo' => 0,
-            'ziet_profit' => 0,
-            'costo_total' => 0,
-            'profit_total' => 0,
-            'position_number' => $positionNumber,
-        ];
-
-        if ($columns['has_is_optional']) {
-            $payload['is_optional'] = false;
-        }
-        if ($columns['has_offert_id']) {
-            $payload['offert_id'] = $offertId;
-        }
-        if ($columns['has_user_id']) {
-            $payload['user_id'] = auth()->id();
-        }
-
-        return $payload;
-    }
-
-    private function isRetryableCreateEmptyException(\Throwable $e): bool
-    {
-        $sqlState = (string) ($e->getCode() ?? '');
-        $message = strtolower($e->getMessage());
-
-        if (in_array($sqlState, ['40001', '40P01', '55P03', 'HY000'], true)) {
-            return true;
-        }
-
-        return str_contains($message, 'deadlock')
-            || str_contains($message, 'lock wait timeout')
-            || str_contains($message, 'could not obtain lock');
-    }
-
     private function normalizeDecimal(mixed $value, float $default = 0.0): float
     {
         if ($value === null || $value === '') {
@@ -256,44 +175,12 @@ class PositionController extends Controller
         $offertId = $request->input('offert_id');
         $offert = Offert::with('lockingUser')->find($offertId);
 
-        if (! $offert) {
-            return redirect()->route('offert.index')
-                ->with('error', 'Offer not found. Please open the position from a valid offer.');
-        }
-
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
 
             return redirect()->route('offert.index')
                 ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
         }
-
-        // Create a real empty position immediately when requested from "+ New Position".
-        // This removes the temporary "(new)" placeholder flow and guarantees one-click-one-position.
-        if ($request->boolean('add_new')) {
-            try {
-                $newPosition = DB::transaction(function () use ($offert) {
-                    Offert::whereKey($offert->id)->lockForUpdate()->first();
-
-                    $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offert) {
-                        $query->where('id', $offert->id);
-                    })->max('position_number') + 1;
-
-                    $payload = $this->emptyPositionPayload($nextPositionNumber, (int) $offert->id);
-                    $position = Position::create($payload);
-
-                    $position->offerts()->syncWithoutDetaching([$offert->id]);
-
-                    return Position::findOrFail($position->id);
-                });
-
-                return redirect(url('/position/' . (int) $newPosition->id . '/edit'));
-            } catch (\Throwable $e) {
-                return redirect(url('/position/create/0?offert_id=' . (int) $offert->id))
-                    ->with('error', 'Could not create a new empty position. Please try again.');
-            }
-        }
-
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
             $query->where('id', $offertId);
         })->orderBy('position_number', 'ASC')->get();
@@ -307,8 +194,7 @@ class PositionController extends Controller
             }),
             $organigrams
         );
-        $maxPositionNumber = (int) $positions->max('position_number');
-        $nextPositionNumber = $maxPositionNumber + 1;
+        $nextPositionNumber = (int) $index + 1;
         $rahmeElementIds    = $this->computeRahmeElementIds($organigrams);
 
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
@@ -350,158 +236,6 @@ class PositionController extends Controller
             'nextPositionNumber', 'rahmeElementIds', 'allElementsData',
             'materialCoeff', 'difficultyCoeff', 'inLaborPrice'
         ));
-    }
-
-    public function createEmpty(Request $request)
-    {
-        $requestId = (string) Str::uuid();
-        $offertId  = (int) $request->input('offert_id');
-
-        if ($offertId <= 0) {
-            return response()->json([
-                'success'    => false,
-                'message'    => 'Invalid offert_id',
-                'request_id' => $requestId,
-            ], 422);
-        }
-
-        try {
-            // Resolve the offert and check its lock state BEFORE opening the
-            // transaction — this avoids holding the DB transaction open while
-            // waiting on potentially slow advisory-lock or lock-timeout logic.
-            $offert = Offert::with('lockingUser')->find($offertId);
-
-            if (! $offert) {
-                return response()->json([
-                    'success'    => false,
-                    'message'    => 'Offer not found',
-                    'request_id' => $requestId,
-                ], 404);
-            }
-
-            try {
-                if ($offert->isLockedByOther()) {
-                    $who = $offert->lockingUser?->username ?? 'another user';
-                    return response()->json([
-                        'success'    => false,
-                        'message'    => "Offer is currently locked by \"{$who}\". Please try again shortly.",
-                        'request_id' => $requestId,
-                    ], 423);
-                }
-            } catch (\Throwable $lockErr) {
-                // Lock-state check failed — log and continue; better to create
-                // the position than to block the user indefinitely.
-                Log::warning('position.create-empty.lock-check-failed', [
-                    'request_id' => $requestId,
-                    'offert_id'  => $offertId,
-                    'error'      => $lockErr->getMessage(),
-                ]);
-            }
-
-            // Pre-fetch schema column metadata OUTSIDE the transaction so that
-            // legacyPositionColumns() populates its static cache now.  That way,
-            // no Schema::hasColumn() SQL is issued while a DB transaction is open,
-            // eliminating a possible source of 25P02 (in-transaction query failure
-            // that aborts the transaction before the INSERT can run).
-            $this->legacyPositionColumns();
-
-            // Best-effort cleanup: issue a bare ROLLBACK to clear any stale
-            // aborted-transaction state left on a reused connection by a previous
-            // request (PHP-FPM persistent connections / PgBouncer session mode).
-            // ROLLBACK is a no-op when no transaction is active.
-            try {
-                DB::unprepared('ROLLBACK');
-            } catch (\Throwable $ignored) {}
-
-            // Try up to 2 times.  On the first attempt we rely on the ROLLBACK
-            // above.  If we still get SQLSTATE 25P02, we do a full reconnect on
-            // the second attempt to guarantee a pristine connection.
-            $position  = null;
-            $lastError = null;
-            for ($attempt = 1; $attempt <= 2; $attempt++) {
-                try {
-                    if ($attempt === 2) {
-                        // Nuclear option: close the pooled connection and open a
-                        // fresh one.  Guaranteed to clear any aborted-transaction
-                        // state that survived the ROLLBACK above.
-                        try {
-                            DB::reconnect();
-                        } catch (\Throwable $ignored) {}
-                    }
-
-                    // Wrap only the write operations in a transaction for atomicity.
-                    // We intentionally skip SELECT … FOR UPDATE: the JS layer flushes
-                    // any pending auto-save before calling this endpoint, so there is
-                    // no concurrent writer to guard against in practice, and the
-                    // pessimistic lock was the most common source of timeouts on
-                    // production PostgreSQL.
-                    $position = DB::transaction(function () use ($offertId) {
-                        // Use a plain DB::table join instead of Eloquent whereHas to
-                        // keep the query simple and avoid any Eloquent overhead.
-                        $nextPositionNumber = (int) DB::table('positions')
-                            ->join('offert_position', 'positions.id', '=', 'offert_position.position_id')
-                            ->where('offert_position.offert_id', $offertId)
-                            ->max('positions.position_number') + 1;
-
-                        $pos = Position::create(
-                            $this->emptyPositionPayload($nextPositionNumber, $offertId)
-                        );
-
-                        $pos->offerts()->syncWithoutDetaching([$offertId]);
-
-                        return $pos;
-                    });
-
-                    break; // success — exit the retry loop
-
-                } catch (\Throwable $e) {
-                    $lastError = $e;
-                    $is25P02   = str_contains((string) $e->getMessage(), '25P02')
-                              || str_contains((string) $e->getMessage(), 'current transaction is aborted');
-                    if ($attempt < 2 && $is25P02) {
-                        Log::warning('position.create-empty.retrying-25p02', [
-                            'request_id' => $requestId,
-                            'offert_id'  => $offertId,
-                            'attempt'    => $attempt,
-                            'error'      => $e->getMessage(),
-                        ]);
-                        continue; // retry with reconnect
-                    }
-                    throw $e; // non-retryable or already on last attempt
-                }
-            }
-
-            Log::info('position.create-empty.success', [
-                'request_id'      => $requestId,
-                'offert_id'       => $offertId,
-                'position_id'     => $position->id,
-                'position_number' => $position->position_number,
-            ]);
-
-            return response()->json([
-                'success'         => true,
-                'position_id'     => $position->id,
-                'position_number' => (int) $position->position_number,
-                'edit_url'        => route('position.edit', $position->id),
-                'request_id'      => $requestId,
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-            Log::error('position.create-empty.failed', [
-                'request_id' => $requestId,
-                'offert_id'  => $offertId,
-                'error'      => $e->getMessage(),
-                'sql_state'  => (string) ($e->getCode() ?? ''),
-            ]);
-
-            return response()->json([
-                'success'    => false,
-                // Surface the real error so it is visible in the sidebar feedback
-                // and can be reported — prevents silent failures.
-                'message'    => 'Could not create position: ' . $e->getMessage(),
-                'request_id' => $requestId,
-            ], 500);
-        }
     }
 
     /**
@@ -647,24 +381,10 @@ class PositionController extends Controller
     {
         // Single JOIN query: load position + offert_id in one roundtrip instead of two
         $position = Position::find($id);
-        if (! $position) {
-            return redirect()->route('offert.index')
-                ->with('error', 'Position not found. Please try opening it again from the offer list.');
-        }
-
         $offertId = DB::table('offert_position')
             ->where('position_id', $id)
             ->value('offert_id');
-        if (! $offertId) {
-            return redirect()->route('offert.index')
-                ->with('error', 'Position is not linked to an offer. Please create a new position again.');
-        }
-
         $offert = Offert::with('lockingUser')->find($offertId);
-        if (! $offert) {
-            return redirect()->route('offert.index')
-                ->with('error', 'Offer not found for this position.');
-        }
 
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
@@ -916,48 +636,31 @@ class PositionController extends Controller
     public function destroy(string $id)
     {
         $position = Position::find($id);
-        if (! $position) {
-            return redirect()->route('offert.index');
-        }
+        $offertId = $position->offerts()->first()->id;
 
-        $offertPivot = $position->offerts()->first();
-        if (! $offertPivot) {
-            $position->delete();
-            return redirect()->route('offert.index');
-        }
+        $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->count();
 
-        $offertId = $offertPivot->id;
-
-        $latestPosition = DB::transaction(function () use ($position, $offertId) {
-            Offert::whereKey($offertId)->lockForUpdate()->first();
-
-            $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
-                $query->where('id', $offertId);
-            })->count();
-
-            if ($positionCount <= 1) {
-                return false;
-            }
-
-            $position->delete();
-
-            // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
-            $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
-                $query->where('id', $offertId);
-            })->orderBy('position_number', 'ASC')->get();
-
-            foreach ($remaining as $i => $pos) {
-                $pos->update(['position_number' => $i + 1]);
-            }
-
-            return Position::whereHas('offerts', function ($query) use ($offertId) {
-                $query->where('id', $offertId);
-            })->orderBy('position_number', 'ASC')->first();
-        });
-
-        if ($latestPosition === false) {
+        if ($positionCount <= 1) {
             return redirect()->back()->with('error', 'Cannot delete the only remaining position.');
         }
+
+        $position->delete();
+
+        // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
+        $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->orderBy('position_number', 'ASC')->get();
+
+        foreach ($remaining as $i => $pos) {
+            $pos->update(['position_number' => $i + 1]);
+        }
+
+        // Redirect to the latest position related to the offert_id
+        $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+            $query->where('id', $offertId);
+        })->latest()->first();
 
         if ($latestPosition) {
             return redirect()->route('position.edit', $latestPosition->id);
@@ -968,30 +671,10 @@ class PositionController extends Controller
 
     public function updateOrder(Request $request)
     {
-        $orders = $request->input('orders', []);
+        $positionId = $request->input('position_id');
+        $newOrder = $request->input('order');
 
-        // Backward compatibility for older clients sending a single row update.
-        if (empty($orders) && $request->filled('position_id') && $request->filled('order')) {
-            $orders = [[
-                'position_id' => (int) $request->input('position_id'),
-                'order' => (int) $request->input('order'),
-            ]];
-        }
-
-        if (! is_array($orders) || empty($orders)) {
-            return response()->json(['success' => false, 'message' => 'No position orders provided'], 422);
-        }
-
-        DB::transaction(function () use ($orders) {
-            foreach ($orders as $item) {
-                $positionId = (int) ($item['position_id'] ?? 0);
-                $newOrder = (int) ($item['order'] ?? 0);
-                if ($positionId <= 0 || $newOrder <= 0) {
-                    continue;
-                }
-                Position::where('id', $positionId)->update(['position_number' => $newOrder]);
-            }
-        });
+        Position::where('id', $positionId)->update(['position_number' => $newOrder]);
 
         return response()->json(['success' => true]);
     }
@@ -1003,147 +686,142 @@ class PositionController extends Controller
     {
         try {
             $data = $request->all();
-            $offertId = (int) ($data['offert_id'] ?? 0);
-
-            if ($offertId <= 0) {
+            $offertId = $data['offert_id'];
+            $offert = Offert::find($offertId);
+            
+            if (!$offert) {
                 return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
             }
 
-            $position = DB::transaction(function () use ($data, $offertId) {
-                $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-                if (! $offert) {
-                    return null;
-                }
+            $requestedIndex = (int) ($data['index'] ?? 0);
+            $requestedPositionNumber = $requestedIndex + 1;
 
-                $requestedIndex = (int) ($data['index'] ?? 0);
-                $requestedPositionNumber = $requestedIndex + 1;
-                $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
+            $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
 
-                // Prefer explicit position ID from the client to avoid cross-position overwrites.
-                $existingPosition = null;
-                if ($requestedPositionId) {
-                    $existingPosition = Position::where('id', $requestedPositionId)
-                        ->whereHas('offerts', function ($query) use ($offertId) {
-                            $query->where('id', $offertId);
-                        })
-                        ->first();
-                }
-
-                // Fallback for older clients that don't send position_id yet.
-                if (! $existingPosition) {
-                    $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+            // Prefer explicit position ID from the client to avoid cross-position overwrites.
+            $existingPosition = null;
+            if ($requestedPositionId) {
+                $existingPosition = Position::where('id', $requestedPositionId)
+                    ->whereHas('offerts', function ($query) use ($offertId) {
                         $query->where('id', $offertId);
-                    })->where('position_number', $requestedPositionNumber)->first();
-                }
+                    })
+                    ->first();
+            }
 
-                if ($existingPosition) {
-                    $position = $existingPosition;
-                    $position->update([
-                        'description' => $data['description'] ?? '',
-                        'description2' => $data['description2'] ?? '',
-                        'blocktype' => $data['blocktype'] ?? null,
-                        'b' => $data['b'] ?? null,
-                        'h' => $data['h'] ?? null,
-                        't' => $data['t'] ?? null,
-                        'quantity' => $data['quantity'] ?? 1,
-                        'is_optional' => $data['is_optional'] ?? false,
-                        'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
-                        'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
-                        'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
-                        'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
-                        'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
-                        'material_costo' => $data['material_costo'] ?? 0,
-                        'material_profit' => $data['material_profit'] ?? 0,
-                        'ziet_costo' => $data['zeit_costo'] ?? 0,
-                        'ziet_profit' => $data['zeit_profit'] ?? 0,
-                        'costo_total' => $data['costo_total'] ?? 0,
-                        'profit_total' => $data['profit_total'] ?? 0,
-                    ]);
-                } else {
-                    // Create new position with the next sequential number for this offert.
-                    $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                        $query->where('id', $offertId);
-                    })->max('position_number');
-                    $positionNumber = $maxPositionNumber + 1;
+            // Fallback for older clients that don't send position_id yet.
+            if (!$existingPosition) {
+                $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
+                    $query->where('id', $offertId);
+                })
+                ->where('position_number', $requestedPositionNumber)
+                ->first();
+            }
 
-                    $position = Position::create([
-                        'description' => $data['description'] ?? '',
-                        'description2' => $data['description2'] ?? '',
-                        'blocktype' => $data['blocktype'] ?? null,
-                        'b' => $data['b'] ?? null,
-                        'h' => $data['h'] ?? null,
-                        't' => $data['t'] ?? null,
-                        'quantity' => $data['quantity'] ?? 1,
-                        'is_optional' => $data['is_optional'] ?? false,
-                        'position_number' => $positionNumber,
-                        'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
-                        'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
-                        'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
-                        'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
-                        'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
-                        'material_costo' => $data['material_costo'] ?? 0,
-                        'material_profit' => $data['material_profit'] ?? 0,
-                        'ziet_costo' => $data['zeit_costo'] ?? 0,
-                        'ziet_profit' => $data['zeit_profit'] ?? 0,
-                        'costo_total' => $data['costo_total'] ?? 0,
-                        'profit_total' => $data['profit_total'] ?? 0,
-                    ]);
+            if ($existingPosition) {
+                // Update existing position
+                $position = $existingPosition;
+                $position->update([
+                    'description' => $data['description'] ?? '',
+                    'description2' => $data['description2'] ?? '',
+                    'blocktype' => $data['blocktype'] ?? null,
+                    'b' => $data['b'] ?? null,
+                    'h' => $data['h'] ?? null,
+                    't' => $data['t'] ?? null,
+                    'quantity' => $data['quantity'] ?? 1,
+                    'is_optional' => $data['is_optional'] ?? false,
+                    'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
+                    'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
+                    'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                    'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
+                    'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
+                    'material_costo' => $data['material_costo'] ?? 0,
+                    'material_profit' => $data['material_profit'] ?? 0,
+                    'ziet_costo' => $data['zeit_costo'] ?? 0,
+                    'ziet_profit' => $data['zeit_profit'] ?? 0,
+                    'costo_total' => $data['costo_total'] ?? 0,
+                    'profit_total' => $data['profit_total'] ?? 0,
+                ]);
+            } else {
+                // Create new position with the next sequential number for this offert.
+                $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
+                    $query->where('id', $offertId);
+                })->max('position_number');
+                $positionNumber = $maxPositionNumber + 1;
 
-                    $position->offerts()->syncWithoutDetaching([$offert->id]);
-                }
+                $position = Position::create([
+                    'description' => $data['description'] ?? '',
+                    'description2' => $data['description2'] ?? '',
+                    'blocktype' => $data['blocktype'] ?? null,
+                    'b' => $data['b'] ?? null,
+                    'h' => $data['h'] ?? null,
+                    't' => $data['t'] ?? null,
+                    'quantity' => $data['quantity'] ?? 1,
+                    'is_optional' => $data['is_optional'] ?? false,
+                    'position_number' => $positionNumber,
+                    'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
+                    'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
+                    'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                    'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
+                    'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
+                    'material_costo' => $data['material_costo'] ?? 0,
+                    'material_profit' => $data['material_profit'] ?? 0,
+                    'ziet_costo' => $data['zeit_costo'] ?? 0,
+                    'ziet_profit' => $data['zeit_profit'] ?? 0,
+                    'costo_total' => $data['costo_total'] ?? 0,
+                    'profit_total' => $data['profit_total'] ?? 0,
+                ]);
 
-                // Sync relationships
-                if (isset($data['selected_organigrams'])) {
-                    $position->organigrams()->sync($data['selected_organigrams']);
-                }
-                if (isset($data['selected_group_elements'])) {
-                    $position->group_elements()->sync($data['selected_group_elements']);
-                }
-                if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
-                    $elementsToAttach = [];
-                    $elementOptionalMap = $data['element_optional'] ?? [];
-                    $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
-                    foreach ($data['selected_elements'] as $elementId) {
-                        $quantity = $data['element_quantity'][$elementId] ?? 1;
-                        $elementsToAttach[$elementId] = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
-                        if ($supportsElementOptionalPivot) {
-                            $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
-                        }
-                    }
-                    $position->elements()->sync($elementsToAttach);
-                }
+                $position->offerts()->attach($offert);
+            }
 
-                // Always persist posted material quantities (including decimals),
-                // independent from selected_elements payload to avoid stale rollbacks.
-                if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
-                    $rows = [];
-                    $now = now()->toDateTimeString();
-                    foreach ($data['material_quantity'] as $elementId => $materials) {
-                        if (! is_array($materials)) {
-                            continue;
-                        }
-                        foreach ($materials as $materialId => $materialQuantity) {
-                            $rows[] = [
-                                'position_id' => $position->id,
-                                'element_id'  => (int) $elementId,
-                                'material_id' => (int) $materialId,
-                                'quantity'    => $this->normalizeDecimal($materialQuantity, 0.0),
-                                'created_at'  => $now,
-                                'updated_at'  => $now,
-                            ];
-                        }
-                    }
-                    DB::table('position_materials')->where('position_id', $position->id)->delete();
-                    if (! empty($rows)) {
-                        DB::table('position_materials')->insert($rows);
+            // Sync relationships
+            if (isset($data['selected_organigrams'])) {
+                $position->organigrams()->sync($data['selected_organigrams']);
+            }
+            if (isset($data['selected_group_elements'])) {
+                $position->group_elements()->sync($data['selected_group_elements']);
+            }
+            if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
+                $elementsToAttach = [];
+                $elementOptionalMap = $data['element_optional'] ?? [];
+                $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
+                foreach ($data['selected_elements'] as $elementId) {
+                    $quantity = $data['element_quantity'][$elementId] ?? 1;
+                    $elementsToAttach[$elementId] = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
+                    if ($supportsElementOptionalPivot) {
+                        $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
                     }
                 }
+                $position->elements()->sync($elementsToAttach);
+            }
 
-                return $position;
-            });
-
-            if (! $position) {
-                return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+            // Always persist posted material quantities (including decimals),
+            // independent from selected_elements payload to avoid stale rollbacks.
+            // Bulk delete + insert replaces N×M individual updateOrInsert calls,
+            // cutting this from potentially 100+ queries down to 2.
+            if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
+                $rows = [];
+                $now = now()->toDateTimeString();
+                foreach ($data['material_quantity'] as $elementId => $materials) {
+                    if (!is_array($materials)) {
+                        continue;
+                    }
+                    foreach ($materials as $materialId => $materialQuantity) {
+                        $rows[] = [
+                            'position_id' => $position->id,
+                            'element_id'  => (int) $elementId,
+                            'material_id' => (int) $materialId,
+                            'quantity'    => $this->normalizeDecimal($materialQuantity, 0.0),
+                            'created_at'  => $now,
+                            'updated_at'  => $now,
+                        ];
+                    }
+                }
+                // 2 queries total regardless of how many materials there are
+                DB::table('position_materials')->where('position_id', $position->id)->delete();
+                if (!empty($rows)) {
+                    DB::table('position_materials')->insert($rows);
+                }
             }
 
             return response()->json([

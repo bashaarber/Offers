@@ -25,15 +25,12 @@
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
             Positions
         </div>
-        <button data-new-position-btn type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
+        <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
             style="width:100%;border-radius:8px;font-size:12px;">
             <i class="fa-solid fa-plus"></i> New Position
         </button>
-        <div data-new-position-feedback
-            style="display:none;margin-top:6px;padding:6px 8px;border-radius:6px;background:rgba(220,38,38,0.15);color:#fecaca;font-size:11px;line-height:1.35;">
-        </div>
         <div class="pos-list-container">
-            <div data-sortable-position-list>
+            <div id="sortable-position-list">
                 @foreach ($positions as $pos)
                     <div class="position-row" data-position-id="{{ $pos->id }}"
                         style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -60,7 +57,7 @@
                             </form>
                             @if ($positions->count() > 1)
                             <form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;"
-                                onsubmit='return confirm("Are you sure?");'>
+                                onsubmit='if(!confirm("Are you sure?")) return false; window._autoSaveLock = true;'>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm"
@@ -79,6 +76,18 @@
                     </div>
                 @endforeach
 
+                {{-- Show the current position being created (not yet saved) --}}
+                @if (isset($currentCreateNumber) && !$positions->contains('position_number', $currentCreateNumber))
+                    <div style="display:flex;align-items:center;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                        <div style="display:flex;align-items:center;gap:4px;">
+                            <i class="fa-solid fa-pen" style="color:#3b82f6;font-size:10px;"></i>
+                            <span style="color:#3b82f6;font-size:12px;font-weight:500;">
+                                <strong>Pos. {{ $currentCreateNumber }}</strong>
+                                <span style="font-size:10px;margin-left:4px;">(new)</span>
+                            </span>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -108,38 +117,8 @@
 </div>
 
 <script>
-    window._positionActionPending = false;
-
-    // _insertedPositionSection holds the live DOM node that was injected into the sidebar.
-    // All querySelector calls below use this reference so they never accidentally target
-    // the hidden #position-sidebar-template copy (which has the same IDs).
-    let _insertedPositionSection = null;
-
-    window.setPositionActionPending = function(isPending) {
-        window._positionActionPending = !!isPending;
-        const root = _insertedPositionSection || document;
-        const btn = root.querySelector('[data-new-position-btn]');
-        if (!btn) return;
-        btn.disabled = !!isPending;
-        btn.style.opacity = isPending ? '0.65' : '';
-        btn.style.cursor = isPending ? 'not-allowed' : '';
-    };
-    window.setNewPositionFeedback = function(message) {
-        const root = _insertedPositionSection || document;
-        const node = root.querySelector('[data-new-position-feedback]');
-        if (!node) return;
-        if (!message) {
-            node.style.display = 'none';
-            node.textContent = '';
-            return;
-        }
-        node.textContent = message;
-        node.style.display = 'block';
-    };
-
     window.handlePositionSidebarNavigate = function(linkEl, event) {
         if (!linkEl || !linkEl.href) return true;
-        if (window._positionActionPending) return false;
         if (event) event.preventDefault();
         const nextUrl = linkEl.href;
         if (typeof window.doAutoSaveAndNavigate === 'function') {
@@ -175,15 +154,6 @@
             } else {
                 sidebar.insertBefore(positionSection, footer);
             }
-
-            // Store reference to the live node so setPositionActionPending /
-            // setNewPositionFeedback always target the visible sidebar elements.
-            _insertedPositionSection = positionSection;
-
-            // Clear the hidden template's content so that document.getElementById()
-            // and querySelector() calls elsewhere never accidentally find the stale
-            // duplicate IDs that were inside the template.
-            template.innerHTML = '';
         }
 
         const pdfFooterTemplate = document.getElementById('external-pdf-footer-slot-template');
@@ -270,18 +240,13 @@
             });
         }
 
-        // Use the live inserted section to find the sortable list so Sortable is never
-        // accidentally bound to the hidden template copy.
-        const sortableList = _insertedPositionSection
-            ? _insertedPositionSection.querySelector('[data-sortable-position-list]')
-            : null;
+        const sortableList = document.getElementById('sortable-position-list');
         if (sortableList && typeof Sortable !== 'undefined') {
             new Sortable(sortableList, {
                 handle: '.drag-handle',
                 animation: 150,
-                onUpdate: async function(evt) {
+                onUpdate: function(evt) {
                     const rows = Array.from(evt.to.children);
-                    const orders = [];
                     rows.forEach((row, index) => {
                         const label = row.querySelector('.position-number-label');
                         if (label) {
@@ -289,90 +254,33 @@
                         }
 
                         const positionId = row.getAttribute('data-position-id');
-                        if (positionId) {
-                            orders.push({ position_id: parseInt(positionId, 10), order: index + 1 });
-                        }
-                    });
-
-                    try {
-                        await fetch('{{ route("position.updateOrder") }}', {
+                        fetch('{{ route("position.updateOrder") }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            body: JSON.stringify({ orders: orders })
+                            body: JSON.stringify({
+                                position_id: positionId,
+                                order: index + 1
+                            })
                         });
-                    } catch (error) {
-                        console.error('Position reorder save failed:', error);
-                    }
+                    });
                 }
             });
         }
 
-        // Intercept delete-position form submissions: cancel the debounced auto-save
-        // timer first so we don't fire a save request for a position that is about to
-        // be removed.  The form is then allowed to submit normally (the confirm() dialog
-        // has already returned true at this point).
-        if (_insertedPositionSection) {
-            _insertedPositionSection.addEventListener('submit', function(e) {
-                const form = e.target;
-                const methodInput = form.querySelector('input[name="_method"]');
-                if (!methodInput || methodInput.value !== 'DELETE') return;
-                // Cancel any pending debounced auto-save (in-flight fetches complete on
-                // their own — they won't interfere with the delete).
-                if (typeof window.cancelPositionAutoSave === 'function') {
-                    window.cancelPositionAutoSave();
-                }
-                // Allow the form to proceed normally.
-            });
-        }
-
-        // addNewPos: async so we can await the auto-save flush before creating the new
-        // position.  This prevents a race condition where the createEmpty request and an
-        // in-flight auto-save both try to lock the offert row at the same time.
-        window.addNewPos = async function() {
-            if (window._positionActionPending) return;
-            window.setPositionActionPending(true);
-            window.setNewPositionFeedback('');
-
-            // Flush any pending auto-save before creating the new position so that the
-            // server doesn't have to juggle two concurrent writes on the same offert.
-            if (typeof window.flushPositionAutoSave === 'function') {
-                try { await window.flushPositionAutoSave(); } catch (e) { /* non-fatal */ }
-            }
-
+        window.addNewPos = function() {
             const offertId = '{{ $offertId }}';
-            fetch('{{ route("position.create-empty") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ offert_id: parseInt(offertId, 10) || offertId })
-            })
-            .then(async response => {
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    const error = new Error((data && data.message) || 'Could not create position');
-                    error.requestId = data && data.request_id ? data.request_id : null;
-                    throw error;
-                }
-                return data;
-            })
-            .then(data => {
-                if (data && data.success && data.edit_url) {
-                    window.location.href = data.edit_url;
-                    return;
-                }
-                throw new Error((data && data.message) || 'Could not create position');
-            })
-            .catch(error => {
-                console.error('Create empty position failed:', error);
-                const requestHint = error && error.requestId ? ` (Ref: ${error.requestId})` : '';
-                window.setNewPositionFeedback(`${error.message || 'Could not create position'}${requestHint}`);
-                window.setPositionActionPending(false);
-            });
+            const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
+            const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
+
+            // Auto-save current position before navigating (if available)
+            if (typeof window.doAutoSaveAndNavigate === 'function') {
+                window.doAutoSaveAndNavigate(nextUrl);
+            } else {
+                window.location.href = nextUrl;
+            }
         };
 
     });
