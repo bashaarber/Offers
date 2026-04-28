@@ -192,7 +192,7 @@ class PositionController extends Controller
                     $query->where('id', $offert->id);
                 })->max('position_number') + 1;
 
-                $position = Position::create([
+                $payload = [
                     'description' => '',
                     'description2' => '',
                     'blocktype' => null,
@@ -212,8 +212,12 @@ class PositionController extends Controller
                     'costo_total' => 0,
                     'profit_total' => 0,
                     'position_number' => $nextPositionNumber,
-                    'is_optional' => false,
-                ]);
+                ];
+                if (Schema::hasColumn('positions', 'is_optional')) {
+                    $payload['is_optional'] = false;
+                }
+
+                $position = Position::create($payload);
 
                 $position->offerts()->syncWithoutDetaching([$offert->id]);
 

@@ -242,5 +242,24 @@ class PositionFlowTest extends TestCase
         $this->assertSame(2, (int) $p1->fresh()->position_number);
         $this->assertSame(3, (int) $p2->fresh()->position_number);
     }
+
+    public function test_add_new_query_creates_empty_position_and_redirects_to_edit(): void
+    {
+        $user = $this->createUser();
+        $offert = $this->createOffert($user);
+
+        $response = $this->actingAs($user)->get(route('position.create', ['index' => 0, 'offert_id' => $offert->id, 'add_new' => 1]));
+
+        $response->assertRedirect();
+
+        $position = Position::whereHas('offerts', fn ($q) => $q->where('id', $offert->id))
+            ->orderByDesc('id')
+            ->first();
+
+        $this->assertNotNull($position);
+        $this->assertSame('', (string) $position->description);
+        $this->assertSame(0.0, (float) $position->price_brutto);
+        $this->assertSame(1, (int) $position->quantity);
+    }
 }
 
