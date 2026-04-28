@@ -403,6 +403,12 @@ class PositionController extends Controller
                     if ($supportsOptionalColumn) {
                         $payload['is_optional'] = false;
                     }
+                    if (Schema::hasColumn('positions', 'offert_id')) {
+                        $payload['offert_id'] = $offertId;
+                    }
+                    if (Schema::hasColumn('positions', 'user_id')) {
+                        $payload['user_id'] = auth()->id();
+                    }
 
                     $position = Position::create($payload);
                     Log::info('position.create-empty.position-inserted', [
