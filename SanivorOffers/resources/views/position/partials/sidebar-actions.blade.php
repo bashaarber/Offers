@@ -278,14 +278,27 @@
         window.addNewPos = function() {
             if (window._positionActionPending) return;
             const offertId = '{{ $offertId }}';
-            const nextUrl = '{{ url("/position/create") }}/0?offert_id=' + offertId + '&add_new=1';
-
-            // Auto-save current position before navigating (if available)
-            if (typeof window.doAutoSaveAndNavigate === 'function') {
-                window.doAutoSaveAndNavigate(nextUrl);
-            } else {
-                window.location.href = nextUrl;
-            }
+            window.setPositionActionPending(true);
+            fetch('{{ route("position.create-empty") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ offert_id: offertId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success && data.edit_url) {
+                    window.location.href = data.edit_url;
+                    return;
+                }
+                throw new Error((data && data.message) || 'Could not create position');
+            })
+            .catch(error => {
+                console.error('Create empty position failed:', error);
+                window.setPositionActionPending(false);
+            });
         };
 
     });
