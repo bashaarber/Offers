@@ -277,12 +277,12 @@
 
         window.addNewPos = function() {
             if (window._positionActionPending) return;
-            window.setPositionActionPending(true);
 
             const csrf = '{{ csrf_token() }}';
             const offertId = '{{ $offertId }}';
 
             const createAndNavigate = () => {
+                window.setPositionActionPending(true);
                 fetch('{{ route("position.create-empty") }}', {
                     method: 'POST',
                     headers: {
@@ -306,9 +306,9 @@
             };
 
             if (typeof window.saveCurrentPositionBeforeAction === 'function') {
-                Promise.resolve(window.saveCurrentPositionBeforeAction())
-                    .catch(() => null)
-                    .then(createAndNavigate);
+                const savePromise = Promise.resolve(window.saveCurrentPositionBeforeAction()).catch(() => null);
+                const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+                Promise.race([savePromise, timeoutPromise]).then(createAndNavigate);
             } else {
                 createAndNavigate();
             }
