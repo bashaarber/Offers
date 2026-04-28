@@ -126,6 +126,7 @@
             gap: 6px;
             flex: 1;
             min-width: 0;
+            cursor: pointer;
         }
 
         .element-optional-inline {
@@ -565,6 +566,7 @@
             const groupElementToggles = document.querySelectorAll('.group-element-toggle');
             const elementCheckboxes = document.querySelectorAll('.element-checkbox');
             const optionalElementCheckboxes = document.querySelectorAll('.element-optional-checkbox');
+            const elementNameRows = document.querySelectorAll('.element-card-title .element-name-row');
             // Initialize the running total materials price variable
             let runningTotalMaterialsPrice = 0;
             let percentage = parseFloat({{ $offert->default_rabatt ?? 0 }});
@@ -591,6 +593,19 @@
 
                 // Call the function to update the total based on the new menge value
                 updateTotalProTypPrice();
+            });
+
+            elementNameRows.forEach(row => {
+                row.addEventListener('click', function(event) {
+                    // Let native checkbox clicks behave normally; only toggle on text row click.
+                    if (event.target.closest('.element-checkbox')) {
+                        return;
+                    }
+                    const checkbox = row.querySelector('.element-checkbox');
+                    if (!checkbox || checkbox.disabled) return;
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                });
             });
 
             // Attach an event listener to the quantity input field
