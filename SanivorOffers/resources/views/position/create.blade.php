@@ -489,6 +489,34 @@
                 <script>
                 window._unselectedElements = @json($allElementsData);
 
+                function getLeftElementOrderIndex(elementId) {
+                    var id = String(elementId);
+                    var checkboxes = Array.from(document.querySelectorAll('.element-checkbox'));
+                    var idx = checkboxes.findIndex(function(cb) {
+                        return String(cb.getAttribute('data-element-id')) === id;
+                    });
+                    return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+                }
+
+                function insertWrapByLeftOrder(wrap, elementId) {
+                    var container = document.getElementById('element-materials-container');
+                    if (!container) return;
+
+                    var newIndex = getLeftElementOrderIndex(elementId);
+                    var existingWraps = Array.from(container.querySelectorAll('.element-materials-wrap'));
+                    for (var i = 0; i < existingWraps.length; i++) {
+                        var existingWrap = existingWraps[i];
+                        if (existingWrap === wrap) continue;
+                        var existingId = (existingWrap.id || '').replace('element-materials-wrap-', '');
+                        if (getLeftElementOrderIndex(existingId) > newIndex) {
+                            container.insertBefore(wrap, existingWrap);
+                            return;
+                        }
+                    }
+
+                    container.appendChild(wrap);
+                }
+
                 function buildElementTable(elementId) {
                     if (document.getElementById('element-materials-wrap-' + elementId)) return;
                     var el = window._unselectedElements[elementId];
@@ -534,7 +562,7 @@
                         + '<span class="total-materials-value-header">0</span></th>'
                         + '</tr>' + rows + '</tbody></table>';
 
-                    document.getElementById('element-materials-container').appendChild(wrap);
+                    insertWrapByLeftOrder(wrap, elementId);
 
                     $(wrap).find('.quantity-input').on('input', function() {
                         updateMaterial($(this));
