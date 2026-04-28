@@ -767,6 +767,15 @@
                 return decimals > 0 ? `${parts[0]}.${parts[1]}` : parts[0];
             }
 
+            function parseSwissNumber(value) {
+                const normalized = String(value ?? '')
+                    .replace(/'/g, '')
+                    .replace(',', '.')
+                    .trim();
+                const parsed = parseFloat(normalized);
+                return Number.isFinite(parsed) ? parsed : 0;
+            }
+
             // Event listener for the percentage input field
             const percentageInput = document.getElementById('percentage-input');
             percentageInput.addEventListener('input', function() {
@@ -851,12 +860,17 @@
                             if (isElementOptional) {
                                 return;
                             }
+                            const elementHeaderTotalNode = document.querySelector(
+                                `.total-materials-header[data-element-id="${elementId}"] .total-materials-value-header`
+                            );
+                            const elementTotalProTypPrice = elementHeaderTotalNode
+                                ? parseSwissNumber(elementHeaderTotalNode.textContent)
+                                : 0;
+                            totalProTypPrice += elementTotalProTypPrice;
+
                             const elementQuantityInput = $(
                                 `.element-quantity-input[data-element-id="${elementId}"]`);
                             const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
-                            const elementTotalProTypPrice = calculateTotalMaterialsPrice(elementId) *
-                                elementQuantity;
-                            totalProTypPrice += elementTotalProTypPrice;
 
                             // Fetch and accumulate price_out, zeit_cost, and z_total values
                             const materials = document.querySelectorAll(
