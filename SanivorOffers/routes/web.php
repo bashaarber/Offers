@@ -111,6 +111,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('position', PositionController::class)->except('create');
     Route::get('/position/create/{index}', [PositionController::class, 'create'])->name('position.create');
+    Route::post('/position/create-empty', [PositionController::class, 'createEmpty'])->name('position.create-empty');
     Route::post('/positions/update-order', [PositionController::class, 'updateOrder'])->name('position.updateOrder');
     Route::post('position/{id}/copy', [PositionController::class, 'copy'])->name('position.copy');
     Route::post('/position/auto-save', [PositionController::class, 'autoSave'])->name('position.auto-save');
