@@ -352,11 +352,20 @@ class PositionController extends Controller
                         return null;
                     }
 
-                    if ($offert->isLockedByOther()) {
-                        return [
-                            'locked' => true,
-                            'who' => $offert->lockingUser?->username ?? 'another user',
-                        ];
+                    try {
+                        if ($offert->isLockedByOther()) {
+                            return [
+                                'locked' => true,
+                                'who' => $offert->lockingUser?->username ?? 'another user',
+                            ];
+                        }
+                    } catch (\Throwable $lockStateError) {
+                        Log::warning('position.create-empty.lock-state-check-failed', [
+                            'request_id' => $requestId,
+                            'offert_id' => $offertId,
+                            'attempt' => $attempt,
+                            'error' => $lockStateError->getMessage(),
+                        ]);
                     }
 
                     Log::info('position.create-empty.lock-acquired', [
