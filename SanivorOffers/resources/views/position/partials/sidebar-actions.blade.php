@@ -272,7 +272,7 @@
 
         window.addNewPos = function() {
             const offertId = '{{ $offertId }}';
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfToken = (document.querySelector('meta[name="csrf-token"]') || document.querySelector('input[name="_token"]'))?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value;
 
             const doCreate = function() {
                 const form = document.createElement('form');
