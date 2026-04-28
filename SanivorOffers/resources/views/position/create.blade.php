@@ -1174,6 +1174,9 @@
                 clearTimeout(autoSaveTimeout);
                 return autoSaveCurrentPosition();
             }
+            // Expose globally so sidebar-actions can flush / cancel before creating or deleting positions
+            window.flushPositionAutoSave = flushAutoSaveNow;
+            window.cancelPositionAutoSave = function() { clearTimeout(autoSaveTimeout); };
 
             function persistPositionBeforeLeave() {
                 if (isNavigatingAway || leavePersistQueued) return;
