@@ -225,6 +225,11 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="client_address">Kunde Addresse</label>
+                                        <input type="text" class="form-control" id="client_address" name="client_address"
+                                            value="{{ old('client_address', $offert->client_address ?? ($offert->client->address ?? '')) }}">
+                                    </div>
                                 </div>
                                 <h6>Koeffizienten für dieses Project</h6>
 
@@ -295,6 +300,20 @@
     <script>
         $(document).ready(function() {
             $('.select-users').select2();
+        });
+
+        const clientAddressById = @json($clients->mapWithKeys(fn($client) => [$client->id => $client->address ?? ''])->toArray());
+
+        function syncClientAddressFromSelection() {
+            const clientSelect = document.getElementById('client_id');
+            const addressInput = document.getElementById('client_address');
+            if (!clientSelect || !addressInput) return;
+            const selectedId = clientSelect.value;
+            addressInput.value = selectedId ? (clientAddressById[selectedId] || '') : '';
+        }
+
+        $(document).on('change', '#client_id', function() {
+            syncClientAddressFromSelection();
         });
     </script>
 

@@ -129,9 +129,13 @@ class OffertController extends Controller
             'labor_price' => 'required',
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
+            'client_address' => 'nullable|string',
         ]);
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
+        if (empty($formFields['client_address']) && !empty($formFields['client_id'])) {
+            $formFields['client_address'] = Client::where('id', $formFields['client_id'])->value('address');
+        }
         if ($this->hasDefaultRabattColumn()) {
             $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
                 ? (Coefficient::value('default_rabatt') ?? 20)
@@ -270,10 +274,14 @@ class OffertController extends Controller
             'labor_price' => 'required',
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
+            'client_address' => 'nullable|string',
         ]);
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
+        if (empty($formFields['client_address']) && !empty($formFields['client_id'])) {
+            $formFields['client_address'] = Client::where('id', $formFields['client_id'])->value('address');
+        }
         if ($this->hasDefaultRabattColumn()) {
             $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
                 ? (Coefficient::value('default_rabatt') ?? 20)
@@ -313,7 +321,7 @@ class OffertController extends Controller
         $fields = $request->only([
             'user_sign', 'status', 'create_date', 'validity', 'client_sign',
             'finish_date', 'object', 'city', 'service', 'payment_conditions',
-            'difficulty', 'material', 'labor_price', 'default_rabatt', 'client_id', 'type',
+            'difficulty', 'material', 'labor_price', 'default_rabatt', 'client_id', 'client_address', 'type',
         ]);
 
         // Remove empty finish_date — fall back to create_date
@@ -323,6 +331,10 @@ class OffertController extends Controller
 
         if (!$this->hasDefaultRabattColumn()) {
             unset($fields['default_rabatt']);
+        }
+
+        if (empty($fields['client_address']) && !empty($fields['client_id'])) {
+            $fields['client_address'] = Client::where('id', $fields['client_id'])->value('address');
         }
 
         $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));

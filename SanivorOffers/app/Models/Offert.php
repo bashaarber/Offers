@@ -23,6 +23,7 @@ class Offert extends Model
         'service',
         'payment_conditions',
         'client_id',
+        'client_address',
         'difficulty',
         'material',
         'labor_price',

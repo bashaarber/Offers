@@ -122,11 +122,16 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="clients">Kunde</label>
-                                    <select style="width: 100%" class="select-users form-control" name="client_id" required>
+                                    <select style="width: 100%" class="select-users form-control" id="client_id" name="client_id" required>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name ? $client->name : $client->email }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="client_address">Kunde Addresse</label>
+                                    <input type="text" class="form-control" id="client_address" name="client_address"
+                                        value="{{ old('client_address') }}">
                                 </div>
                             </div>
                             
@@ -180,6 +185,20 @@
             $('.select-users').val(null).trigger('change');
         });
 
+        const clientAddressById = @json($clients->mapWithKeys(fn($client) => [$client->id => $client->address ?? ''])->toArray());
+
+        function syncClientAddressFromSelection() {
+            const clientSelect = document.getElementById('client_id');
+            const addressInput = document.getElementById('client_address');
+            if (!clientSelect || !addressInput) return;
+            const selectedId = clientSelect.value;
+            addressInput.value = selectedId ? (clientAddressById[selectedId] || '') : '';
+        }
+
+        $(document).on('change', '#client_id', function() {
+            syncClientAddressFromSelection();
+        });
+
         document.addEventListener("DOMContentLoaded", function() {
         // Get today's date
         var today = new Date();
@@ -193,6 +212,7 @@
 
         // Set input value to today's date
         document.getElementById('create_date').value = today;
+        syncClientAddressFromSelection();
     });
     </script>
 </body>
