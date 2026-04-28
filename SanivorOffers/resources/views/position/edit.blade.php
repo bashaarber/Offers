@@ -612,6 +612,7 @@
                     $(wrap).find('.quantity-input').on('input', function() {
                         updateMaterial($(this));
                         updateTotalMaterialsPrice();
+                        updateTotalProTypPrice();
                         saveSingleMaterialQuantity($(this));
                     });
                     $(wrap).find('.element-quantity-input').on('input', function() {
@@ -667,6 +668,7 @@
             $('.quantity-input').on('input', function() {
                 updateMaterial($(this));
                 updateTotalMaterialsPrice();
+                updateTotalProTypPrice();
                 saveSingleMaterialQuantity($(this));
             });
 
@@ -685,7 +687,6 @@
                 var totalPrice = priceIn * currentQuantity;
                 totalElement.text(totalPrice.toFixed(2));
 
-                updateTotalProTypPrice();
             }
 
             function saveSingleMaterialQuantity(quantityInput) {
@@ -728,8 +729,8 @@
 
             $('.element-quantity-input').on('input', function() {
                 updateElementQuantity($(this));
-                updateTotalProTypPrice(); // Update total immediately
                 updateTotalMaterialsPrice(); // Update materials total as well
+                updateTotalProTypPrice(); // Recompute brutto from refreshed header totals
             });
             // Function to update element quantity
             function updateElementQuantity(elementQuantityInput) {
