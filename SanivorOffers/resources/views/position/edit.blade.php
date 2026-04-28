@@ -1114,9 +1114,13 @@
             // Auto-save (same flow as create): persists Menge (quantity) and other fields on change / tab away
             let autoSaveTimeout;
             let currentPositionId = {{ (int) $position->id }};
+            let inFlightAutoSavePromise = null;
+            let isNavigatingAway = false;
+            let leavePersistQueued = false;
             const autoSaveDelay = 1500; // 1.5s debounce — prevents a save on every keystroke
 
             function triggerAutoSave() {
+                if (isNavigatingAway) return;
                 clearTimeout(autoSaveTimeout);
                 autoSaveTimeout = setTimeout(() => {
                     autoSaveCurrentPosition();
@@ -1126,7 +1130,7 @@
             function autoSaveCurrentPosition() {
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
-                savePositionForType(formData, currentIndex, true);
+                return savePositionForType(formData, currentIndex, true);
             }
 
             function collectFormData(typeIndex) {
@@ -1197,9 +1201,15 @@
                 };
             }
 
-            function savePositionForType(formData, typeIndex, isLast) {
-                fetch('{{ route("position.auto-save") }}', {
+            function savePositionForType(formData, typeIndex, isLast, options = {}) {
+                if (inFlightAutoSavePromise) {
+                    return inFlightAutoSavePromise;
+                }
+
+                const keepalive = !!options.keepalive;
+                inFlightAutoSavePromise = fetch('{{ route("position.auto-save") }}', {
                     method: 'POST',
+                    keepalive: keepalive,
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
@@ -1219,53 +1229,50 @@
                     if (!data.success) {
                         console.warn('Auto-save warning:', data.message);
                     }
+                    return data;
                 })
                 .catch(error => {
                     console.error('Auto-save error:', error);
+                    return { success: false };
+                })
+                .finally(() => {
+                    inFlightAutoSavePromise = null;
                 });
+
+                return inFlightAutoSavePromise;
+            }
+
+            function flushAutoSaveNow() {
+                clearTimeout(autoSaveTimeout);
+                return autoSaveCurrentPosition();
             }
 
             function persistPositionBeforeLeave() {
-                if (window._autoSaveLock) return;
-                window._autoSaveLock = true;
+                if (isNavigatingAway || leavePersistQueued) return;
+                leavePersistQueued = true;
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
-                fetch('{{ route("position.auto-save") }}', {
-                    method: 'POST',
-                    keepalive: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
-                                      document.querySelector('input[name="_token"]').value
-                    },
-                    body: JSON.stringify({
-                        ...formData,
-                        position_id: currentPositionId,
-                        offert_id: document.getElementById('offert_id').value
-                    })
-                }).catch(() => {});
+                savePositionForType(formData, currentIndex, true, { keepalive: true });
             }
 
-            window.doAutoSaveAndNavigate = function(nextUrl) {
-                if (window._autoSaveLock) return;
-                window._autoSaveLock = true;
-                clearTimeout(autoSaveTimeout);
-                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
-                const formData = collectFormData(currentIndex);
-                const offertId = document.getElementById('offert_id').value;
-                // Fire-and-forget with keepalive so the browser sends the request even after navigation.
-                // We navigate immediately instead of waiting for the response — this removes the 1-3s lag.
-                fetch('{{ route("position.auto-save") }}', {
-                    method: 'POST',
-                    keepalive: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
-                                      document.querySelector('input[name="_token"]').value
-                    },
-                    body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
-                }).catch(() => {});
-                window.location.href = nextUrl;
+            window.doAutoSaveAndNavigate = async function(nextUrl) {
+                if (window._positionActionPending) return;
+                window._positionActionPending = true;
+                if (typeof window.setPositionActionPending === 'function') {
+                    window.setPositionActionPending(true);
+                }
+
+                try {
+                    await flushAutoSaveNow();
+                    isNavigatingAway = true;
+                    window.location.href = nextUrl;
+                } catch (error) {
+                    console.error('Save before navigation failed:', error);
+                    window._positionActionPending = false;
+                    if (typeof window.setPositionActionPending === 'function') {
+                        window.setPositionActionPending(false);
+                    }
+                }
             };
 
             window.openExternalPdfAfterSave = function(pdfUrl) {

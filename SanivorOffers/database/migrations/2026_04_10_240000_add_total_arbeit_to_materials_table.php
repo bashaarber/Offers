@@ -11,6 +11,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (!Schema::hasTable('materials')) {
+            return;
+        }
+
         if (Schema::hasColumn('materials', 'total_arbeit')) {
             return;
         }
@@ -19,10 +23,15 @@ return new class extends Migration
             $table->double('total_arbeit')->nullable()->after('zeit_cost');
         });
 
-        // Force PostgreSQL to discard cached plans after the schema change above
-        DB::reconnect();
+        // Force PostgreSQL to discard cached plans after the schema change above.
+        // Skip reconnect for sqlite (especially :memory: test DBs) to avoid losing schema.
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::reconnect();
+        }
 
-        $laborPrice = (float) (DB::table('coefficients')->value('labor_price') ?? 0);
+        $laborPrice = Schema::hasTable('coefficients')
+            ? (float) (DB::table('coefficients')->value('labor_price') ?? 0)
+            : 0.0;
 
         $rows = DB::table('materials')->select('id', 'z_total', 'zeit_cost')->get();
         foreach ($rows as $row) {

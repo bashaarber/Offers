@@ -25,7 +25,7 @@
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
             Positions
         </div>
-        <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
+        <button id="new-position-btn" type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
             style="width:100%;border-radius:8px;font-size:12px;">
             <i class="fa-solid fa-plus"></i> New Position
         </button>
@@ -57,7 +57,7 @@
                             </form>
                             @if ($positions->count() > 1)
                             <form action="{{ route('position.destroy', $pos->id) }}" method="post" style="margin:0;"
-                                onsubmit='if(!confirm("Are you sure?")) return false; window._autoSaveLock = true;'>
+                                onsubmit='return confirm("Are you sure?");'>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm"
@@ -117,8 +117,19 @@
 </div>
 
 <script>
+    window._positionActionPending = false;
+    window.setPositionActionPending = function(isPending) {
+        window._positionActionPending = !!isPending;
+        const btn = document.getElementById('new-position-btn');
+        if (!btn) return;
+        btn.disabled = !!isPending;
+        btn.style.opacity = isPending ? '0.65' : '';
+        btn.style.cursor = isPending ? 'not-allowed' : '';
+    };
+
     window.handlePositionSidebarNavigate = function(linkEl, event) {
         if (!linkEl || !linkEl.href) return true;
+        if (window._positionActionPending) return false;
         if (event) event.preventDefault();
         const nextUrl = linkEl.href;
         if (typeof window.doAutoSaveAndNavigate === 'function') {
@@ -245,8 +256,9 @@
             new Sortable(sortableList, {
                 handle: '.drag-handle',
                 animation: 150,
-                onUpdate: function(evt) {
+                onUpdate: async function(evt) {
                     const rows = Array.from(evt.to.children);
+                    const orders = [];
                     rows.forEach((row, index) => {
                         const label = row.querySelector('.position-number-label');
                         if (label) {
@@ -254,23 +266,29 @@
                         }
 
                         const positionId = row.getAttribute('data-position-id');
-                        fetch('{{ route("position.updateOrder") }}', {
+                        if (positionId) {
+                            orders.push({ position_id: parseInt(positionId, 10), order: index + 1 });
+                        }
+                    });
+
+                    try {
+                        await fetch('{{ route("position.updateOrder") }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            body: JSON.stringify({
-                                position_id: positionId,
-                                order: index + 1
-                            })
+                            body: JSON.stringify({ orders: orders })
                         });
-                    });
+                    } catch (error) {
+                        console.error('Position reorder save failed:', error);
+                    }
                 }
             });
         }
 
         window.addNewPos = function() {
+            if (window._positionActionPending) return;
             const offertId = '{{ $offertId }}';
             const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
             const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;

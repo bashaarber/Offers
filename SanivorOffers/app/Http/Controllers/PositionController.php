@@ -636,31 +636,48 @@ class PositionController extends Controller
     public function destroy(string $id)
     {
         $position = Position::find($id);
-        $offertId = $position->offerts()->first()->id;
+        if (! $position) {
+            return redirect()->route('offert.index');
+        }
 
-        $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->count();
+        $offertPivot = $position->offerts()->first();
+        if (! $offertPivot) {
+            $position->delete();
+            return redirect()->route('offert.index');
+        }
 
-        if ($positionCount <= 1) {
+        $offertId = $offertPivot->id;
+
+        $latestPosition = DB::transaction(function () use ($position, $offertId) {
+            Offert::whereKey($offertId)->lockForUpdate()->first();
+
+            $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
+                $query->where('id', $offertId);
+            })->count();
+
+            if ($positionCount <= 1) {
+                return false;
+            }
+
+            $position->delete();
+
+            // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
+            $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
+                $query->where('id', $offertId);
+            })->orderBy('position_number', 'ASC')->get();
+
+            foreach ($remaining as $i => $pos) {
+                $pos->update(['position_number' => $i + 1]);
+            }
+
+            return Position::whereHas('offerts', function ($query) use ($offertId) {
+                $query->where('id', $offertId);
+            })->orderBy('position_number', 'ASC')->first();
+        });
+
+        if ($latestPosition === false) {
             return redirect()->back()->with('error', 'Cannot delete the only remaining position.');
         }
-
-        $position->delete();
-
-        // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
-        $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
-
-        foreach ($remaining as $i => $pos) {
-            $pos->update(['position_number' => $i + 1]);
-        }
-
-        // Redirect to the latest position related to the offert_id
-        $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->latest()->first();
 
         if ($latestPosition) {
             return redirect()->route('position.edit', $latestPosition->id);
@@ -671,10 +688,30 @@ class PositionController extends Controller
 
     public function updateOrder(Request $request)
     {
-        $positionId = $request->input('position_id');
-        $newOrder = $request->input('order');
+        $orders = $request->input('orders', []);
 
-        Position::where('id', $positionId)->update(['position_number' => $newOrder]);
+        // Backward compatibility for older clients sending a single row update.
+        if (empty($orders) && $request->filled('position_id') && $request->filled('order')) {
+            $orders = [[
+                'position_id' => (int) $request->input('position_id'),
+                'order' => (int) $request->input('order'),
+            ]];
+        }
+
+        if (! is_array($orders) || empty($orders)) {
+            return response()->json(['success' => false, 'message' => 'No position orders provided'], 422);
+        }
+
+        DB::transaction(function () use ($orders) {
+            foreach ($orders as $item) {
+                $positionId = (int) ($item['position_id'] ?? 0);
+                $newOrder = (int) ($item['order'] ?? 0);
+                if ($positionId <= 0 || $newOrder <= 0) {
+                    continue;
+                }
+                Position::where('id', $positionId)->update(['position_number' => $newOrder]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }
@@ -686,142 +723,147 @@ class PositionController extends Controller
     {
         try {
             $data = $request->all();
-            $offertId = $data['offert_id'];
-            $offert = Offert::find($offertId);
-            
-            if (!$offert) {
+            $offertId = (int) ($data['offert_id'] ?? 0);
+
+            if ($offertId <= 0) {
                 return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
             }
 
-            $requestedIndex = (int) ($data['index'] ?? 0);
-            $requestedPositionNumber = $requestedIndex + 1;
+            $position = DB::transaction(function () use ($data, $offertId) {
+                $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
+                if (! $offert) {
+                    return null;
+                }
 
-            $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
+                $requestedIndex = (int) ($data['index'] ?? 0);
+                $requestedPositionNumber = $requestedIndex + 1;
+                $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
 
-            // Prefer explicit position ID from the client to avoid cross-position overwrites.
-            $existingPosition = null;
-            if ($requestedPositionId) {
-                $existingPosition = Position::where('id', $requestedPositionId)
-                    ->whereHas('offerts', function ($query) use ($offertId) {
+                // Prefer explicit position ID from the client to avoid cross-position overwrites.
+                $existingPosition = null;
+                if ($requestedPositionId) {
+                    $existingPosition = Position::where('id', $requestedPositionId)
+                        ->whereHas('offerts', function ($query) use ($offertId) {
+                            $query->where('id', $offertId);
+                        })
+                        ->first();
+                }
+
+                // Fallback for older clients that don't send position_id yet.
+                if (! $existingPosition) {
+                    $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
                         $query->where('id', $offertId);
-                    })
-                    ->first();
-            }
+                    })->where('position_number', $requestedPositionNumber)->first();
+                }
 
-            // Fallback for older clients that don't send position_id yet.
-            if (!$existingPosition) {
-                $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })
-                ->where('position_number', $requestedPositionNumber)
-                ->first();
-            }
+                if ($existingPosition) {
+                    $position = $existingPosition;
+                    $position->update([
+                        'description' => $data['description'] ?? '',
+                        'description2' => $data['description2'] ?? '',
+                        'blocktype' => $data['blocktype'] ?? null,
+                        'b' => $data['b'] ?? null,
+                        'h' => $data['h'] ?? null,
+                        't' => $data['t'] ?? null,
+                        'quantity' => $data['quantity'] ?? 1,
+                        'is_optional' => $data['is_optional'] ?? false,
+                        'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
+                        'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
+                        'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                        'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
+                        'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
+                        'material_costo' => $data['material_costo'] ?? 0,
+                        'material_profit' => $data['material_profit'] ?? 0,
+                        'ziet_costo' => $data['zeit_costo'] ?? 0,
+                        'ziet_profit' => $data['zeit_profit'] ?? 0,
+                        'costo_total' => $data['costo_total'] ?? 0,
+                        'profit_total' => $data['profit_total'] ?? 0,
+                    ]);
+                } else {
+                    // Create new position with the next sequential number for this offert.
+                    $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
+                        $query->where('id', $offertId);
+                    })->max('position_number');
+                    $positionNumber = $maxPositionNumber + 1;
 
-            if ($existingPosition) {
-                // Update existing position
-                $position = $existingPosition;
-                $position->update([
-                    'description' => $data['description'] ?? '',
-                    'description2' => $data['description2'] ?? '',
-                    'blocktype' => $data['blocktype'] ?? null,
-                    'b' => $data['b'] ?? null,
-                    'h' => $data['h'] ?? null,
-                    't' => $data['t'] ?? null,
-                    'quantity' => $data['quantity'] ?? 1,
-                    'is_optional' => $data['is_optional'] ?? false,
-                    'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
-                    'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
-                    'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
-                    'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
-                    'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
-                    'material_costo' => $data['material_costo'] ?? 0,
-                    'material_profit' => $data['material_profit'] ?? 0,
-                    'ziet_costo' => $data['zeit_costo'] ?? 0,
-                    'ziet_profit' => $data['zeit_profit'] ?? 0,
-                    'costo_total' => $data['costo_total'] ?? 0,
-                    'profit_total' => $data['profit_total'] ?? 0,
-                ]);
-            } else {
-                // Create new position with the next sequential number for this offert.
-                $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })->max('position_number');
-                $positionNumber = $maxPositionNumber + 1;
+                    $position = Position::create([
+                        'description' => $data['description'] ?? '',
+                        'description2' => $data['description2'] ?? '',
+                        'blocktype' => $data['blocktype'] ?? null,
+                        'b' => $data['b'] ?? null,
+                        'h' => $data['h'] ?? null,
+                        't' => $data['t'] ?? null,
+                        'quantity' => $data['quantity'] ?? 1,
+                        'is_optional' => $data['is_optional'] ?? false,
+                        'position_number' => $positionNumber,
+                        'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
+                        'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
+                        'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                        'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
+                        'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
+                        'material_costo' => $data['material_costo'] ?? 0,
+                        'material_profit' => $data['material_profit'] ?? 0,
+                        'ziet_costo' => $data['zeit_costo'] ?? 0,
+                        'ziet_profit' => $data['zeit_profit'] ?? 0,
+                        'costo_total' => $data['costo_total'] ?? 0,
+                        'profit_total' => $data['profit_total'] ?? 0,
+                    ]);
 
-                $position = Position::create([
-                    'description' => $data['description'] ?? '',
-                    'description2' => $data['description2'] ?? '',
-                    'blocktype' => $data['blocktype'] ?? null,
-                    'b' => $data['b'] ?? null,
-                    'h' => $data['h'] ?? null,
-                    't' => $data['t'] ?? null,
-                    'quantity' => $data['quantity'] ?? 1,
-                    'is_optional' => $data['is_optional'] ?? false,
-                    'position_number' => $positionNumber,
-                    'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
-                    'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
-                    'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
-                    'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
-                    'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
-                    'material_costo' => $data['material_costo'] ?? 0,
-                    'material_profit' => $data['material_profit'] ?? 0,
-                    'ziet_costo' => $data['zeit_costo'] ?? 0,
-                    'ziet_profit' => $data['zeit_profit'] ?? 0,
-                    'costo_total' => $data['costo_total'] ?? 0,
-                    'profit_total' => $data['profit_total'] ?? 0,
-                ]);
+                    $position->offerts()->syncWithoutDetaching([$offert->id]);
+                }
 
-                $position->offerts()->attach($offert);
-            }
+                // Sync relationships
+                if (isset($data['selected_organigrams'])) {
+                    $position->organigrams()->sync($data['selected_organigrams']);
+                }
+                if (isset($data['selected_group_elements'])) {
+                    $position->group_elements()->sync($data['selected_group_elements']);
+                }
+                if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
+                    $elementsToAttach = [];
+                    $elementOptionalMap = $data['element_optional'] ?? [];
+                    $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
+                    foreach ($data['selected_elements'] as $elementId) {
+                        $quantity = $data['element_quantity'][$elementId] ?? 1;
+                        $elementsToAttach[$elementId] = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
+                        if ($supportsElementOptionalPivot) {
+                            $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
+                        }
+                    }
+                    $position->elements()->sync($elementsToAttach);
+                }
 
-            // Sync relationships
-            if (isset($data['selected_organigrams'])) {
-                $position->organigrams()->sync($data['selected_organigrams']);
-            }
-            if (isset($data['selected_group_elements'])) {
-                $position->group_elements()->sync($data['selected_group_elements']);
-            }
-            if (isset($data['selected_elements']) && isset($data['element_quantity'])) {
-                $elementsToAttach = [];
-                $elementOptionalMap = $data['element_optional'] ?? [];
-                $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
-                foreach ($data['selected_elements'] as $elementId) {
-                    $quantity = $data['element_quantity'][$elementId] ?? 1;
-                    $elementsToAttach[$elementId] = ['quantity' => $this->normalizeDecimal($quantity, 1.0)];
-                    if ($supportsElementOptionalPivot) {
-                        $elementsToAttach[$elementId]['is_optional'] = $this->elementOptionalFromRequestMap($elementOptionalMap, $elementId);
+                // Always persist posted material quantities (including decimals),
+                // independent from selected_elements payload to avoid stale rollbacks.
+                if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
+                    $rows = [];
+                    $now = now()->toDateTimeString();
+                    foreach ($data['material_quantity'] as $elementId => $materials) {
+                        if (! is_array($materials)) {
+                            continue;
+                        }
+                        foreach ($materials as $materialId => $materialQuantity) {
+                            $rows[] = [
+                                'position_id' => $position->id,
+                                'element_id'  => (int) $elementId,
+                                'material_id' => (int) $materialId,
+                                'quantity'    => $this->normalizeDecimal($materialQuantity, 0.0),
+                                'created_at'  => $now,
+                                'updated_at'  => $now,
+                            ];
+                        }
+                    }
+                    DB::table('position_materials')->where('position_id', $position->id)->delete();
+                    if (! empty($rows)) {
+                        DB::table('position_materials')->insert($rows);
                     }
                 }
-                $position->elements()->sync($elementsToAttach);
-            }
 
-            // Always persist posted material quantities (including decimals),
-            // independent from selected_elements payload to avoid stale rollbacks.
-            // Bulk delete + insert replaces N×M individual updateOrInsert calls,
-            // cutting this from potentially 100+ queries down to 2.
-            if (isset($data['material_quantity']) && is_array($data['material_quantity'])) {
-                $rows = [];
-                $now = now()->toDateTimeString();
-                foreach ($data['material_quantity'] as $elementId => $materials) {
-                    if (!is_array($materials)) {
-                        continue;
-                    }
-                    foreach ($materials as $materialId => $materialQuantity) {
-                        $rows[] = [
-                            'position_id' => $position->id,
-                            'element_id'  => (int) $elementId,
-                            'material_id' => (int) $materialId,
-                            'quantity'    => $this->normalizeDecimal($materialQuantity, 0.0),
-                            'created_at'  => $now,
-                            'updated_at'  => $now,
-                        ];
-                    }
-                }
-                // 2 queries total regardless of how many materials there are
-                DB::table('position_materials')->where('position_id', $position->id)->delete();
-                if (!empty($rows)) {
-                    DB::table('position_materials')->insert($rows);
-                }
+                return $position;
+            });
+
+            if (! $position) {
+                return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
             }
 
             return response()->json([
