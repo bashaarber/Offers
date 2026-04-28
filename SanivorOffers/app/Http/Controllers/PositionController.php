@@ -298,6 +298,13 @@ class PositionController extends Controller
     public function createEmpty(Request $request)
     {
         $offertId = (int) $request->input('offert_id');
+        $supportsOptionalColumn = false;
+
+        try {
+            $supportsOptionalColumn = Schema::hasColumn('positions', 'is_optional');
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         if ($offertId <= 0) {
             return response()->json([
@@ -307,7 +314,7 @@ class PositionController extends Controller
         }
 
         try {
-            $position = DB::transaction(function () use ($offertId) {
+            $position = DB::transaction(function () use ($offertId, $supportsOptionalColumn) {
                 $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
                 if (! $offert) {
                     return null;
@@ -339,7 +346,7 @@ class PositionController extends Controller
                     'position_number' => $nextPositionNumber,
                 ];
 
-                if (Schema::hasColumn('positions', 'is_optional')) {
+                if ($supportsOptionalColumn) {
                     $payload['is_optional'] = false;
                 }
 
@@ -363,6 +370,8 @@ class PositionController extends Controller
                 'edit_url' => route('position.edit', $position->id),
             ]);
         } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Could not create a new empty position.',
