@@ -717,63 +717,6 @@ class PositionController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function createEmpty(Request $request)
-    {
-        $offertId = (int) $request->input('offert_id');
-        if ($offertId <= 0) {
-            return response()->json(['success' => false, 'message' => 'Invalid offert_id'], 422);
-        }
-
-        $position = DB::transaction(function () use ($offertId) {
-            $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-            if (! $offert) {
-                return null;
-            }
-
-            $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                $query->where('id', $offertId);
-            })->max('position_number') + 1;
-
-            $position = Position::create([
-                'description' => '',
-                'description2' => '',
-                'blocktype' => null,
-                'b' => null,
-                'h' => null,
-                't' => null,
-                'quantity' => 1,
-                'price_brutto' => 0,
-                'price_discount' => 0,
-                'discount' => 0,
-                'material_brutto' => 0,
-                'zeit_brutto' => 0,
-                'material_costo' => 0,
-                'material_profit' => 0,
-                'ziet_costo' => 0,
-                'ziet_profit' => 0,
-                'costo_total' => 0,
-                'profit_total' => 0,
-                'position_number' => $nextPositionNumber,
-                'is_optional' => false,
-            ]);
-
-            $position->offerts()->syncWithoutDetaching([$offert->id]);
-
-            return $position;
-        });
-
-        if (! $position) {
-            return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'position_id' => $position->id,
-            'position_number' => $position->position_number,
-            'edit_url' => route('position.edit', $position->id),
-        ]);
-    }
-
     /**
      * Auto-save position for specific type
      */
