@@ -398,6 +398,18 @@ class PositionController extends Controller
                 ]);
             }
 
+            // Clear any stale aborted transaction that may linger on a reused
+            // connection from PHP-FPM / PgBouncer connection pooling.
+            // PostgreSQL error 25P02 ("current transaction is aborted") happens
+            // when a previous request left the connection in a failed-transaction
+            // state without rolling back.  A bare ROLLBACK is safe even when no
+            // transaction is active (it is a no-op in that case).
+            try {
+                DB::unprepared('ROLLBACK');
+            } catch (\Throwable $ignored) {
+                // Ignore — if we can't rollback we'll find out soon enough.
+            }
+
             // Wrap only the write operations in a transaction for atomicity.
             // We intentionally skip SELECT … FOR UPDATE here: the JS layer
             // flushes any pending auto-save before calling this endpoint, so
@@ -405,9 +417,13 @@ class PositionController extends Controller
             // the pessimistic lock was the most common source of timeouts on
             // production PostgreSQL.
             $position = DB::transaction(function () use ($offertId) {
-                $nextPositionNumber = (int) Position::whereHas('offerts', function ($q) use ($offertId) {
-                    $q->where('id', $offertId);
-                })->max('position_number') + 1;
+                // Use a plain DB::table join instead of Eloquent whereHas to
+                // avoid triggering the Eloquent query builder on a connection
+                // that might still be recovering, and to keep the query simple.
+                $nextPositionNumber = (int) DB::table('positions')
+                    ->join('offert_position', 'positions.id', '=', 'offert_position.position_id')
+                    ->where('offert_position.offert_id', $offertId)
+                    ->max('positions.position_number') + 1;
 
                 $position = Position::create(
                     $this->emptyPositionPayload($nextPositionNumber, $offertId)
