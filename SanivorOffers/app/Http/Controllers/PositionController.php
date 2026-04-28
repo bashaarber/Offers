@@ -175,6 +175,11 @@ class PositionController extends Controller
         $offertId = $request->input('offert_id');
         $offert = Offert::with('lockingUser')->find($offertId);
 
+        if (! $offert) {
+            return redirect()->route('offert.index')
+                ->with('error', 'Offer not found. Please open the position from a valid offer.');
+        }
+
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
 
@@ -184,47 +189,52 @@ class PositionController extends Controller
 
         // Create a real empty position immediately when requested from "+ New Position".
         // This removes the temporary "(new)" placeholder flow and guarantees one-click-one-position.
-        if ($request->boolean('add_new') && $offert) {
-            $newPosition = DB::transaction(function () use ($offert) {
-                Offert::whereKey($offert->id)->lockForUpdate()->first();
+        if ($request->boolean('add_new')) {
+            try {
+                $newPosition = DB::transaction(function () use ($offert) {
+                    Offert::whereKey($offert->id)->lockForUpdate()->first();
 
-                $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offert) {
-                    $query->where('id', $offert->id);
-                })->max('position_number') + 1;
+                    $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offert) {
+                        $query->where('id', $offert->id);
+                    })->max('position_number') + 1;
 
-                $payload = [
-                    'description' => '',
-                    'description2' => '',
-                    'blocktype' => null,
-                    'b' => null,
-                    'h' => null,
-                    't' => null,
-                    'quantity' => 1,
-                    'price_brutto' => 0,
-                    'price_discount' => 0,
-                    'discount' => 0,
-                    'material_brutto' => 0,
-                    'zeit_brutto' => 0,
-                    'material_costo' => 0,
-                    'material_profit' => 0,
-                    'ziet_costo' => 0,
-                    'ziet_profit' => 0,
-                    'costo_total' => 0,
-                    'profit_total' => 0,
-                    'position_number' => $nextPositionNumber,
-                ];
-                if (Schema::hasColumn('positions', 'is_optional')) {
-                    $payload['is_optional'] = false;
-                }
+                    $payload = [
+                        'description' => '',
+                        'description2' => '',
+                        'blocktype' => null,
+                        'b' => null,
+                        'h' => null,
+                        't' => null,
+                        'quantity' => 1,
+                        'price_brutto' => 0,
+                        'price_discount' => 0,
+                        'discount' => 0,
+                        'material_brutto' => 0,
+                        'zeit_brutto' => 0,
+                        'material_costo' => 0,
+                        'material_profit' => 0,
+                        'ziet_costo' => 0,
+                        'ziet_profit' => 0,
+                        'costo_total' => 0,
+                        'profit_total' => 0,
+                        'position_number' => $nextPositionNumber,
+                    ];
+                    if (Schema::hasColumn('positions', 'is_optional')) {
+                        $payload['is_optional'] = false;
+                    }
 
-                $position = Position::create($payload);
+                    $position = Position::create($payload);
 
-                $position->offerts()->syncWithoutDetaching([$offert->id]);
+                    $position->offerts()->syncWithoutDetaching([$offert->id]);
 
-                return $position;
-            });
+                    return Position::findOrFail($position->id);
+                });
 
-            return redirect()->route('position.edit', $newPosition->id);
+                return redirect(url('/position/' . (int) $newPosition->id . '/edit'));
+            } catch (\Throwable $e) {
+                return redirect(url('/position/create/0?offert_id=' . (int) $offert->id))
+                    ->with('error', 'Could not create a new empty position. Please try again.');
+            }
         }
 
         $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
