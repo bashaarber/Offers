@@ -18,6 +18,71 @@ use Illuminate\Support\Str;
 
 class PositionController extends Controller
 {
+    private function legacyPositionColumns(): array
+    {
+        static $columns = null;
+
+        if ($columns !== null) {
+            return $columns;
+        }
+
+        try {
+            $columns = [
+                'has_is_optional' => Schema::hasColumn('positions', 'is_optional'),
+                'has_offert_id' => Schema::hasColumn('positions', 'offert_id'),
+                'has_user_id' => Schema::hasColumn('positions', 'user_id'),
+            ];
+        } catch (\Throwable $e) {
+            report($e);
+            $columns = [
+                'has_is_optional' => false,
+                'has_offert_id' => false,
+                'has_user_id' => false,
+            ];
+        }
+
+        return $columns;
+    }
+
+    private function emptyPositionPayload(int $positionNumber, int $offertId): array
+    {
+        $columns = $this->legacyPositionColumns();
+
+        $payload = [
+            'description' => '',
+            'description2' => '',
+            'blocktype' => null,
+            'b' => null,
+            'h' => null,
+            't' => null,
+            'quantity' => 1,
+            'price_brutto' => 0,
+            'price_discount' => 0,
+            'discount' => 0,
+            'material_brutto' => 0,
+            'zeit_brutto' => 0,
+            'material_costo' => 0,
+            'material_profit' => 0,
+            'ziet_costo' => 0,
+            'ziet_profit' => 0,
+            'costo_total' => 0,
+            'profit_total' => 0,
+            'position_number' => $positionNumber,
+        ];
+
+        if ($columns['has_is_optional']) {
+            $payload['is_optional'] = false;
+        }
+        if ($columns['has_offert_id']) {
+            $payload['offert_id'] = $offertId;
+        }
+        if ($columns['has_user_id']) {
+            $payload['user_id'] = auth()->id();
+        }
+
+        return $payload;
+    }
+
     private function isRetryableCreateEmptyException(\Throwable $e): bool
     {
         $sqlState = (string) ($e->getCode() ?? '');
@@ -214,31 +279,7 @@ class PositionController extends Controller
                         $query->where('id', $offert->id);
                     })->max('position_number') + 1;
 
-                    $payload = [
-                        'description' => '',
-                        'description2' => '',
-                        'blocktype' => null,
-                        'b' => null,
-                        'h' => null,
-                        't' => null,
-                        'quantity' => 1,
-                        'price_brutto' => 0,
-                        'price_discount' => 0,
-                        'discount' => 0,
-                        'material_brutto' => 0,
-                        'zeit_brutto' => 0,
-                        'material_costo' => 0,
-                        'material_profit' => 0,
-                        'ziet_costo' => 0,
-                        'ziet_profit' => 0,
-                        'costo_total' => 0,
-                        'profit_total' => 0,
-                        'position_number' => $nextPositionNumber,
-                    ];
-                    if (Schema::hasColumn('positions', 'is_optional')) {
-                        $payload['is_optional'] = false;
-                    }
-
+                    $payload = $this->emptyPositionPayload($nextPositionNumber, (int) $offert->id);
                     $position = Position::create($payload);
 
                     $position->offerts()->syncWithoutDetaching([$offert->id]);
@@ -315,26 +356,14 @@ class PositionController extends Controller
     {
         $requestId = (string) Str::uuid();
         $offertId = (int) $request->input('offert_id');
-        $supportsOptionalColumn = false;
         $maxAttempts = 3;
+        $legacyColumns = $this->legacyPositionColumns();
 
         Log::info('position.create-empty.input', [
             'request_id' => $requestId,
             'offert_id' => $offertId,
             'user_id' => auth()->id(),
         ]);
-
-        try {
-            $supportsOptionalColumn = Schema::hasColumn('positions', 'is_optional');
-        } catch (\Throwable $e) {
-            report($e);
-            Log::warning('position.create-empty.schema-check-failed', [
-                'request_id' => $requestId,
-                'offert_id' => $offertId,
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage(),
-            ]);
-        }
 
         if ($offertId <= 0) {
             return response()->json([
@@ -346,7 +375,7 @@ class PositionController extends Controller
 
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
-                $position = DB::transaction(function () use ($offertId, $supportsOptionalColumn, $requestId, $attempt) {
+                $position = DB::transaction(function () use ($offertId, $legacyColumns, $requestId, $attempt) {
                     $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
                     if (! $offert) {
                         return null;
@@ -378,37 +407,7 @@ class PositionController extends Controller
                         $query->where('id', $offertId);
                     })->max('position_number') + 1;
 
-                    $payload = [
-                        'description' => '',
-                        'description2' => '',
-                        'blocktype' => null,
-                        'b' => null,
-                        'h' => null,
-                        't' => null,
-                        'quantity' => 1,
-                        'price_brutto' => 0,
-                        'price_discount' => 0,
-                        'discount' => 0,
-                        'material_brutto' => 0,
-                        'zeit_brutto' => 0,
-                        'material_costo' => 0,
-                        'material_profit' => 0,
-                        'ziet_costo' => 0,
-                        'ziet_profit' => 0,
-                        'costo_total' => 0,
-                        'profit_total' => 0,
-                        'position_number' => $nextPositionNumber,
-                    ];
-
-                    if ($supportsOptionalColumn) {
-                        $payload['is_optional'] = false;
-                    }
-                    if (Schema::hasColumn('positions', 'offert_id')) {
-                        $payload['offert_id'] = $offertId;
-                    }
-                    if (Schema::hasColumn('positions', 'user_id')) {
-                        $payload['user_id'] = auth()->id();
-                    }
+                    $payload = $this->emptyPositionPayload($nextPositionNumber, $offertId);
 
                     $position = Position::create($payload);
                     Log::info('position.create-empty.position-inserted', [
@@ -416,6 +415,7 @@ class PositionController extends Controller
                         'offert_id' => $offertId,
                         'position_id' => $position->id,
                         'position_number' => $position->position_number,
+                        'legacy_columns' => $legacyColumns,
                     ]);
 
                     $position->offerts()->syncWithoutDetaching([$offertId]);

@@ -54,7 +54,9 @@ class Position extends Model
         'costo_total',
         'profit_total',
         'position_number',
-        'is_optional'
+        'is_optional',
+        'offert_id',
+        'user_id',
     ];
    
     public function offerts():BelongsToMany

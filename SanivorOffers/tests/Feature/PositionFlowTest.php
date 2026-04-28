@@ -293,6 +293,37 @@ class PositionFlowTest extends TestCase
         ]);
     }
 
+    public function test_create_empty_can_be_called_repeatedly_and_keeps_sequence(): void
+    {
+        $user = $this->createUser();
+        $offert = $this->createOffert($user);
+
+        $first = $this->actingAs($user)->postJson(route('position.create-empty'), [
+            'offert_id' => $offert->id,
+        ])->assertOk();
+
+        $second = $this->actingAs($user)->postJson(route('position.create-empty'), [
+            'offert_id' => $offert->id,
+        ])->assertOk();
+
+        $third = $this->actingAs($user)->postJson(route('position.create-empty'), [
+            'offert_id' => $offert->id,
+        ])->assertOk();
+
+        $this->assertSame(1, (int) $first->json('position_number'));
+        $this->assertSame(2, (int) $second->json('position_number'));
+        $this->assertSame(3, (int) $third->json('position_number'));
+
+        $numbers = Position::whereHas('offerts', fn ($q) => $q->where('id', $offert->id))
+            ->orderBy('position_number')
+            ->pluck('position_number')
+            ->map(fn ($n) => (int) $n)
+            ->all();
+
+        $this->assertSame([1, 2, 3], $numbers);
+        $this->assertDatabaseCount('offert_position', 3);
+    }
+
     public function test_create_empty_returns_422_for_invalid_offert_id(): void
     {
         $user = $this->createUser();
