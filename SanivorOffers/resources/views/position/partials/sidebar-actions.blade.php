@@ -76,18 +76,6 @@
                     </div>
                 @endforeach
 
-                {{-- Show the current position being created (not yet saved) --}}
-                @if (isset($currentCreateNumber) && !$positions->contains('position_number', $currentCreateNumber))
-                    <div style="display:flex;align-items:center;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-                        <div style="display:flex;align-items:center;gap:4px;">
-                            <i class="fa-solid fa-pen" style="color:#3b82f6;font-size:10px;"></i>
-                            <span style="color:#3b82f6;font-size:12px;font-weight:500;">
-                                <strong>Pos. {{ $currentCreateNumber }}</strong>
-                                <span style="font-size:10px;margin-left:4px;">(new)</span>
-                            </span>
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
@@ -272,8 +260,7 @@
 
         window.addNewPos = function() {
             const offertId = '{{ $offertId }}';
-            const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
-            const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
+            const nextUrl = '{{ url("/position/create/0") }}?offert_id=' + offertId + '&add_new=1';
 
             // Auto-save current position before navigating (if available)
             if (typeof window.doAutoSaveAndNavigate === 'function') {
