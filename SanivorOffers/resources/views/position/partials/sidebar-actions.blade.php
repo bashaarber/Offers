@@ -29,6 +29,9 @@
             style="width:100%;border-radius:8px;font-size:12px;">
             <i class="fa-solid fa-plus"></i> New Position
         </button>
+        <div id="new-position-feedback"
+            style="display:none;margin-top:6px;padding:6px 8px;border-radius:6px;background:rgba(220,38,38,0.15);color:#fecaca;font-size:11px;line-height:1.35;">
+        </div>
         <div class="pos-list-container">
             <div id="sortable-position-list">
                 @foreach ($positions as $pos)
@@ -113,6 +116,17 @@
         btn.disabled = !!isPending;
         btn.style.opacity = isPending ? '0.65' : '';
         btn.style.cursor = isPending ? 'not-allowed' : '';
+    };
+    window.setNewPositionFeedback = function(message) {
+        const node = document.getElementById('new-position-feedback');
+        if (!node) return;
+        if (!message) {
+            node.style.display = 'none';
+            node.textContent = '';
+            return;
+        }
+        node.textContent = message;
+        node.style.display = 'block';
     };
 
     window.handlePositionSidebarNavigate = function(linkEl, event) {
@@ -278,6 +292,7 @@
         window.addNewPos = function() {
             if (window._positionActionPending) return;
             const offertId = '{{ $offertId }}';
+            window.setNewPositionFeedback('');
             window.setPositionActionPending(true);
             fetch('{{ route("position.create-empty") }}', {
                 method: 'POST',
@@ -287,7 +302,15 @@
                 },
                 body: JSON.stringify({ offert_id: offertId })
             })
-            .then(response => response.json())
+            .then(async response => {
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    const error = new Error((data && data.message) || 'Could not create position');
+                    error.requestId = data && data.request_id ? data.request_id : null;
+                    throw error;
+                }
+                return data;
+            })
             .then(data => {
                 if (data && data.success && data.edit_url) {
                     window.location.href = data.edit_url;
@@ -297,6 +320,8 @@
             })
             .catch(error => {
                 console.error('Create empty position failed:', error);
+                const requestHint = error && error.requestId ? ` (Ref: ${error.requestId})` : '';
+                window.setNewPositionFeedback(`${error.message || 'Could not create position'}${requestHint}`);
                 window.setPositionActionPending(false);
             });
         };

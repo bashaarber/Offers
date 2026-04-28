@@ -13,9 +13,25 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PositionController extends Controller
 {
+    private function isRetryableCreateEmptyException(\Throwable $e): bool
+    {
+        $sqlState = (string) ($e->getCode() ?? '');
+        $message = strtolower($e->getMessage());
+
+        if (in_array($sqlState, ['40001', '40P01', '55P03', 'HY000'], true)) {
+            return true;
+        }
+
+        return str_contains($message, 'deadlock')
+            || str_contains($message, 'lock wait timeout')
+            || str_contains($message, 'could not obtain lock');
+    }
+
     private function normalizeDecimal(mixed $value, float $default = 0.0): float
     {
         if ($value === null || $value === '') {
@@ -297,86 +313,167 @@ class PositionController extends Controller
 
     public function createEmpty(Request $request)
     {
+        $requestId = (string) Str::uuid();
         $offertId = (int) $request->input('offert_id');
         $supportsOptionalColumn = false;
+        $maxAttempts = 3;
+
+        Log::info('position.create-empty.input', [
+            'request_id' => $requestId,
+            'offert_id' => $offertId,
+            'user_id' => auth()->id(),
+        ]);
 
         try {
             $supportsOptionalColumn = Schema::hasColumn('positions', 'is_optional');
         } catch (\Throwable $e) {
             report($e);
+            Log::warning('position.create-empty.schema-check-failed', [
+                'request_id' => $requestId,
+                'offert_id' => $offertId,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
         }
 
         if ($offertId <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid offert_id',
+                'request_id' => $requestId,
             ], 422);
         }
 
-        try {
-            $position = DB::transaction(function () use ($offertId, $supportsOptionalColumn) {
-                $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
-                if (! $offert) {
-                    return null;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $position = DB::transaction(function () use ($offertId, $supportsOptionalColumn, $requestId, $attempt) {
+                    $offert = Offert::whereKey($offertId)->lockForUpdate()->first();
+                    if (! $offert) {
+                        return null;
+                    }
+
+                    if ($offert->isLockedByOther()) {
+                        return [
+                            'locked' => true,
+                            'who' => $offert->lockingUser?->username ?? 'another user',
+                        ];
+                    }
+
+                    Log::info('position.create-empty.lock-acquired', [
+                        'request_id' => $requestId,
+                        'offert_id' => $offertId,
+                        'attempt' => $attempt,
+                    ]);
+
+                    $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
+                        $query->where('id', $offertId);
+                    })->max('position_number') + 1;
+
+                    $payload = [
+                        'description' => '',
+                        'description2' => '',
+                        'blocktype' => null,
+                        'b' => null,
+                        'h' => null,
+                        't' => null,
+                        'quantity' => 1,
+                        'price_brutto' => 0,
+                        'price_discount' => 0,
+                        'discount' => 0,
+                        'material_brutto' => 0,
+                        'zeit_brutto' => 0,
+                        'material_costo' => 0,
+                        'material_profit' => 0,
+                        'ziet_costo' => 0,
+                        'ziet_profit' => 0,
+                        'costo_total' => 0,
+                        'profit_total' => 0,
+                        'position_number' => $nextPositionNumber,
+                    ];
+
+                    if ($supportsOptionalColumn) {
+                        $payload['is_optional'] = false;
+                    }
+
+                    $position = Position::create($payload);
+                    Log::info('position.create-empty.position-inserted', [
+                        'request_id' => $requestId,
+                        'offert_id' => $offertId,
+                        'position_id' => $position->id,
+                        'position_number' => $position->position_number,
+                    ]);
+
+                    $position->offerts()->syncWithoutDetaching([$offertId]);
+                    Log::info('position.create-empty.pivot-attached', [
+                        'request_id' => $requestId,
+                        'offert_id' => $offertId,
+                        'position_id' => $position->id,
+                    ]);
+
+                    return $position;
+                }, 1);
+
+                if (! $position) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Offer not found',
+                        'request_id' => $requestId,
+                    ], 404);
                 }
 
-                $nextPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })->max('position_number') + 1;
-
-                $payload = [
-                    'description' => '',
-                    'description2' => '',
-                    'blocktype' => null,
-                    'b' => null,
-                    'h' => null,
-                    't' => null,
-                    'quantity' => 1,
-                    'price_brutto' => 0,
-                    'price_discount' => 0,
-                    'discount' => 0,
-                    'material_brutto' => 0,
-                    'zeit_brutto' => 0,
-                    'material_costo' => 0,
-                    'material_profit' => 0,
-                    'ziet_costo' => 0,
-                    'ziet_profit' => 0,
-                    'costo_total' => 0,
-                    'profit_total' => 0,
-                    'position_number' => $nextPositionNumber,
-                ];
-
-                if ($supportsOptionalColumn) {
-                    $payload['is_optional'] = false;
+                if (is_array($position) && ($position['locked'] ?? false)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Offer is currently locked by ' . $position['who'] . '. Please try again shortly.',
+                        'request_id' => $requestId,
+                    ], 423);
                 }
 
-                $position = Position::create($payload);
-                $position->offerts()->syncWithoutDetaching([$offertId]);
+                Log::info('position.create-empty.response-sent', [
+                    'request_id' => $requestId,
+                    'offert_id' => $offertId,
+                    'position_id' => $position->id,
+                    'position_number' => (int) $position->position_number,
+                ]);
 
-                return $position;
-            });
-
-            if (! $position) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Offer not found',
-                ], 404);
+                    'success' => true,
+                    'position_id' => $position->id,
+                    'position_number' => (int) $position->position_number,
+                    'edit_url' => route('position.edit', $position->id),
+                    'request_id' => $requestId,
+                ]);
+            } catch (\Throwable $e) {
+                $retryable = $this->isRetryableCreateEmptyException($e);
+
+                Log::error('position.create-empty.failed-attempt', [
+                    'request_id' => $requestId,
+                    'offert_id' => $offertId,
+                    'user_id' => auth()->id(),
+                    'attempt' => $attempt,
+                    'retryable' => $retryable,
+                    'sql_state' => (string) ($e->getCode() ?? ''),
+                    'error' => $e->getMessage(),
+                ]);
+
+                if (! $retryable || $attempt >= $maxAttempts) {
+                    report($e);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Could not create a new empty position.',
+                        'request_id' => $requestId,
+                    ], 500);
+                }
+
+                usleep(150000 * $attempt);
             }
-
-            return response()->json([
-                'success' => true,
-                'position_id' => $position->id,
-                'position_number' => (int) $position->position_number,
-                'edit_url' => route('position.edit', $position->id),
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Could not create a new empty position.',
-            ], 500);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Could not create a new empty position.',
+            'request_id' => $requestId,
+        ], 500);
     }
 
     /**
@@ -522,10 +619,24 @@ class PositionController extends Controller
     {
         // Single JOIN query: load position + offert_id in one roundtrip instead of two
         $position = Position::find($id);
+        if (! $position) {
+            return redirect()->route('offert.index')
+                ->with('error', 'Position not found. Please try opening it again from the offer list.');
+        }
+
         $offertId = DB::table('offert_position')
             ->where('position_id', $id)
             ->value('offert_id');
+        if (! $offertId) {
+            return redirect()->route('offert.index')
+                ->with('error', 'Position is not linked to an offer. Please create a new position again.');
+        }
+
         $offert = Offert::with('lockingUser')->find($offertId);
+        if (! $offert) {
+            return redirect()->route('offert.index')
+                ->with('error', 'Offer not found for this position.');
+        }
 
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';

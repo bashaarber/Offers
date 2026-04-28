@@ -141,6 +141,16 @@ DB_PASSWORD=paste-from-database-dashboard
 
 ---
 
+## New Position Endpoint Verification
+
+After every deploy that affects positions, run the checklist in:
+
+- `RENDER_NEW_POSITION_VERIFICATION.md`
+
+This validates route/cache state, schema parity, and live endpoint behavior for `POST /position/create-empty`.
+
+---
+
 ## Troubleshooting
 
 ### Issue: Build Fails

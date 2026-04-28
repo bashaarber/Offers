@@ -7,6 +7,7 @@ use App\Models\Offert;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class PositionFlowTest extends TestCase
@@ -260,6 +261,110 @@ class PositionFlowTest extends TestCase
         $this->assertSame('', (string) $position->description);
         $this->assertSame(0.0, (float) $position->price_brutto);
         $this->assertSame(1, (int) $position->quantity);
+    }
+
+    public function test_create_empty_returns_payload_contract_and_creates_position(): void
+    {
+        $user = $this->createUser();
+        $offert = $this->createOffert($user);
+
+        $response = $this->actingAs($user)->postJson(route('position.create-empty'), [
+            'offert_id' => $offert->id,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'success',
+                'position_id',
+                'position_number',
+                'edit_url',
+                'request_id',
+            ])
+            ->assertJson([
+                'success' => true,
+                'position_number' => 1,
+            ]);
+
+        $positionId = (int) $response->json('position_id');
+        $this->assertDatabaseHas('positions', ['id' => $positionId, 'position_number' => 1]);
+        $this->assertDatabaseHas('offert_position', [
+            'offert_id' => $offert->id,
+            'position_id' => $positionId,
+        ]);
+    }
+
+    public function test_create_empty_returns_422_for_invalid_offert_id(): void
+    {
+        $user = $this->createUser();
+
+        $this->actingAs($user)
+            ->postJson(route('position.create-empty'), ['offert_id' => 0])
+            ->assertStatus(422)
+            ->assertJsonStructure(['success', 'message', 'request_id'])
+            ->assertJson(['success' => false, 'message' => 'Invalid offert_id']);
+    }
+
+    public function test_create_empty_returns_404_when_offert_does_not_exist(): void
+    {
+        $user = $this->createUser();
+
+        $this->actingAs($user)
+            ->postJson(route('position.create-empty'), ['offert_id' => 999999])
+            ->assertStatus(404)
+            ->assertJsonStructure(['success', 'message', 'request_id'])
+            ->assertJson(['success' => false, 'message' => 'Offer not found']);
+    }
+
+    public function test_create_empty_returns_423_when_offert_locked_by_other_user(): void
+    {
+        if (! Schema::hasColumn('offerts', 'locked_by') || ! Schema::hasColumn('offerts', 'locked_at')) {
+            $this->markTestSkipped('Lock columns are not present in this test schema.');
+        }
+
+        $user = $this->createUser();
+        $otherUser = $this->createUser();
+        $offert = $this->createOffert($otherUser);
+        $offert->update([
+            'locked_by' => $otherUser->id,
+            'locked_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(route('position.create-empty'), ['offert_id' => $offert->id])
+            ->assertStatus(423)
+            ->assertJsonStructure(['success', 'message', 'request_id'])
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_edit_redirects_with_error_when_position_has_no_offert_link(): void
+    {
+        $user = $this->createUser();
+        $position = Position::create([
+            'description' => 'Orphan',
+            'description2' => '',
+            'blocktype' => null,
+            'b' => null,
+            'h' => null,
+            't' => null,
+            'quantity' => 1,
+            'price_brutto' => 0,
+            'price_discount' => 0,
+            'discount' => 0,
+            'material_brutto' => 0,
+            'zeit_brutto' => 0,
+            'material_costo' => 0,
+            'material_profit' => 0,
+            'ziet_costo' => 0,
+            'ziet_profit' => 0,
+            'costo_total' => 0,
+            'profit_total' => 0,
+            'position_number' => 1,
+            'is_optional' => false,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('position.edit', $position->id))
+            ->assertRedirect(route('offert.index'));
     }
 }
 
