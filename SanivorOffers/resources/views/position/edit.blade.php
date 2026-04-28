@@ -1247,6 +1247,11 @@
                 return autoSaveCurrentPosition();
             }
 
+            window.saveCurrentPositionBeforeAction = async function() {
+                if (isNavigatingAway) return { success: false };
+                return flushAutoSaveNow();
+            };
+
             function persistPositionBeforeLeave() {
                 if (isNavigatingAway || leavePersistQueued) return;
                 leavePersistQueued = true;

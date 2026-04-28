@@ -76,18 +76,6 @@
                     </div>
                 @endforeach
 
-                {{-- Show the current position being created (not yet saved) --}}
-                @if (isset($currentCreateNumber) && !$positions->contains('position_number', $currentCreateNumber))
-                    <div style="display:flex;align-items:center;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-                        <div style="display:flex;align-items:center;gap:4px;">
-                            <i class="fa-solid fa-pen" style="color:#3b82f6;font-size:10px;"></i>
-                            <span style="color:#3b82f6;font-size:12px;font-weight:500;">
-                                <strong>Pos. {{ $currentCreateNumber }}</strong>
-                                <span style="font-size:10px;margin-left:4px;">(new)</span>
-                            </span>
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
@@ -289,15 +277,40 @@
 
         window.addNewPos = function() {
             if (window._positionActionPending) return;
-            const offertId = '{{ $offertId }}';
-            const nextIndex = {{ $nextCreateIndex ?? (int) $positions->count() }};
-            const nextUrl = '{{ url("/position/create") }}/' + nextIndex + '?offert_id=' + offertId;
+            window.setPositionActionPending(true);
 
-            // Auto-save current position before navigating (if available)
-            if (typeof window.doAutoSaveAndNavigate === 'function') {
-                window.doAutoSaveAndNavigate(nextUrl);
+            const csrf = '{{ csrf_token() }}';
+            const offertId = '{{ $offertId }}';
+
+            const createAndNavigate = () => {
+                fetch('{{ route("position.create-empty") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({ offert_id: offertId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.edit_url) {
+                        window.location.href = data.edit_url;
+                        return;
+                    }
+                    throw new Error((data && data.message) || 'Could not create position');
+                })
+                .catch(error => {
+                    console.error('Create empty position failed:', error);
+                    window.setPositionActionPending(false);
+                });
+            };
+
+            if (typeof window.saveCurrentPositionBeforeAction === 'function') {
+                Promise.resolve(window.saveCurrentPositionBeforeAction())
+                    .catch(() => null)
+                    .then(createAndNavigate);
             } else {
-                window.location.href = nextUrl;
+                createAndNavigate();
             }
         };
 
