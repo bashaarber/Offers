@@ -322,14 +322,15 @@
                     <input type="hidden" name="zeit-profit" id="zeitProfit" value="0.00">
                     <input type="hidden" name="costo-total" id="costoTotal" value="0.00">
                     <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
-                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:8px 12px;white-space:nowrap;">
+                    @php $ctrl = 'height:26px;padding:1px 6px;font-size:12px;box-sizing:border-box;'; @endphp
+                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:6px 12px;white-space:nowrap;font-size:12px;">
                         <span>Rahmen</span>
-                        <input style="width:75px" value="Pos. {{ $nextPositionNumber ?? 1 }}" disabled>
+                        <input style="width:75px;{{ $ctrl }}" value="Pos. {{ $nextPositionNumber ?? 1 }}" disabled>
                         <span>mm</span>
                         <span style="margin-left:8px">Desc.</span>
-                        <input type="text" id="description" name="description" style="flex:1;min-width:150px">
+                        <input type="text" id="description" name="description" style="flex:1;min-width:150px;{{ $ctrl }}">
                         <span style="margin-left:8px">Blocktyp</span>
-                        <select name="blocktype" id="blocktype">
+                        <select name="blocktype" id="blocktype" style="{{ $ctrl }}">
                             <option value="" selected> - </option>
                             <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
                             <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch</option>
@@ -342,13 +343,13 @@
                         </select>
                         <div style="flex:1"></div>
                         <span>B</span>
-                        <input style="width:75px" type="text" id="b" name="b">
+                        <input style="width:75px;{{ $ctrl }}" type="text" id="b" name="b">
                         <span>cm</span>
                         <span style="margin-left:8px">H</span>
-                        <input style="width:75px" type="text" id="h" name="h">
+                        <input style="width:75px;{{ $ctrl }}" type="text" id="h" name="h">
                         <span>cm</span>
                         <span style="margin-left:8px">T</span>
-                        <input style="width:75px" type="text" id="t" name="t">
+                        <input style="width:75px;{{ $ctrl }}" type="text" id="t" name="t">
                         <span>cm</span>
                     </div>
                     <table class="table">

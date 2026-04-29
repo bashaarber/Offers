@@ -295,14 +295,15 @@
                     <input type="hidden" name="costo-total" id="costoTotal" value="{{ $position->costo_total }}">
                     <input type="hidden" name="profit-total" id="profitTotal"
                         value="{{ $position->profit_total }}">
-                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:8px 12px;white-space:nowrap;">
+                    @php $ctrl = 'height:26px;padding:1px 6px;font-size:12px;box-sizing:border-box;'; @endphp
+                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:6px 12px;white-space:nowrap;font-size:12px;">
                         <span>Rahmen</span>
-                        <input style="width:75px" value="Pos. {{ $position->position_number }}" disabled>
+                        <input style="width:75px;{{ $ctrl }}" value="Pos. {{ $position->position_number }}" disabled>
                         <span>mm</span>
                         <span style="margin-left:8px">Desc.</span>
-                        <input id="description" name="description" style="flex:1;min-width:150px" value="{{ $position->description }}">
+                        <input id="description" name="description" style="flex:1;min-width:150px;{{ $ctrl }}" value="{{ $position->description }}">
                         <span style="margin-left:8px">Blocktyp</span>
-                        <select name="blocktype" id="blocktype">
+                        <select name="blocktype" id="blocktype" style="{{ $ctrl }}">
                             <option value="" @if (is_null($position->blocktype)) selected @endif> - </option>
                             <option value="Vorwand-Raumhoch" @if ($position->blocktype == 'Vorwand-Raumhoch') selected @endif>Vorwand-Raumhoch</option>
                             <option value="Vorwand-Raumhoch und Teilhoch" @if ($position->blocktype == 'Vorwand-Raumhoch und Teilhoch') selected @endif>Vorwand-Raumhoch und Teilhoch</option>
@@ -315,13 +316,13 @@
                         </select>
                         <div style="flex:1"></div>
                         <span>B</span>
-                        <input id="b" style="width:75px" name="b" value="{{ $position->b }}">
+                        <input id="b" style="width:75px;{{ $ctrl }}" name="b" value="{{ $position->b }}">
                         <span>cm</span>
                         <span style="margin-left:8px">H</span>
-                        <input id="h" style="width:75px" name="h" value="{{ $position->h }}">
+                        <input id="h" style="width:75px;{{ $ctrl }}" name="h" value="{{ $position->h }}">
                         <span>cm</span>
                         <span style="margin-left:8px">T</span>
-                        <input id="t" style="width:75px" name="t" value="{{ $position->t }}">
+                        <input id="t" style="width:75px;{{ $ctrl }}" name="t" value="{{ $position->t }}">
                         <span>cm</span>
                     </div>
                     <table class="table">
