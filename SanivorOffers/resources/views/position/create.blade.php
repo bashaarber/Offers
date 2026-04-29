@@ -287,6 +287,30 @@
         .position-materials-panel .element-summary-name {
             font-size: 11px;
         }
+
+        /* Independent scroll for left + right panels */
+        .two-panel-wrap {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: flex-start;
+            overflow: hidden;
+            height: calc(100vh - 245px);
+        }
+
+        .two-panel-wrap > .col-md-3,
+        .two-panel-wrap > .col-md-9 {
+            height: 100%;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .two-panel-wrap > .col-md-3 {
+            width: 25%;
+        }
+
+        .two-panel-wrap > .col-md-9 {
+            width: 75%;
+        }
     </style>
 </head>
 
@@ -405,6 +429,7 @@
                         </tbody>
                     </table>
             </div>
+            <div class="two-panel-wrap">
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
@@ -573,7 +598,8 @@
                 }
                 </script>
             </div>
-        </div>
+            </div>{{-- /.two-panel-wrap --}}
+        </div>{{-- /.row --}}
         </form>
         {{-- <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back to Offert</a> --}}
     </div>
