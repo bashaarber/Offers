@@ -186,9 +186,15 @@
             @foreach ($offert->positions as $position)
                 @if (!$position->is_optional)
                     @php
-                        $totalBrutto += $position->price_brutto;
-                        $totalNetto += $position->price_discount;
-                        $totalDiscount += max($position->price_brutto - $position->price_discount, 0);
+                        $posBrutto = isset($customPositionPrices[$position->id])
+                            ? $customPositionPrices[$position->id]['brutto']
+                            : $position->price_brutto;
+                        $posNetto  = isset($customPositionPrices[$position->id])
+                            ? $customPositionPrices[$position->id]['netto']
+                            : $position->price_discount;
+                        $totalBrutto += $posBrutto;
+                        $totalNetto  += $posNetto;
+                        $totalDiscount += max($posBrutto - $posNetto, 0);
                     @endphp
                 @else
                     @php
@@ -240,9 +246,15 @@
             <tbody>
                 <tr class="position-value-row" style="text-align: center;font-weight:bold">
                     @php
-                        $quantity = max((float) ($position->quantity ?? 1), 1);
-                        $unitBrutto = (float) ($position->price_brutto ?? 0) / $quantity;
-                        $unitNetto = $unitBrutto * ((100 - (float) ($position->discount ?? 0)) / 100);
+                        $quantity   = max((float) ($position->quantity ?? 1), 1);
+                        $posTotalBrutto = isset($customPositionPrices[$position->id])
+                            ? $customPositionPrices[$position->id]['brutto']
+                            : (float) ($position->price_brutto ?? 0);
+                        $posTotalNetto  = isset($customPositionPrices[$position->id])
+                            ? $customPositionPrices[$position->id]['netto']
+                            : (float) ($position->price_discount ?? 0);
+                        $unitBrutto = $posTotalBrutto / $quantity;
+                        $unitNetto  = $posTotalNetto  / $quantity;
                     @endphp
                     <td class="text-left">
                         {{ $position->blocktype }}<br>
@@ -255,8 +267,7 @@
                     <td>{{ $position->discount }}%</td>
                     <td>{{ $chf($unitNetto) }}</td>
                     <td> {{ $chInt($position->quantity) }} </td>
-                    <td>{{ $chf((float) ($position->price_discount ?? 0)) }}
-                    </td>
+                    <td>{{ $chf($posTotalNetto) }}</td>
                 </tr>
             </tbody>
         </table>

@@ -89,7 +89,80 @@ class OffertController extends Controller
                 'positions.elementsForPdf.group_elements.organigrams',
             ]);
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds'));
+            // When a custom organigram filter is active, recompute per-position prices
+            // using only the elements that belong to the selected organigrams.
+            $customPositionPrices = [];
+            if (!empty($selectedOrganigramIds)) {
+                $materialCoeff   = (float) ($offert->material ?: 1);
+                $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
+
+                $positionIds = $offert->positions->pluck('id')->toArray();
+
+                // Single join query: all PositionMaterial rows + material price columns
+                $pmRows = \App\Models\PositionMaterial::whereIn('position_id', $positionIds)
+                    ->join('materials', 'materials.id', '=', 'position_materials.material_id')
+                    ->select(
+                        'position_materials.position_id',
+                        'position_materials.element_id',
+                        'position_materials.quantity',
+                        'materials.price_out',
+                        'materials.total_arbeit'
+                    )
+                    ->get()
+                    ->groupBy(fn ($pm) => $pm->position_id . '_' . $pm->element_id);
+
+                foreach ($offert->positions as $position) {
+                    // Collect element IDs that touch at least one selected organigram
+                    $filteredElementIds = $position->elementsForPdf
+                        ->filter(function ($element) use ($selectedOrganigramIds) {
+                            foreach ($element->group_elements as $ge) {
+                                foreach ($ge->organigrams as $org) {
+                                    if (in_array($org->id, $selectedOrganigramIds, true)) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        })
+                        ->pluck('id');
+
+                    $totalProTypPrice = 0.0;
+                    foreach ($filteredElementIds as $elementId) {
+                        $element = $position->elementsForPdf->firstWhere('id', $elementId);
+                        if (!$element) {
+                            continue;
+                        }
+                        if (\App\Models\Position::truthyElementOptionalPivot($element->pivot->is_optional ?? null)) {
+                            continue;
+                        }
+
+                        $elementQuantity = max((float) ($element->pivot->quantity ?? 1), 0);
+                        $key = $position->id . '_' . $elementId;
+                        $pms = $pmRows->get($key, collect());
+
+                        $elementTotal = 0.0;
+                        foreach ($pms as $pm) {
+                            $elementTotal += (
+                                (float) $pm->price_out * $materialCoeff
+                                + (float) $pm->total_arbeit / $difficultyCoeff
+                            ) * (float) $pm->quantity;
+                        }
+                        $totalProTypPrice += $elementTotal * $elementQuantity;
+                    }
+
+                    $mengeValue = max((float) ($position->quantity ?? 1), 1);
+                    $brutto     = $totalProTypPrice * $mengeValue;
+                    $discount   = (float) ($position->discount ?? 0);
+                    $netto      = $brutto * (1 - $discount / 100);
+
+                    $customPositionPrices[$position->id] = [
+                        'brutto' => $brutto,
+                        'netto'  => $netto,
+                    ];
+                }
+            }
+
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices'));
             return $pdf->stream();
         } catch (\Throwable $e) {
             Log::error('External PDF generation failed', [
