@@ -70,15 +70,26 @@ class OffertController extends Controller
                 abort(404, 'Offert #' . $id . ' not found.');
             }
 
+            $selectedOrganigramIds = collect(request()->query('organigrams', []))
+                ->map(fn ($v) => (int) $v)
+                ->filter()
+                ->values()
+                ->all();
+
             $offert->load([
                 'client',
-                'positions' => function ($query) {
+                'positions' => function ($query) use ($selectedOrganigramIds) {
                     $query->orderBy('position_number', 'ASC');
+                    if (!empty($selectedOrganigramIds)) {
+                        $query->whereHas('group_elements.organigrams', function ($q) use ($selectedOrganigramIds) {
+                            $q->whereIn('organigrams.id', $selectedOrganigramIds);
+                        });
+                    }
                 },
                 'positions.elementsForPdf.group_elements.organigrams',
             ]);
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert'));
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds'));
             return $pdf->stream();
         } catch (\Throwable $e) {
             Log::error('External PDF generation failed', [

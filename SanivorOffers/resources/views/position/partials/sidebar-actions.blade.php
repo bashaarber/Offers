@@ -111,9 +111,40 @@
 </div>
 
 <div id="external-pdf-footer-slot-template" style="display:none;">
+    <a href="javascript:void(0);" class="custom-external-pdf-link" onclick="window.openCustomPdfModal && window.openCustomPdfModal();">
+        <i class="fa-solid fa-file-pdf"></i><span>Custom External PDF</span>
+    </a>
     <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
         <i class="fa-solid fa-file-export"></i><span>External PDF</span>
     </a>
+</div>
+
+<div id="custom-pdf-modal-backdrop"
+    style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:3000;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;width:min(440px,96vw);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.35);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e5e7eb;background:#f8fafc;">
+            <strong style="font-size:14px;color:#111827;">Custom External PDF</strong>
+            <button type="button" onclick="window.closeCustomPdfModal && window.closeCustomPdfModal();"
+                style="border:none;background:transparent;color:#334155;font-size:20px;line-height:1;cursor:pointer;">&times;</button>
+        </div>
+        <div style="padding:16px;color:#111827;font-size:13px;">
+            <div style="margin-bottom:10px;color:#475569;">Select which organigrams to include:</div>
+            <div id="custom-pdf-organigrams-list" style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;">
+                @foreach ($organigrams ?? [] as $org)
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;">
+                        <input type="checkbox" class="custom-pdf-org-checkbox" value="{{ $org->id }}" checked>
+                        <span>{{ $org->name }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid #e5e7eb;background:#f8fafc;">
+            <button type="button" onclick="window.closeCustomPdfModal && window.closeCustomPdfModal();"
+                class="btn btn-sm btn-secondary">Cancel</button>
+            <button type="button" onclick="window.submitCustomPdf && window.submitCustomPdf();"
+                class="btn btn-sm btn-primary">Generate PDF</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -160,10 +191,9 @@
         if (sidebar && footer && pdfFooterTemplate) {
             const pdfWrap = document.createElement('div');
             pdfWrap.innerHTML = pdfFooterTemplate.innerHTML.trim();
-            const pdfLink = pdfWrap.firstElementChild;
-            if (pdfLink) {
-                footer.insertBefore(pdfLink, footer.firstElementChild);
-            }
+            const links = Array.from(pdfWrap.children);
+            const anchor = footer.firstElementChild;
+            links.forEach(link => footer.insertBefore(link, anchor));
         }
 
         const modalTemplate = document.getElementById('offert-overview-modal-template');
@@ -292,5 +322,41 @@
             }
         };
 
+        // --- Custom External PDF modal ---
+        const customPdfBackdrop = document.getElementById('custom-pdf-modal-backdrop');
+
+        window.openCustomPdfModal = function() {
+            if (!customPdfBackdrop) return;
+            customPdfBackdrop.style.display = 'flex';
+        };
+
+        window.closeCustomPdfModal = function() {
+            if (!customPdfBackdrop) return;
+            customPdfBackdrop.style.display = 'none';
+        };
+
+        if (customPdfBackdrop) {
+            customPdfBackdrop.addEventListener('click', function(e) {
+                if (e.target === customPdfBackdrop) window.closeCustomPdfModal();
+            });
+        }
+
+        window.submitCustomPdf = function() {
+            const checked = Array.from(document.querySelectorAll('.custom-pdf-org-checkbox:checked'))
+                .map(cb => cb.value);
+            if (checked.length === 0) {
+                alert('Please select at least one organigram.');
+                return;
+            }
+            const params = checked.map(id => 'organigrams[]=' + encodeURIComponent(id)).join('&');
+            const baseUrl = '{{ route("offert.pdf", $offertId) }}';
+            const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + params;
+            window.closeCustomPdfModal();
+            if (typeof window.openExternalPdfAfterSave === 'function') {
+                window.openExternalPdfAfterSave(url);
+            } else {
+                window.open(url, '_blank', 'noopener');
+            }
+        };
     });
 </script>

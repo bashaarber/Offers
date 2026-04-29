@@ -267,6 +267,7 @@
         'nextCreateIndex' => (int) $positions->count(),
         'showSaveButton' => false,
         'saveFormId' => null,
+        'organigrams' => $organigrams,
     ])
     @include('position.partials.element-selection-js')
     <div class="content">

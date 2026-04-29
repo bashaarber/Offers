@@ -301,6 +301,7 @@
         'nextCreateIndex' => max((int) $positions->count(), ((int) ($index ?? 0)) + 1),
         'showSaveButton' => true,
         'saveFormId' => 'createPositionForm',
+        'organigrams' => $organigrams,
     ])
     @include('position.partials.element-selection-js')
     <div class="content">

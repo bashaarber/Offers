@@ -268,6 +268,7 @@
         @foreach ($position->elementsForPdf as $element)
             @foreach ($element->group_elements as $group_element)
                 @foreach ($group_element->organigrams as $organigram)
+                    @if (empty($selectedOrganigramIds ?? []) || in_array($organigram->id, $selectedOrganigramIds ?? []))
                     @php
                         $groupedGroupElements[$organigram->name][$group_element->name][] = [
                             'quantity'    => $element->pivot->quantity,
@@ -275,6 +276,7 @@
                             'is_optional' => \App\Models\Position::truthyElementOptionalPivot($element->pivot->is_optional ?? null),
                         ];
                     @endphp
+                    @endif
                 @endforeach
             @endforeach
         @endforeach
