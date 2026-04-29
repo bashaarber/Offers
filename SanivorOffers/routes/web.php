@@ -92,6 +92,9 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::resource('organigram', OrganigramController::class)->except(['index']);
     Route::get('/organigram', [OrganigramController::class, 'index'])->name('organigram.index');
 
+});
+
+Route::middleware('auth')->group(function () {
     Route::resource('client', ClientController::class)->except(['index']);
     Route::get('/client', [ClientController::class, 'index'])->name('client.index');
     Route::post('/client/{id}/archive', [ClientController::class, 'archive'])->name('client.archive');

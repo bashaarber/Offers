@@ -320,11 +320,17 @@
                 </div>
                 @endif
                 @else
-                {{-- Seller: show only Coefficient --}}
+                {{-- Seller: show Coefficient and Clients --}}
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">@lang('public.settings')</div>
                     <a href="{{ url('/coefficient') }}" class="{{ request()->is('coefficient*') ? 'active' : '' }}">
                         <i class="fa-solid fa-calculator"></i><span>@lang('public.coefficient')</span>
+                    </a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Management</div>
+                    <a href="{{ url('/client') }}" class="{{ request()->is('client*') ? 'active' : '' }}">
+                        <i class="fa fa-address-card"></i><span>@lang('public.clients')</span>
                     </a>
                 </div>
                 @endif
