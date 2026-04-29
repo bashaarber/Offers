@@ -322,88 +322,85 @@
                     <input type="hidden" name="zeit-profit" id="zeitProfit" value="0.00">
                     <input type="hidden" name="costo-total" id="costoTotal" value="0.00">
                     <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
+                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:8px 12px;white-space:nowrap;">
+                        <span>Rahmen</span>
+                        <input style="width:75px" value="Pos. {{ $nextPositionNumber ?? 1 }}" disabled>
+                        <span>mm</span>
+                        <span style="margin-left:8px">Desc.</span>
+                        <input type="text" id="description" name="description" style="flex:1;min-width:150px">
+                        <span style="margin-left:8px">Blocktyp</span>
+                        <select name="blocktype" id="blocktype">
+                            <option value="" selected> - </option>
+                            <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
+                            <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch</option>
+                            <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
+                            <option value="Freistehend-Raumhoch">Freistehend-Raumhoch</option>
+                            <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
+                            <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
+                            <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
+                            <option value="Trennwand DeBO-System">Trennwand DeBO-System</option>
+                        </select>
+                        <div style="flex:1"></div>
+                        <span>B</span>
+                        <input style="width:75px" type="text" id="b" name="b">
+                        <span>cm</span>
+                        <span style="margin-left:8px">H</span>
+                        <input style="width:75px" type="text" id="h" name="h">
+                        <span>cm</span>
+                        <span style="margin-left:8px">T</span>
+                        <input style="width:75px" type="text" id="t" name="t">
+                        <span>cm</span>
+                    </div>
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                <th scope="col" style="width:1%;white-space:nowrap">Rahmen <input value="Pos. {{ $nextPositionNumber ?? 1 }}"
-                                        style="width: 75px" disabled> mm </th>
-                                <th scope="col">Desc. <input type="text" id="description" name="description" style="width: 300px">
-                                </th>
-                                <th style="width:1%;white-space:nowrap">
-                                    Blocktyp <select name="blocktype" id="blocktype">
-                                        <option value="" selected> - </option>
-                                        <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
-                                        <option value="Vorwand-Raumhoch und Teilhoch">Vorwand-Raumhoch und Teilhoch</option>
-                                        <option value="Vorwand-Teilhoch">Vorwand-Teilhoch</option>
-                                        <option value="Freistehend-Raumhoch">Freistehend-Raumhoch</option>
-                                        <option value="Vorwand-Freistehend">Vorwand-Freistehend</option>
-                                        <option value="Freistehend-Teilhoch">Freistehend-Teilhoch</option>
-                                        <option value="Vorwand DeBO-System">Vorwand DeBO-System</option>
-                                        <option value="Trennwand DeBO-System">Trennwand DeBO-System</option>
-                                    </select>
-                                </th>
-                                <th scope="col" style="width:1%;white-space:nowrap">B <input style="width: 75px" type="text" id="b"
-                                        name="b"> cm</th>
-                                <th scope="col" style="width:1%;white-space:nowrap">H <input style="width: 75px" type="text" id="h"
-                                        name="h"> cm</th>
-                                <th scope="col" style="width:1%;white-space:nowrap">T <input style="width: 75px" type="text" id="t"
-                                        name="t"> cm</th>
+                                <th></th>
+                                <th scope="col">Preis Brutto</th>
+                                <th scope="col">Preis mit Rabbat</th>
+                                <th scope="col">Rabbat</th>
+                                <th scope="col">Kosto CHF</th>
+                                <th scope="col">Profit CHF</th>
                             </tr>
-                            <tr class="table-dark">
-                                <thead>
-                                    <thead>
-                                        <tr class="table-dark">
-                                            <th></th>
-                                            <th scope="col">Preis Brutto </th>
-                                            <th scope="col">Preis mit Rabbat</th>
-                                            <th scope="col">Rabbat</th>
-                                            <th scope="col">Kosto CHF</th>
-                                            <th scope="col">Profit CHF</th>
-                                        </tr>
-                                    </thead>
-                                <tbody>
-                                    <tr class="table-active">
-                                        <td><strong>Materiale Pro Typ</strong></td>
-                                        <td id="price-out-input" name="price-out-input">0.00</td>
-                                        <td id="price-out-input2">0.00</td>
-                                        <td>% <input value="0"></td>
-                                        <td id="price-in-input" name="material-costo">0.00</td>
-                                        <td id="price-profit" name="material-profit">0.00</td>
-                                    </tr>
-                                    <tr class="table-active">
-                                        <td><strong>Zeit Pro Typ</strong></td>
-                                        <td id="zeit-cost-input" name="zeit-cost-input">0.00</td>
-                                        <td id="zeit-cost-input2">0.00</td>
-                                        <td>% <input value="0"></td>
-                                        <td id="zeit-costo" name="zeit-costo">0.00</td>
-                                        <td id="zeit-profit" name="zeit-profit">0.00</td>
-                                    </tr>
-                                    <tr class="table-secondary">
-                                        <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price2">0.00</td>
-                                        <td id="discounted-total2">0.00</td>
-                                        <td>% <input id="percentage-input2" disabled value="0"></td>
-                                        <td id="costo-total2">0.00</td>
-                                        <td id="profit-total2">0.00</td>
-                                    </tr>
-                                    <tr style="font-weight:700;color:black" class="table-dark">
-                                        <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="1" min="1">
-                                        </td>
-                                        <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
-                                        <td id="discounted-total">0.00</td>
-                                        <td>% <input id="percentage-input" name="percentage-input"
-                                            value="{{ $offert->default_rabatt ?? 0 }}">
-                                            <button type="button" id="rabatt-default-btn"
-                                                class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
-                                                Default
-                                            </button>
-                                        </td>
-                                        <td id="costo-total" name="costo-total">0.00</td>
-                                        <td id="profit-total" name="profit-total">0.00</td>
-                                    </tr>
-                                </tbody>
                         </thead>
+                        <tbody>
+                            <tr class="table-active">
+                                <td><strong>Materiale Pro Typ</strong></td>
+                                <td id="price-out-input" name="price-out-input">0.00</td>
+                                <td id="price-out-input2">0.00</td>
+                                <td>% <input value="0"></td>
+                                <td id="price-in-input" name="material-costo">0.00</td>
+                                <td id="price-profit" name="material-profit">0.00</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Zeit Pro Typ</strong></td>
+                                <td id="zeit-cost-input" name="zeit-cost-input">0.00</td>
+                                <td id="zeit-cost-input2">0.00</td>
+                                <td>% <input value="0"></td>
+                                <td id="zeit-costo" name="zeit-costo">0.00</td>
+                                <td id="zeit-profit" name="zeit-profit">0.00</td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <td><strong>Total Pro Typ</strong></td>
+                                <td id="total-pro-typ-price2">0.00</td>
+                                <td id="discounted-total2">0.00</td>
+                                <td>% <input id="percentage-input2" disabled value="0"></td>
+                                <td id="costo-total2">0.00</td>
+                                <td id="profit-total2">0.00</td>
+                            </tr>
+                            <tr style="font-weight:700;color:black" class="table-dark">
+                                <td>Menge <input id="menge-input" type="number" name="quantity" value="1" min="1"></td>
+                                <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
+                                <td id="discounted-total">0.00</td>
+                                <td>% <input id="percentage-input" name="percentage-input" value="{{ $offert->default_rabatt ?? 0 }}">
+                                    <button type="button" id="rabatt-default-btn"
+                                        class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
+                                        Default
+                                    </button>
+                                </td>
+                                <td id="costo-total" name="costo-total">0.00</td>
+                                <td id="profit-total" name="profit-total">0.00</td>
+                            </tr>
+                        </tbody>
                     </table>
             </div>
             <div class="col-md-3">

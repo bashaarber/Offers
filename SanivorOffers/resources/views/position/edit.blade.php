@@ -295,107 +295,89 @@
                     <input type="hidden" name="costo-total" id="costoTotal" value="{{ $position->costo_total }}">
                     <input type="hidden" name="profit-total" id="profitTotal"
                         value="{{ $position->profit_total }}">
+                    <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:8px 12px;white-space:nowrap;">
+                        <span>Rahmen</span>
+                        <input style="width:75px" value="Pos. {{ $position->position_number }}" disabled>
+                        <span>mm</span>
+                        <span style="margin-left:8px">Desc.</span>
+                        <input id="description" name="description" style="flex:1;min-width:150px" value="{{ $position->description }}">
+                        <span style="margin-left:8px">Blocktyp</span>
+                        <select name="blocktype" id="blocktype">
+                            <option value="" @if (is_null($position->blocktype)) selected @endif> - </option>
+                            <option value="Vorwand-Raumhoch" @if ($position->blocktype == 'Vorwand-Raumhoch') selected @endif>Vorwand-Raumhoch</option>
+                            <option value="Vorwand-Raumhoch und Teilhoch" @if ($position->blocktype == 'Vorwand-Raumhoch und Teilhoch') selected @endif>Vorwand-Raumhoch und Teilhoch</option>
+                            <option value="Vorwand-Teilhoch" @if ($position->blocktype == 'Vorwand-Teilhoch') selected @endif>Vorwand-Teilhoch</option>
+                            <option value="Freistehend-Raumhoch" @if ($position->blocktype == 'Freistehend-Raumhoch') selected @endif>Freistehend-Raumhoch</option>
+                            <option value="Vorwand-Freistehend" @if ($position->blocktype == 'Vorwand-Freistehend') selected @endif>Vorwand-Freistehend</option>
+                            <option value="Freistehend-Teilhoch" @if ($position->blocktype == 'Freistehend-Teilhoch') selected @endif>Freistehend-Teilhoch</option>
+                            <option value="Vorwand DeBO-System" @if ($position->blocktype == 'Vorwand DeBO-System') selected @endif>Vorwand DeBO-System</option>
+                            <option value="Trennwand DeBO-System" @if ($position->blocktype == 'Trennwand DeBO-System') selected @endif>Trennwand DeBO-System</option>
+                        </select>
+                        <div style="flex:1"></div>
+                        <span>B</span>
+                        <input id="b" style="width:75px" name="b" value="{{ $position->b }}">
+                        <span>cm</span>
+                        <span style="margin-left:8px">H</span>
+                        <input id="h" style="width:75px" name="h" value="{{ $position->h }}">
+                        <span>cm</span>
+                        <span style="margin-left:8px">T</span>
+                        <input id="t" style="width:75px" name="t" value="{{ $position->t }}">
+                        <span>cm</span>
+                    </div>
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                <th scope="col" style="width:1%;white-space:nowrap">Rahmen <input style="width: 75px"
-                                        value="Pos. {{ $position->position_number }}" disabled> mm </th>
-                                <th scope="col">Desc. <input id="description" name="description" style="width: 300px"
-                                        value="{{ $position->description }}"> </th>
-                                <th style="width:1%;white-space:nowrap">
-                                    Blocktyp <select name="blocktype" id="blocktype">
-                                        <option value="" @if (is_null($position->blocktype)) selected @endif> -
-                                        </option>
-                                        <option value="Vorwand-Raumhoch"
-                                            @if ($position->blocktype == 'Vorwand-Raumhoch') selected @endif>Vorwand-Raumhoch</option>
-                                        <option value="Vorwand-Raumhoch und Teilhoch"
-                                            @if ($position->blocktype == 'Vorwand-Raumhoch und Teilhoch') selected @endif>Vorwand-Raumhoch und
-                                            Teilhoch</option>
-                                        <option value="Vorwand-Teilhoch"
-                                            @if ($position->blocktype == 'Vorwand-Teilhoch') selected @endif>Vorwand-Teilhoch</option>
-                                        <option value="Freistehend-Raumhoch"
-                                            @if ($position->blocktype == 'Freistehend-Raumhoch') selected @endif>Freistehend-Raumhoch
-                                        </option>
-                                        <option value="Vorwand-Freistehend"
-                                            @if ($position->blocktype == 'Vorwand-Freistehend') selected @endif>Vorwand-Freistehend
-                                        </option>
-                                        <option value="Freistehend-Teilhoch"
-                                            @if ($position->blocktype == 'Freistehend-Teilhoch') selected @endif>Freistehend-Teilhoch
-                                        </option>
-                                        <option value="Vorwand DeBO-System"
-                                            @if ($position->blocktype == 'Vorwand DeBO-System') selected @endif>Vorwand DeBO-System
-                                        </option>
-                                        <option value="Trennwand DeBO-System"
-                                            @if ($position->blocktype == 'Trennwand DeBO-System') selected @endif>Trennwand DeBO-System
-                                        </option>
-                                    </select>
-                                </th>
-                                <th scope="col" style="width:1%;white-space:nowrap">B <input id="b" style="width: 75px" name="b"
-                                        value="{{ $position->b }}"> cm </th>
-                                <th scope="col" style="width:1%;white-space:nowrap">H <input id="h" style="width: 75px" name="h"
-                                        value="{{ $position->h }}"> cm </th>
-                                <th scope="col" style="width:1%;white-space:nowrap">T <input id="t" style="width: 75px" name="t"
-                                        value="{{ $position->t }}"> cm </th>
+                                <th></th>
+                                <th scope="col">Preis Brutto</th>
+                                <th scope="col">Preis mit Rabbat</th>
+                                <th scope="col">Rabbat</th>
+                                <th scope="col">Kosto CHF</th>
+                                <th scope="col">Profit CHF</th>
                             </tr>
-                            <tr class="table-dark">
-                                <thead>
-                                    <thead>
-                                        <tr class="table-dark">
-                                            <th></th>
-                                            <th scope="col">Preis Brutto </th>
-                                            <th scope="col">Preis mit Rabbat</th>
-                                            <th scope="col">Rabbat</th>
-                                            <th scope="col">Kosto CHF</th>
-                                            <th scope="col">Profit CHF</th>
-                                        </tr>
-                                    </thead>
-                                <tbody>
-                                    <tr class="table-active">
-                                        <td><strong>Materiale Pro Typ</strong></td>
-                                        <td id="price-out-input">{{ $position->material_brutto }}</td>
-                                        <td id="price-out-input2">{{ $position->material_brutto }}</td>
-                                        <td>% <input value="0"></td>
-                                        <td id="price-in-input">{{ $position->material_costo }}</td>
-                                        <td id="price-profit">{{ $position->material_profit }}</td>
-                                    </tr>
-                                    <tr class="table-active">
-                                        <td><strong>Zeit Pro Typ</strong></td>
-                                        <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
-                                        <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
-                                        <td>% <input value="0"></td>
-                                        <td id="zeit-costo">{{ $position->ziet_costo }}</td>
-                                        <td id="zeit-profit">{{ $position->ziet_profit }}</td>
-                                    </tr>
-                                    <tr class="table-secondary">
-                                        <td><strong>Total Pro Typ</strong></td>
-                                        <td id="total-pro-typ-price2">{{ $position->price_brutto }}</td>
-                                        <td id="discounted-total2">{{ $position->price_discount }}</td>
-                                        <td>% <input id="percentage-input2" disabled
-                                                value="{{ $position->discount }}">
-                                        </td>
-                                        <td id="costo-total">{{ $position->costo_total }}</td>
-                                        <td id="profit-total">{{ $position->profit_total }}</td>
-                                    </tr>
-                                    <tr style="font-weight:700;color:black" class="table-dark">
-                                        <td>Menge <input id="menge-input" type="number" name="quantity"
-                                                value="{{ $position->quantity }}" min="1">
-                                        </td>
-                                        <td id="total-pro-typ-price" name="total-pro-typ-price">
-                                            {{ $position->price_brutto }}</td>
-                                        <td id="discounted-total">{{ $position->price_discount }}</td>
-                                        <td>% <input id="percentage-input" name="percentage-input"
-                                                value="{{ $position->discount }}"
-                                                style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
-                                            <button type="button" id="rabatt-default-btn"
-                                                class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
-                                                Default
-                                            </button>
-                                        </td>
-                                        <td id="costo-total2">{{ $position->costo_total }}</td>
-                                        <td id="profit-total2">{{ $position->profit_total }}</td>
-                                    </tr>
-                                </tbody>
                         </thead>
+                        <tbody>
+                            <tr class="table-active">
+                                <td><strong>Materiale Pro Typ</strong></td>
+                                <td id="price-out-input">{{ $position->material_brutto }}</td>
+                                <td id="price-out-input2">{{ $position->material_brutto }}</td>
+                                <td>% <input value="0"></td>
+                                <td id="price-in-input">{{ $position->material_costo }}</td>
+                                <td id="price-profit">{{ $position->material_profit }}</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Zeit Pro Typ</strong></td>
+                                <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
+                                <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
+                                <td>% <input value="0"></td>
+                                <td id="zeit-costo">{{ $position->ziet_costo }}</td>
+                                <td id="zeit-profit">{{ $position->ziet_profit }}</td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <td><strong>Total Pro Typ</strong></td>
+                                <td id="total-pro-typ-price2">{{ $position->price_brutto }}</td>
+                                <td id="discounted-total2">{{ $position->price_discount }}</td>
+                                <td>% <input id="percentage-input2" disabled value="{{ $position->discount }}"></td>
+                                <td id="costo-total">{{ $position->costo_total }}</td>
+                                <td id="profit-total">{{ $position->profit_total }}</td>
+                            </tr>
+                            <tr style="font-weight:700;color:black" class="table-dark">
+                                <td>Menge <input id="menge-input" type="number" name="quantity"
+                                        value="{{ $position->quantity }}" min="1">
+                                </td>
+                                <td id="total-pro-typ-price" name="total-pro-typ-price">{{ $position->price_brutto }}</td>
+                                <td id="discounted-total">{{ $position->price_discount }}</td>
+                                <td>% <input id="percentage-input" name="percentage-input"
+                                        value="{{ $position->discount }}"
+                                        style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
+                                    <button type="button" id="rabatt-default-btn"
+                                        class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
+                                        Default
+                                    </button>
+                                </td>
+                                <td id="costo-total2">{{ $position->costo_total }}</td>
+                                <td id="profit-total2">{{ $position->profit_total }}</td>
+                            </tr>
+                        </tbody>
                     </table>
             </div>
             <div class="col-md-3">
