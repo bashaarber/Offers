@@ -298,9 +298,9 @@
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                <th scope="col">Rahmen <input style="width: 150px"
+                                <th scope="col">Rahmen <input style="width: 75px"
                                         value="Pos. {{ $position->position_number }}" disabled> mm </th>
-                                <th scope="col"> Desc. <input id="description" name="description"
+                                <th scope="col"> Desc. <input id="description" name="description" style="width: 300px"
                                         value="{{ $position->description }}"> </th>
                                 <th>
                                     Blocktyp <select name="blocktype" id="blocktype">
@@ -330,11 +330,11 @@
                                         </option>
                                     </select>
                                 </th>
-                                <th scope="col"> B <input id="b" style="width: 150px" name="b"
+                                <th scope="col"> B <input id="b" style="width: 75px" name="b"
                                         value="{{ $position->b }}"> cm </th>
-                                <th scope="col"> H <input id="h" style="width: 150px" name="h"
+                                <th scope="col"> H <input id="h" style="width: 75px" name="h"
                                         value="{{ $position->h }}"> cm </th>
-                                <th scope="col"> T <input id="t" style="width: 150px" name="t"
+                                <th scope="col"> T <input id="t" style="width: 75px" name="t"
                                         value="{{ $position->t }}"> cm </th>
                             </tr>
                             <tr class="table-dark">
