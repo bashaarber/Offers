@@ -320,7 +320,8 @@
                 </div>
                 @endif
                 @else
-                {{-- Seller: show Coefficient and Clients --}}
+                {{-- Seller: show Coefficient and Clients, but not inside offer/position pages --}}
+                @if (!request()->routeIs('position.*', 'offert.edit', 'offert.create', 'offert.show'))
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">@lang('public.settings')</div>
                     <a href="{{ url('/coefficient') }}" class="{{ request()->is('coefficient*') ? 'active' : '' }}">
@@ -333,6 +334,7 @@
                         <i class="fa fa-address-card"></i><span>@lang('public.clients')</span>
                     </a>
                 </div>
+                @endif
                 @endif
             @endauth
         @endif

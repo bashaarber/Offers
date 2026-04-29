@@ -325,11 +325,11 @@
                     <table class="table">
                         <thead>
                             <tr class="table-dark">
-                                <th scope="col">Rahmen <input value="Pos. {{ $nextPositionNumber ?? 1 }}"
+                                <th scope="col" style="width:1%;white-space:nowrap">Rahmen <input value="Pos. {{ $nextPositionNumber ?? 1 }}"
                                         style="width: 75px" disabled> mm </th>
-                                <th scope="col"> Desc. <input type="text" id="description" name="description" style="width: 300px">
+                                <th scope="col">Desc. <input type="text" id="description" name="description" style="width: 300px">
                                 </th>
-                                <th>
+                                <th style="width:1%;white-space:nowrap">
                                     Blocktyp <select name="blocktype" id="blocktype">
                                         <option value="" selected> - </option>
                                         <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
@@ -342,11 +342,11 @@
                                         <option value="Trennwand DeBO-System">Trennwand DeBO-System</option>
                                     </select>
                                 </th>
-                                <th scope="col"> B <input style="width: 75px" type="text" id="b"
+                                <th scope="col" style="width:1%;white-space:nowrap">B <input style="width: 75px" type="text" id="b"
                                         name="b"> cm</th>
-                                <th scope="col"> H <input style="width: 75px" type="text" id="h"
+                                <th scope="col" style="width:1%;white-space:nowrap">H <input style="width: 75px" type="text" id="h"
                                         name="h"> cm</th>
-                                <th scope="col"> T <input style="width: 75px" type="text" id="t"
+                                <th scope="col" style="width:1%;white-space:nowrap">T <input style="width: 75px" type="text" id="t"
                                         name="t"> cm</th>
                             </tr>
                             <tr class="table-dark">
