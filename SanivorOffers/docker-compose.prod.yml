@@ -44,7 +44,7 @@ services:
       POSTGRES_USER: sanivor
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - C:\app\pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sanivor -d sanivoroffers"]
@@ -57,3 +57,6 @@ services:
 networks:
   sanivor:
     driver: bridge
+
+volumes:
+  pgdata:

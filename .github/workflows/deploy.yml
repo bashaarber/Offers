@@ -17,6 +17,12 @@ jobs:
       - name: Build Docker image
         run: docker build -t sanivor-offers:latest ./SanivorOffers
 
+      - name: Copy compose file to app directory
+        run: |
+          if (-not (Test-Path C:\app)) { New-Item -ItemType Directory -Force C:\app }
+          if (-not (Test-Path C:\app\storage)) { New-Item -ItemType Directory -Force C:\app\storage }
+          Copy-Item -Force SanivorOffers\docker-compose.prod.yml C:\app\docker-compose.prod.yml
+
       - name: Restart containers
         run: |
           docker compose -f C:\app\docker-compose.prod.yml down --remove-orphans
