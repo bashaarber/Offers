@@ -271,7 +271,7 @@ class MaterialSeeder extends Seeder
         $rows[] = ['name' => 'Tragschalle', 'unit' => 'St.', 'price_in' => 1.0, 'price_out' => 1.0, 'z_schlosserei' => 0.0, 'z_pe' => '1.0', 'z_montage' => '0.0', 'z_total' => 1.0, 'zeit_cost' => 1.0, 'total' => 1.0, 'total_arbeit' => 87.5];
 
         foreach ($rows as $row) {
-            DB::table('materials')->insert(array_merge(\$row, [
+            DB::table('materials')->insert(array_merge($row, [
                 'created_at' => now(),
                 'updated_at' => now(),
             ]));
