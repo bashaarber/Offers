@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>@lang('public.update_offer')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -120,7 +120,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                        <h6>Projektinformationen</h6>
+                        <h6>@lang('public.project_information')</h6>
                             <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
                                 @method('put')
@@ -133,12 +133,12 @@
                                 @endif
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label for="id">Offerte NR.</label>
+                                        <label for="id">@lang('public.offer_number')</label>
                                         <input type="text" class="form-control" id="id" name="id"
                                             value="{{ $offert->id }}" disabled>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="type">Offerte Typ</label>
+                                        <label for="type">@lang('public.offer_type')</label>
                                         <select class="form-control" name="type" required>
                                             <option value="client" @if ($offert->type == 'client') selected @endif>
                                                 Client
@@ -148,12 +148,12 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="user_sign">Unser Zeichen</label>
+                                        <label for="user_sign">@lang('public.our_reference')</label>
                                         <input type="text" class="form-control" id="user_sign" name="user_sign"
                                             value="{{ $offert->user_sign }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="status">Status</label>
+                                        <label for="status">@lang('public.status')</label>
                                         <select class="form-control" name="status" required>
                                             <option value="Neu" @if ($offert->status == 'Neu - In progress') selected @endif>Neu
                                                 -
@@ -169,44 +169,44 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label for="create_date">Angebot Datum</label>
+                                        <label for="create_date">@lang('public.offer_date')</label>
                                         <input type="date" class="form-control" id="create_date" name="create_date"
                                             value="{{ $offert->create_date }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="validity">Angebot Gültigkeit</label>
+                                        <label for="validity">@lang('public.offer_validity')</label>
                                         <input type="text" class="form-control" id="validity" name="validity"
                                             value="{{ $offert->validity }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="client_sign">Ihr Zeichen</label>
+                                        <label for="client_sign">@lang('public.your_reference')</label>
                                         <input type="text" class="form-control" id="client_sign" name="client_sign"
                                             value="{{ $offert->client_sign }}"required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="finish_date">vom</label>
+                                        <label for="finish_date">@lang('public.from')</label>
                                         <input type="date" class="form-control" id="finish_date" name="finish_date"
                                             value="{{ $offert->finish_date }}">
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label for="object">Objekt</label>
+                                        <label for="object">@lang('public.object')</label>
                                         <input type="text" class="form-control" id="object" name="object"
                                             value="{{ $offert->object }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="city">Ort</label>
+                                        <label for="city">@lang('public.city')</label>
                                         <input type="text" class="form-control" id="city" name="city"
                                             value="{{ $offert->city }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="service">Lieferung</label>
+                                        <label for="service">@lang('public.delivery')</label>
                                         <input type="text" class="form-control" id="service" name="service"
                                             value="{{ $offert->service }}" required>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="payment_conditions">Zahlungskonditionen</label>
+                                        <label for="payment_conditions">@lang('public.payment_terms')</label>
                                         <input type="text" class="form-control" id="payment_conditions"
                                             name="payment_conditions" value="{{ $offert->payment_conditions }}"
                                             required>
@@ -214,7 +214,7 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label for="clients">Kunde</label>
+                                        <label for="clients">@lang('public.client')</label>
                                         <select style="width: 100%" class="select-users form-control"
                                             id="client_id" name="client_id" required>
                                             @foreach ($clients as $client)
@@ -226,35 +226,35 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label for="client_address">Kunde Addresse</label>
+                                        <label for="client_address">@lang('public.client_address')</label>
                                         <input type="text" class="form-control" id="client_address" name="client_address"
                                             value="{{ old('client_address', $offert->client_address ?? ($offert->client->address ?? '')) }}">
                                     </div>
                                 </div>
-                                <h6>Koeffizienten für dieses Project</h6>
+                                <h6>@lang('public.coefficients_project')</h6>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label for="difficulty">Schwierigkeits-Koeff</label>
+                                        <label for="difficulty">@lang('public.difficulty_coeff')</label>
                                         <input type="text" class="form-control" id="difficulty" name="difficulty"
                                             value="{{ $offert->difficulty }}" required>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label for="material">Material-Koeff.</label>
+                                        <label for="material">@lang('public.material_coeff')</label>
                                         <input type="text" class="form-control" id="material" name="material"
                                             value="{{ $offert->material }}" required>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label for="labor_price">Stundenansatz</label>
+                                        <label for="labor_price">@lang('public.hourly_rate')</label>
                                         <input type="text" class="form-control" id="labor_price"
                                             name="labor_price" value="{{ $offert->labor_price }}" required>
                                     </div>
                                 </div>
-                                <h6>Standard Rabatt</h6>
+                                <h6>@lang('public.default_discount')</h6>
                                 <div class="rabatt-section-card">
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
-                                            <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
+                                            <label for="default_rabatt">@lang('public.discount_percent_label')</label>
                                             <input type="text" class="form-control rabatt-input" id="default_rabatt"
                                                 name="default_rabatt" value="{{ $offert->default_rabatt ?? 20 }}"
                                                 inputmode="decimal" placeholder="0.00">
@@ -262,12 +262,12 @@
                                     </div>
                                 </div>
                                 @if (!empty($fromPositionOverview))
-                                    <button type="submit" class="btn btn-info mt-3">Edit Offert</button>
-                                    <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-3">Abbrechen</button>
+                                    <button type="submit" class="btn btn-info mt-3">@lang('public.update_offer')</button>
+                                    <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-3">@lang('public.cancel')</button>
                                 @else
                                     <a href="{{ route('offert.show', $offert->id) }}"
-                                        class="btn btn-info mt-3">Edit Offert</a>
-                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
+                                        class="btn btn-info mt-3">@lang('public.update_offer')</a>
+                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                                     <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
                                 @endif
                             </form>
@@ -394,13 +394,14 @@
                 const abbrechenBtn = document.getElementById('abbrechen-btn');
                 const returnUrl = @json($returnUrl);
                 const isEmbeddedOverview = @json(!empty($embeddedOverview));
+                const confirmMsg = "{{ __('public.confirm_cancel_edit') }}";
 
                 if (!abbrechenBtn || !returnUrl) {
                     return;
                 }
 
                 abbrechenBtn.addEventListener('click', function () {
-                    const shouldLeave = confirm('Alle Änderungen werden nicht gespeichert. Möchten Sie abbrechen?');
+                    const shouldLeave = confirm(confirmMsg);
                     if (shouldLeave) {
                         if (isEmbeddedOverview && window.parent && window.parent !== window) {
                             window.parent.postMessage({ type: 'offert-overview-close', reason: 'cancel' }, '*');

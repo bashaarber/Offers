@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Offert</title>
+    <title>@lang('public.create_offer')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <style>
@@ -43,28 +43,28 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <h6>Projektinformationen</h6>
+                        <h6>@lang('public.project_information')</h6>
 
                         <form action="{{ route('offert.store') }}" method="POST">
                             @csrf
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="id">Offerte NR.</label>
+                                    <label for="id">@lang('public.offer_number')</label>
                                     <input type="text" class="form-control" value="{{ $newOffertId }}" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="type">Offerte Typ</label>
+                                    <label for="type">@lang('public.offer_type')</label>
                                     <select class="form-control" name="type" required>
                                         <option value="client">Client</option>
                                         <option value="company">Company</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="user_sign">Unser Zeichen</label>
+                                    <label for="user_sign">@lang('public.our_reference')</label>
                                     <input type="text" class="form-control" id="user_sign" name="user_sign" value="Blerant Kqiku" required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="status">Status</label>
+                                    <label for="status">@lang('public.status')</label>
                                     <select class="form-control" name="status" required>
                                         <option value="Neu">Neu - In progress</option>
                                         <option value="Zusage">Zusage</option>
@@ -76,23 +76,23 @@
 
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="create_date">Angebot Datum</label>
+                                    <label for="create_date">@lang('public.offer_date')</label>
                                     <input type="date" class="form-control" id="create_date" name="create_date"
                                         required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="validity">Angebot Gültigkeit</label>
+                                    <label for="validity">@lang('public.offer_validity')</label>
                                     @foreach ($coefficients as $coefficient)
                                         <input type="text" class="form-control" id="validity" name="validity"
                                             value="{{ $coefficient->validity }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="client_sign">Ihr Zeichen</label>
+                                    <label for="client_sign">@lang('public.your_reference')</label>
                                     <input type="text" class="form-control" id="client_sign" name="client_sign"
                                         required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="finish_date">vom</label>
+                                    <label for="finish_date">@lang('public.from')</label>
                                     <input type="date" class="form-control" id="finish_date" name="finish_date"
                                         value="{{ old('finish_date', date('Y-m-d')) }}">
                                 </div>
@@ -100,20 +100,20 @@
 
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="object">Objekt</label>
+                                    <label for="object">@lang('public.object')</label>
                                     <input type="text" class="form-control" id="object" name="object" required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="city">Ort</label>
+                                    <label for="city">@lang('public.city')</label>
                                     <input type="text" class="form-control" id="city" name="city" required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="service">Lieferung</label>
+                                    <label for="service">@lang('public.delivery')</label>
                                     <input type="text" class="form-control" id="service" name="service"
                                         value="{{ $coefficient->service }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="payment_conditions">Zahlungskonditionen</label>
+                                    <label for="payment_conditions">@lang('public.payment_terms')</label>
                                     <input type="text" class="form-control" id="payment_conditions"
                                         name="payment_conditions" value="{{ $coefficient->payment_conditions }}"
                                         required>
@@ -121,7 +121,7 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="clients">Kunde</label>
+                                    <label for="clients">@lang('public.client')</label>
                                     <select style="width: 100%" class="select-users form-control" id="client_id" name="client_id" required>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name ? $client->name : $client->email }}</option>
@@ -129,35 +129,35 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label for="client_address">Kunde Addresse</label>
+                                    <label for="client_address">@lang('public.client_address')</label>
                                     <input type="text" class="form-control" id="client_address" name="client_address"
                                         value="{{ old('client_address') }}">
                                 </div>
                             </div>
-                            
-                            <h6>Koeffizienten für dieses Project</h6>
+
+                            <h6>@lang('public.coefficients_project')</h6>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
-                                    <label for="difficulty">Schwierigkeits-Koeff.</label>
+                                    <label for="difficulty">@lang('public.difficulty_coeff')</label>
                                     <input type="text" class="form-control" id="difficulty" name="difficulty"
                                         value="{{ $coefficient->difficulty }}" required>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="material">Material-Koeff.</label>
+                                    <label for="material">@lang('public.material_coeff')</label>
                                     <input type="text" class="form-control" id="material" name="material"
                                         value="{{ $coefficient->material }}" required>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="labor_price">Stundenansatz</label>
+                                    <label for="labor_price">@lang('public.hourly_rate')</label>
                                     <input type="text" class="form-control" id="labor_price" name="labor_price"
                                         value="{{ $coefficient->labor_price }}" required>
                                 </div>
                             </div>
-                            <h6>Standard Rabatt</h6>
+                            <h6>@lang('public.default_discount')</h6>
                             <div class="rabatt-section-card">
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label for="default_rabatt">Rabat % (Standard für alle Positionen)</label>
+                                        <label for="default_rabatt">@lang('public.discount_percent_label')</label>
                                         <input type="text" class="form-control rabatt-input" id="default_rabatt"
                                             name="default_rabatt"
                                             value="{{ old('default_rabatt', $coefficient->default_rabatt ?? 20) }}"
@@ -166,8 +166,8 @@
                                 </div>
                             </div>
                             @endforeach
-                            <button type="submit" class="btn btn-primary mt-3">Create Offert</button>
-                            <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_offer')</button>
+                            <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

@@ -12,22 +12,22 @@
     <div class="position-sidebar-section">
         <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
-            Allgemeine Parameter
+            @lang('public.general_parameters')
         </div>
         <a href="{{ route('offert.edit', ['offert' => $offertId, 'from_position' => 1, 'return_url' => url()->full()]) }}"
             data-overview-popup="true"
             onclick="return window.openOffertOverviewPopup ? window.openOffertOverviewPopup(this) : true;"
             class="btn btn-sm btn-primary mt-1"
             style="width:100%;border-radius:8px;font-size:12px;display:block;">
-            <i class="fa-solid fa-sliders"></i> Allgemeine Parameter
+            <i class="fa-solid fa-sliders"></i> @lang('public.general_parameters')
         </a>
         <hr style="border-color:rgba(255,255,255,0.08);margin:8px 0 4px;">
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
-            Positions
+            @lang('public.positions')
         </div>
         <button type="button" class="btn btn-sm btn-success mt-1" onclick="addNewPos()"
             style="width:100%;border-radius:8px;font-size:12px;">
-            <i class="fa-solid fa-plus"></i> New Position
+            <i class="fa-solid fa-plus"></i> @lang('public.new_position')
         </button>
         <div class="pos-list-container">
             <div id="sortable-position-list">
@@ -100,7 +100,7 @@
             style="background:#fff;width:min(1200px,96vw);height:min(90vh,920px);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.35);display:flex;flex-direction:column;">
             <div
                 style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc;">
-                <strong style="font-size:14px;color:#111827;">Allgemeine Parameter</strong>
+                <strong style="font-size:14px;color:#111827;">@lang('public.general_parameters')</strong>
                 <button type="button" data-overview-modal-close
                     style="border:none;background:transparent;color:#334155;font-size:20px;line-height:1;cursor:pointer;">&times;</button>
             </div>
@@ -112,10 +112,10 @@
 
 <div id="external-pdf-footer-slot-template" style="display:none;">
     <a href="javascript:void(0);" class="custom-external-pdf-link" onclick="window.openCustomPdfModal && window.openCustomPdfModal();">
-        <i class="fa-solid fa-file-pdf"></i><span>Custom External PDF</span>
+        <i class="fa-solid fa-file-pdf"></i><span>@lang('public.custom_external_pdf')</span>
     </a>
     <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
-        <i class="fa-solid fa-file-export"></i><span>External PDF</span>
+        <i class="fa-solid fa-file-export"></i><span>@lang('public.external_pdf')</span>
     </a>
 </div>
 
@@ -123,12 +123,12 @@
     style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:3000;align-items:center;justify-content:center;padding:20px;">
     <div style="background:#fff;width:min(440px,96vw);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.35);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e5e7eb;background:#f8fafc;">
-            <strong style="font-size:14px;color:#111827;">Custom External PDF</strong>
+            <strong style="font-size:14px;color:#111827;">@lang('public.custom_external_pdf')</strong>
             <button type="button" onclick="window.closeCustomPdfModal && window.closeCustomPdfModal();"
                 style="border:none;background:transparent;color:#334155;font-size:20px;line-height:1;cursor:pointer;">&times;</button>
         </div>
         <div style="padding:16px;color:#111827;font-size:13px;">
-            <div style="margin-bottom:10px;color:#475569;">Select which organigrams to include:</div>
+            <div style="margin-bottom:10px;color:#475569;">@lang('public.select_organigrams')</div>
             <div id="custom-pdf-organigrams-list" style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;">
                 @foreach ($organigrams ?? [] as $org)
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;">
@@ -140,9 +140,9 @@
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid #e5e7eb;background:#f8fafc;">
             <button type="button" onclick="window.closeCustomPdfModal && window.closeCustomPdfModal();"
-                class="btn btn-sm btn-secondary">Cancel</button>
+                class="btn btn-sm btn-secondary">@lang('public.cancel')</button>
             <button type="button" onclick="window.submitCustomPdf && window.submitCustomPdf();"
-                class="btn btn-sm btn-primary">Generate PDF</button>
+                class="btn btn-sm btn-primary">@lang('public.generate_pdf')</button>
         </div>
     </div>
 </div>
@@ -359,7 +359,7 @@
             const checked = Array.from(document.querySelectorAll('.custom-pdf-org-checkbox:checked'))
                 .map(cb => cb.value);
             if (checked.length === 0) {
-                alert('Please select at least one organigram.');
+                alert('{{ __('public.select_one_organigram') }}');
                 return;
             }
             const params = checked.map(id => 'organigrams[]=' + encodeURIComponent(id)).join('&');

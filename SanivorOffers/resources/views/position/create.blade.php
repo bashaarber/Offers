@@ -349,12 +349,12 @@
                     <input type="hidden" name="profit-total" id="profitTotal" value="0.00">
                     @php $ctrl = 'height:26px;padding:1px 6px;font-size:12px;box-sizing:border-box;'; @endphp
                     <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:6px 12px;white-space:nowrap;font-size:12px;">
-                        <span>Rahmen</span>
+                        <span>@lang('public.frame')</span>
                         <input style="width:75px;{{ $ctrl }}" value="Pos. {{ $nextPositionNumber ?? 1 }}" disabled>
                         <span>mm</span>
-                        <span style="margin-left:8px">Desc.</span>
+                        <span style="margin-left:8px">@lang('public.desc')</span>
                         <input type="text" id="description" name="description" style="flex:1;min-width:150px;{{ $ctrl }}">
-                        <span style="margin-left:8px">Blocktyp</span>
+                        <span style="margin-left:8px">@lang('public.block_type')</span>
                         <select name="blocktype" id="blocktype" style="{{ $ctrl }}">
                             <option value="" selected> - </option>
                             <option value="Vorwand-Raumhoch">Vorwand-Raumhoch</option>
@@ -381,16 +381,16 @@
                         <thead>
                             <tr class="table-dark">
                                 <th></th>
-                                <th scope="col">Preis Brutto</th>
-                                <th scope="col">Preis mit Rabbat</th>
-                                <th scope="col">Rabbat</th>
-                                <th scope="col">Kosto CHF</th>
-                                <th scope="col">Profit CHF</th>
+                                <th scope="col">@lang('public.gross_price')</th>
+                                <th scope="col">@lang('public.price_with_discount')</th>
+                                <th scope="col">@lang('public.discount')</th>
+                                <th scope="col">@lang('public.cost_chf')</th>
+                                <th scope="col">@lang('public.profit_chf')</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="table-active">
-                                <td><strong>Materiale Pro Typ</strong></td>
+                                <td><strong>@lang('public.materials_per_type')</strong></td>
                                 <td id="price-out-input" name="price-out-input">0.00</td>
                                 <td id="price-out-input2">0.00</td>
                                 <td>% <input value="0"></td>
@@ -398,7 +398,7 @@
                                 <td id="price-profit" name="material-profit">0.00</td>
                             </tr>
                             <tr class="table-active">
-                                <td><strong>Zeit Pro Typ</strong></td>
+                                <td><strong>@lang('public.time_per_type')</strong></td>
                                 <td id="zeit-cost-input" name="zeit-cost-input">0.00</td>
                                 <td id="zeit-cost-input2">0.00</td>
                                 <td>% <input value="0"></td>
@@ -406,7 +406,7 @@
                                 <td id="zeit-profit" name="zeit-profit">0.00</td>
                             </tr>
                             <tr class="table-secondary">
-                                <td><strong>Total Pro Typ</strong></td>
+                                <td><strong>@lang('public.total_per_type')</strong></td>
                                 <td id="total-pro-typ-price2">0.00</td>
                                 <td id="discounted-total2">0.00</td>
                                 <td>% <input id="percentage-input2" disabled value="0"></td>
@@ -414,7 +414,7 @@
                                 <td id="profit-total2">0.00</td>
                             </tr>
                             <tr style="font-weight:700;color:black" class="table-dark">
-                                <td>Menge <input id="menge-input" type="number" name="quantity" value="1" min="1"></td>
+                                <td>@lang('public.quantity') <input id="menge-input" type="number" name="quantity" value="1" min="1"></td>
                                 <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                 <td id="discounted-total">0.00</td>
                                 <td>% <input id="percentage-input" name="percentage-input" value="{{ $offert->default_rabatt ?? 0 }}">
@@ -493,10 +493,10 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th scope="col">Ans.</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">PStk.</th>
-                            <th scope="col" class="col-total">Total CHF</th>
+                            <th scope="col">@lang('public.qty_short')</th>
+                            <th scope="col">@lang('public.name')</th>
+                            <th scope="col">@lang('public.unit_price_short')</th>
+                            <th scope="col" class="col-total">@lang('public.total_chf')</th>
                         </tr>
                     </thead>
                 </table>
