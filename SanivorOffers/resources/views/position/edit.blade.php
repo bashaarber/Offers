@@ -1311,6 +1311,35 @@
                 });
             };
 
+            // Save-and-wait: flushes pending changes and waits for the server ACK before
+            // calling the callback. Used before opening the Allgemeine-Parameter popup so
+            // data is persisted before the popup triggers a page reload.
+            window.doAutoSaveAndWait = function(callback) {
+                clearTimeout(autoSaveTimeout);
+                const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
+                const formData = collectFormData(currentIndex);
+                const offertId = document.getElementById('offert_id').value;
+                fetch('{{ route("position.auto-save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                      document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.position_id) {
+                        currentPositionId = parseInt(data.position_id, 10) || currentPositionId;
+                    }
+                    if (typeof callback === 'function') callback();
+                })
+                .catch(() => {
+                    if (typeof callback === 'function') callback();
+                });
+            };
+
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'hidden') {
                     persistPositionBeforeLeave();

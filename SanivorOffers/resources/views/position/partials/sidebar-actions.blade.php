@@ -242,10 +242,24 @@
 
                 window.openOffertOverviewPopup = function(linkEl) {
                     if (!linkEl || !modalBackdrop || !modalIframe) return true;
-                    const separator = linkEl.href.includes('?') ? '&' : '?';
-                    modalIframe.src = `${linkEl.href}${separator}embed=1`;
-                    modalBackdrop.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
+
+                    const openIt = () => {
+                        const separator = linkEl.href.includes('?') ? '&' : '?';
+                        modalIframe.src = `${linkEl.href}${separator}embed=1`;
+                        modalBackdrop.style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    };
+
+                    // Flush any pending position changes to the server and wait for the
+                    // ACK before opening the popup. This prevents data loss: the popup
+                    // triggers a full page reload (the offert save redirects back to the
+                    // position URL and the iframe load-handler reloads the parent), so we
+                    // must persist the position first or the reload would discard edits.
+                    if (typeof window.doAutoSaveAndWait === 'function') {
+                        window.doAutoSaveAndWait(openIt);
+                    } else {
+                        openIt();
+                    }
                     return false;
                 };
 
