@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(UserSeeder::class);
         $this->call(CoefficientSeeder::class);
+        $this->call(ClientSeeder::class);
 
         try {
             $allowJsonImport = ! app()->environment('production')
