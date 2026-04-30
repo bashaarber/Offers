@@ -126,22 +126,21 @@ class PositionController extends Controller
         return view('position.index', compact('positions', 'offertId'));
     }
 
-    public function copy($id)
+    public function copy(Request $request, $id)
     {
         $position = Position::findOrFail($id);
-        $latestOffert = Offert::where('user_id', auth()->id())->latest()->first();
+        $offert = Offert::findOrFail($request->input('offert_id'));
 
-        $latestPositionNumber = Position::max('position_number');
+        $latestPositionNumber = (int) $offert->positions()->max('position_number');
 
         $newPosition = $position->replicate()->fill([
-            'offert_id' => $latestOffert->id,
             'position_number' => $latestPositionNumber + 1,
         ]);
         $newPosition->save();
 
         $newPosition->group_elements()->sync($position->group_elements->pluck('id')->toArray());
         $newPosition->organigrams()->sync($position->organigrams->pluck('id')->toArray());
-        $newPosition->offerts()->attach($latestOffert);
+        $newPosition->offerts()->attach($offert);
 
         $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($position->elements()->withPivot('quantity')->get() as $element) {
@@ -155,7 +154,7 @@ class PositionController extends Controller
                     'position_id' => $position->id,
                     'element_id' => $element->id,
                     'material_id' => $material->id
-                ])->first()->quantity;
+                ])->first()?->quantity ?? 0;
                 PositionMaterial::create([
                     'position_id' => $newPosition->id,
                     'element_id' => $element->id,

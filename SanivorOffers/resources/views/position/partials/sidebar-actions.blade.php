@@ -50,6 +50,7 @@
                         <div style="display:flex;gap:2px;">
                             <form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">
                                 @csrf
+                                <input type="hidden" name="offert_id" value="{{ $offertId }}">
                                 <button type="submit" class="btn btn-secondary btn-sm"
                                     style="padding:1px 5px;font-size:10px;">
                                     <i class="fa-solid fa-copy"></i>
