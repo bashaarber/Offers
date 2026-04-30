@@ -22,8 +22,8 @@ jobs:
 
       - name: Restart containers
         run: |
-          docker compose -f /app/docker-compose.prod.yml down --remove-orphans || true
-          docker compose -f /app/docker-compose.prod.yml up -d
+          docker compose --env-file /app/.env -f /app/docker-compose.prod.yml down --remove-orphans || true
+          docker compose --env-file /app/.env -f /app/docker-compose.prod.yml up -d
 
       - name: Remove dangling images
         run: docker image prune -f

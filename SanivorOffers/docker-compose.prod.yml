@@ -4,8 +4,6 @@
 #   $Env:DB_PASSWORD = "your-strong-password"
 # Image is built locally by the self-hosted runner — no registry needed.
 
-version: '3.8'
-
 services:
   app:
     image: sanivor-offers:latest
