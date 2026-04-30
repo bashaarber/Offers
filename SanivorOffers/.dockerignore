@@ -1,9 +1,11 @@
 vendor
+node_modules
 .git
 .gitignore
 .env
 .env.backup
 .env.production
+.env.docker
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -15,5 +17,3 @@ storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
-# Note: node_modules is NOT ignored - we need it for npm run build
-# But we can ignore it after build if needed

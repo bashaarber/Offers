@@ -1,0 +1,27 @@
+name: Deploy to Windows Server
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    name: Build & deploy
+    # Runs on the self-hosted runner installed on your Windows Server.
+    # The runner polls GitHub over outbound HTTPS — no inbound ports needed.
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t sanivor-offers:latest ./SanivorOffers
+
+      - name: Restart containers
+        run: |
+          docker compose -f C:\app\docker-compose.prod.yml down --remove-orphans
+          docker compose -f C:\app\docker-compose.prod.yml up -d
+
+      - name: Remove dangling images
+        run: docker image prune -f
