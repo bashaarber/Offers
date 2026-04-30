@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigram</title>
+</head>
+
+<body>
+    @include('layouts.sidebar')
+    <div class="content">
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="font-weight-bold">Update Organigram</h3>
+                        <form action="{{ route('organigram.update', $organigram->id) }}" method="post">
+                            @csrf
+                            @method('put')
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ $organigram->name }}" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="materials">Group Elements:</label>
+                                <select class="select-groupElements form-control" name="materials[]" multiple required>
+                                    @foreach ($group_elements as $group_element)
+                                        <option value="{{ $group_element->id }}"
+                                            {{ in_array($group_element->id, $selectedGroupElements) ? 'selected' : '' }}>
+                                            {{ $group_element->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.save')</button>
+                            <a href="{{ route('organigram.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select-groupElements').select2({
+                multiple: true
+            });
+        });
+    </script>
+</body>
+
+</html>
