@@ -29,7 +29,7 @@ services:
       RUN_MIGRATIONS: "true"
       RUN_SEEDERS: "false"
     volumes:
-      - C:\app\storage:/app/storage
+      - /app/storage:/app/storage
     restart: unless-stopped
     depends_on:
       db:
