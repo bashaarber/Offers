@@ -237,7 +237,26 @@ class OffertController extends Controller
 
         $offert = Offert::create($formFields);
 
-        return redirect()->route('position.create', ['index' => 0,'offert_id' => $offert->id]);
+        // Always create a real Pos. 1 so the offer is never left with zero positions.
+        $position = \App\Models\Position::create([
+            'description'     => '',
+            'position_number' => 1,
+            'quantity'        => 1,
+            'price_brutto'    => 0,
+            'price_discount'  => 0,
+            'discount'        => 0,
+            'material_brutto' => 0,
+            'zeit_brutto'     => 0,
+            'material_costo'  => 0,
+            'material_profit' => 0,
+            'ziet_costo'      => 0,
+            'ziet_profit'     => 0,
+            'costo_total'     => 0,
+            'profit_total'    => 0,
+        ]);
+        $position->offerts()->attach($offert);
+
+        return redirect()->route('position.edit', $position->id);
     }
 
     /**
@@ -252,12 +271,30 @@ class OffertController extends Controller
             ->select('positions.id')
             ->first();
 
-        // Redirect to first position edit if positions exist, otherwise to create
         if ($firstPosition) {
             return redirect()->route('position.edit', $firstPosition->id);
-        } else {
-            return redirect()->route('position.create', ['index' => 0, 'offert_id' => $offert->id]);
         }
+
+        // No positions yet — create a real Pos. 1 instead of using the create form.
+        $position = \App\Models\Position::create([
+            'description'     => '',
+            'position_number' => 1,
+            'quantity'        => 1,
+            'price_brutto'    => 0,
+            'price_discount'  => 0,
+            'discount'        => 0,
+            'material_brutto' => 0,
+            'zeit_brutto'     => 0,
+            'material_costo'  => 0,
+            'material_profit' => 0,
+            'ziet_costo'      => 0,
+            'ziet_profit'     => 0,
+            'costo_total'     => 0,
+            'profit_total'    => 0,
+        ]);
+        $position->offerts()->attach($offert);
+
+        return redirect()->route('position.edit', $position->id);
     }
 
     public function copy($offert_id)
