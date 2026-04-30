@@ -22,7 +22,7 @@ services:
       LOG_LEVEL: debug
       SESSION_DRIVER: file
       CACHE_DRIVER: file
-      RUN_MIGRATIONS: "true"
+      RUN_MIGRATIONS: "false"
       RUN_SEEDERS: "false"
     depends_on:
       db:
@@ -54,3 +54,4 @@ networks:
 
 volumes:
   pgdata:
+    name: sanivoroffers_pgdata
