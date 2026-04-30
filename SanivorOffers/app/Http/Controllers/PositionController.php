@@ -178,13 +178,15 @@ class PositionController extends Controller
 
         $maxPositionNumber = (int) $offert->positions()->max('position_number');
 
+        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
+
         $position = Position::create([
             'description'     => '',
             'position_number' => $maxPositionNumber + 1,
             'quantity'        => 1,
             'price_brutto'    => 0,
             'price_discount'  => 0,
-            'discount'        => 0,
+            'discount'        => $defaultDiscount,
             'material_brutto' => 0,
             'zeit_brutto'     => 0,
             'material_costo'  => 0,

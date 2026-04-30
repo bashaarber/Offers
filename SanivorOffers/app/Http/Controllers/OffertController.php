@@ -238,13 +238,14 @@ class OffertController extends Controller
         $offert = Offert::create($formFields);
 
         // Always create a real Pos. 1 so the offer is never left with zero positions.
+        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
         $position = \App\Models\Position::create([
             'description'     => '',
             'position_number' => 1,
             'quantity'        => 1,
             'price_brutto'    => 0,
             'price_discount'  => 0,
-            'discount'        => 0,
+            'discount'        => $defaultDiscount,
             'material_brutto' => 0,
             'zeit_brutto'     => 0,
             'material_costo'  => 0,
@@ -276,13 +277,14 @@ class OffertController extends Controller
         }
 
         // No positions yet — create a real Pos. 1 instead of using the create form.
+        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
         $position = \App\Models\Position::create([
             'description'     => '',
             'position_number' => 1,
             'quantity'        => 1,
             'price_brutto'    => 0,
             'price_discount'  => 0,
-            'discount'        => 0,
+            'discount'        => $defaultDiscount,
             'material_brutto' => 0,
             'zeit_brutto'     => 0,
             'material_costo'  => 0,
