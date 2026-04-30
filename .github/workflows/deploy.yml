@@ -5,34 +5,25 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
-    runs-on: [self-hosted, windows]
+    name: Build & deploy
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install PHP dependencies
-        working-directory: SanivorOffers
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      - name: Build Docker image
+        run: docker build -t sanivor-offers:latest ./SanivorOffers
 
-      - name: Install Node dependencies and build assets
-        working-directory: SanivorOffers
+      - name: Copy compose file to app directory
         run: |
-          npm install
-          npm run build
+          mkdir -p /app/storage
+          cp SanivorOffers/docker-compose.prod.yml /app/docker-compose.prod.yml
 
-      - name: Copy app files to C:\app
+      - name: Restart containers
         run: |
-          robocopy SanivorOffers C:\app /E /XD .git node_modules /XF .env
-          exit 0
+          docker compose -f /app/docker-compose.prod.yml down --remove-orphans || true
+          docker compose -f /app/docker-compose.prod.yml up -d
 
-      - name: Run migrations
-        working-directory: C:\app
-        run: php artisan migrate --force
-
-      - name: Restart app
-        working-directory: C:\app
-        run: |
-          Stop-Process -Name "php" -Force -ErrorAction SilentlyContinue
-          Start-Process -NoNewWindow php -ArgumentList "artisan serve --host=0.0.0.0 --port=8000"
+      - name: Remove dangling images
+        run: docker image prune -f
