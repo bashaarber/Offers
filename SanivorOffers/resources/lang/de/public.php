@@ -56,6 +56,15 @@ return [
     'active_clients'        => 'Aktive Kunden',
     'archived'              => 'Archiviert',
     'create_client'         => 'Kunde Erstellen',
+    'create_material'       => 'Material Erstellen',
+    'create_material_piece' => 'Materialstück Erstellen',
+    'unit'                  => 'Einheit',
+    'price_chf'             => 'Preis (CHF)',
+    'time_hours'            => 'Zeit (Std.)',
+    'price_in'              => 'Einkauf',
+    'price_out'             => 'Verkauf',
+    'total'                 => 'Total',
+    'total_arbeit_label'    => 'Total Arbeit',
     'confirm_cancel_edit'   => 'Alle Änderungen werden nicht gespeichert. Möchten Sie abbrechen?',
 
     // --- Offert create / edit ---

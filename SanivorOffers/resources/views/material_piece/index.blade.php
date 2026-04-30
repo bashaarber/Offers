@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
     <div class="content">
         <div class="container">
             <div class="d-flex align-items-center mt-3 mb-2">
-                <a href="{{ route('material_piece.create') }}" class="btn btn-primary ml-auto">Create Material Piece</a>
+                <a href="{{ route('material_piece.create') }}" class="btn btn-primary ml-auto">@lang('public.create_material_piece')</a>
             </div>
 
             @include('layouts.partials.list-filter')
@@ -29,22 +29,22 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Name</th>
-                        <th class="text-center" colspan="2">Price(CHF)</th>
+                        <th>@lang('public.name')</th>
+                        <th class="text-center" colspan="2">@lang('public.price_chf')</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th></th>
                         <th></th>
-                        <th>In</th>
-                        <th>Out</th>
-                        <th>Action</th>
+                        <th>@lang('public.price_in')</th>
+                        <th>@lang('public.price_out')</th>
+                        <th>@lang('public.actions')</th>
                     </tr>
                     <tr class="filter-row" style="background:#f8f9fa;">
                         <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="2" type="text" placeholder="In" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="3" type="text" placeholder="Out" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="2" type="text" placeholder="{{ __('public.price_in') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="3" type="text" placeholder="{{ __('public.price_out') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td></td>
                     </tr>
                 </thead>

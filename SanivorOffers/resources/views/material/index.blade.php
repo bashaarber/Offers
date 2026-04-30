@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
     <div class="content">
         <div class="container">
             <div class="d-flex align-items-center mt-3 mb-2">
-                <a href="{{ route('material.create') }}" class="btn btn-primary ml-auto">Create Material</a>
+                <a href="{{ route('material.create') }}" class="btn btn-primary ml-auto">@lang('public.create_material')</a>
             </div>
 
             @include('layouts.partials.list-filter')
@@ -29,10 +29,10 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Name</th>
-                        <th>E</th>
-                        <th class="text-center" colspan="2">Price(CHF)</th>
-                        <th class="text-center" colspan="5">Zeit(Uhr)</th>
+                        <th>@lang('public.name')</th>
+                        <th>@lang('public.unit')</th>
+                        <th class="text-center" colspan="2">@lang('public.price_chf')</th>
+                        <th class="text-center" colspan="5">@lang('public.time_hours')</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -40,22 +40,22 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th>In</th>
-                        <th>Out</th>
+                        <th>@lang('public.price_in')</th>
+                        <th>@lang('public.price_out')</th>
                         <th>schlosserei</th>
                         <th>PE</th>
                         <th>Montage</th>
-                        <th>Total</th>
-                        <th>Total Arbeit</th>
+                        <th>@lang('public.total')</th>
+                        <th>@lang('public.total_arbeit_label')</th>
                         <th>Material Pieces</th>
-                        <th>Action</th>
+                        <th>@lang('public.actions')</th>
                     </tr>
                     <tr class="filter-row" style="background:#f8f9fa;">
                         <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="2" type="text" placeholder="E" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="3" type="text" placeholder="In" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="4" type="text" placeholder="Out" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="2" type="text" placeholder="{{ __('public.unit') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="3" type="text" placeholder="{{ __('public.price_in') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="4" type="text" placeholder="{{ __('public.price_out') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td><input data-col="5" type="text" placeholder="Schl." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td><input data-col="6" type="text" placeholder="PE" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td><input data-col="7" type="text" placeholder="Mont." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>

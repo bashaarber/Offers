@@ -56,6 +56,15 @@ return [
     'active_clients'        => 'Active Clients',
     'archived'              => 'Archived',
     'create_client'         => 'Create Client',
+    'create_material'       => 'Create Material',
+    'create_material_piece' => 'Create Material Piece',
+    'unit'                  => 'Unit',
+    'price_chf'             => 'Price (CHF)',
+    'time_hours'            => 'Time (hrs)',
+    'price_in'              => 'In',
+    'price_out'             => 'Out',
+    'total'                 => 'Total',
+    'total_arbeit_label'    => 'Total Work',
     'confirm_cancel_edit'   => 'All unsaved changes will be lost. Do you want to cancel?',
 
     // --- Offert create / edit ---
