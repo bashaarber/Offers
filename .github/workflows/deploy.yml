@@ -5,27 +5,34 @@ on:
 
 jobs:
   deploy:
-    name: Build & deploy
-    # Runs on the self-hosted runner installed on your Windows Server.
-    # The runner polls GitHub over outbound HTTPS — no inbound ports needed.
-    runs-on: [self-hosted, linux]
+    name: Deploy
+    runs-on: [self-hosted, windows]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t sanivor-offers:latest ./SanivorOffers
+      - name: Install PHP dependencies
+        working-directory: SanivorOffers
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Copy compose file to app directory
+      - name: Install Node dependencies and build assets
+        working-directory: SanivorOffers
         run: |
-          mkdir -p /app/storage
-          cp SanivorOffers/docker-compose.prod.yml /app/docker-compose.prod.yml
+          npm install
+          npm run build
 
-      - name: Restart containers
+      - name: Copy app files to C:\app
         run: |
-          docker compose -f /app/docker-compose.prod.yml down --remove-orphans
-          docker compose -f /app/docker-compose.prod.yml up -d
+          robocopy SanivorOffers C:\app /E /XD .git node_modules /XF .env
+          exit 0
 
-      - name: Remove dangling images
-        run: docker image prune -f
+      - name: Run migrations
+        working-directory: C:\app
+        run: php artisan migrate --force
+
+      - name: Restart app
+        working-directory: C:\app
+        run: |
+          Stop-Process -Name "php" -Force -ErrorAction SilentlyContinue
+          Start-Process -NoNewWindow php -ArgumentList "artisan serve --host=0.0.0.0 --port=8000"
