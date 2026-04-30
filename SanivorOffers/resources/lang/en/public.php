@@ -36,6 +36,11 @@ return [
     'username_label'    => 'Username',
     'email_label'       => 'Email',
     'username_readonly' => 'Cannot be changed',
+    'number'            => 'Number',
+    'address'           => 'Address',
+    'role'              => 'Role',
+    'label'             => 'Label',
+    'value'             => 'Value',
 
     // --- Offert index ---
     'offers'            => 'Offers',
@@ -48,6 +53,9 @@ return [
     'confirm_delete_offer' => 'Are you sure you want to delete this offer?',
     'confirm_delete'    => 'Are you sure?',
     'no_offers_found'       => 'No offers found',
+    'active_clients'        => 'Active Clients',
+    'archived'              => 'Archived',
+    'create_client'         => 'Create Client',
     'confirm_cancel_edit'   => 'All unsaved changes will be lost. Do you want to cancel?',
 
     // --- Offert create / edit ---

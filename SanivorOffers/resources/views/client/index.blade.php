@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -15,19 +15,19 @@
         <div class="container-fluid px-4 py-3">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 style="font-weight: 700; color: #1a1d23; margin-bottom: 0;">Clients</h3>
+                <h3 style="font-weight: 700; color: #1a1d23; margin-bottom: 0;">@lang('public.clients')</h3>
                 <div class="d-flex align-items-center" style="gap: 8px;">
                     @if(isset($showArchived) && $showArchived)
                         <a href="{{ route('client.index') }}" class="btn btn-info">
-                            <i class="fas fa-list"></i> Active Clients
+                            <i class="fas fa-list"></i> @lang('public.active_clients')
                         </a>
                     @else
                         <a href="{{ route('client.index', ['show_archived' => 1]) }}" class="btn btn-secondary">
-                            <i class="fas fa-archive"></i> Archived
+                            <i class="fas fa-archive"></i> @lang('public.archived')
                         </a>
                     @endif
                     <a href="{{ route('client.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus mr-1"></i> Create Client
+                        <i class="fas fa-plus mr-1"></i> @lang('public.create_client')
                     </a>
                 </div>
             </div>
@@ -39,18 +39,18 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Number</th>
-                            <th>Address</th>
-                            <th style="text-align: right;">Action</th>
+                            <th>@lang('public.name')</th>
+                            <th>@lang('public.email_label')</th>
+                            <th>@lang('public.number')</th>
+                            <th>@lang('public.address')</th>
+                            <th style="text-align: right;">@lang('public.actions')</th>
                         </tr>
                         <tr class="filter-row" style="background:#f8f9fa;">
                             <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                            <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                            <td><input data-col="2" type="text" placeholder="Email" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                            <td><input data-col="3" type="text" placeholder="Number" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                            <td><input data-col="4" type="text" placeholder="Address" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="2" type="text" placeholder="{{ __('public.email_label') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="3" type="text" placeholder="{{ __('public.number') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                            <td><input data-col="4" type="text" placeholder="{{ __('public.address') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
                             <td></td>
                         </tr>
                     </thead>

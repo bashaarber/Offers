@@ -36,6 +36,11 @@ return [
     'username_label'    => 'Benutzername',
     'email_label'       => 'E-Mail',
     'username_readonly' => 'Nicht änderbar',
+    'number'            => 'Nummer',
+    'address'           => 'Adresse',
+    'role'              => 'Rolle',
+    'label'             => 'Bezeichnung',
+    'value'             => 'Wert',
 
     // --- Offert index ---
     'offers'            => 'Angebote',
@@ -48,6 +53,9 @@ return [
     'confirm_delete_offer' => 'Möchten Sie dieses Angebot wirklich löschen?',
     'confirm_delete'    => 'Sind Sie sicher?',
     'no_offers_found'       => 'Keine Angebote gefunden',
+    'active_clients'        => 'Aktive Kunden',
+    'archived'              => 'Archiviert',
+    'create_client'         => 'Kunde Erstellen',
     'confirm_cancel_edit'   => 'Alle Änderungen werden nicht gespeichert. Möchten Sie abbrechen?',
 
     // --- Offert create / edit ---

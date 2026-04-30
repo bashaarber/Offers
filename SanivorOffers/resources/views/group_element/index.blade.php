@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -29,13 +29,13 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Name</th>
+                        <th>@lang('public.name')</th>
                         <th>Elements</th>
-                        <th>Action</th>
+                        <th>@lang('public.actions')</th>
                     </tr>
                     <tr class="filter-row" style="background:#f8f9fa;">
                         <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="Name" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td><input data-col="2" type="text" placeholder="Elements" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td></td>
                     </tr>

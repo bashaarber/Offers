@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,8 @@
             <table class="table table-bordered">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Label</th>
-                        <th>Value</th>
+                        <th>@lang('public.label')</th>
+                        <th>@lang('public.value')</th>
                     </tr>
                 </thead>
                 <tbody>

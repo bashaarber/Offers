@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -24,14 +24,14 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
+                        <th>@lang('public.username_label')</th>
+                        <th>@lang('public.email_label')</th>
+                        <th>@lang('public.role')</th>
                     </tr>
                     <tr class="filter-row" style="background:#f8f9fa;">
                         <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="Username" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="2" type="text" placeholder="Email" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="1" type="text" placeholder="{{ __('public.username_label') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input data-col="2" type="text" placeholder="{{ __('public.email_label') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td>
                             <select data-col="3" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;background:#fff;">
                                 <option value="">All</option>
