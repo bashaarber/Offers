@@ -24,6 +24,7 @@ services:
       LOG_LEVEL: error
       SESSION_DRIVER: file
       CACHE_DRIVER: file
+      FORCE_HTTPS: "false"
       RUN_MIGRATIONS: "true"
       RUN_SEEDERS: "false"
     volumes:

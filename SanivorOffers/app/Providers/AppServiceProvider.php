@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceRootUrl(rtrim($renderUrl, '/'));
         }
 
-        if (app()->environment('production')) {
+        if (app()->environment('production') && env('FORCE_HTTPS', true)) {
             URL::forceScheme('https');
         }
 
