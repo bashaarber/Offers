@@ -124,8 +124,8 @@ class ElementSeeder extends Seeder
 
         foreach ($elements as $element) {
             DB::table('elements')->insert([
-                'name' => \$element['name'],
-                'quantity' => \$element['quantity'],
+                'name' => $element['name'],
+                'quantity' => $element['quantity'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
