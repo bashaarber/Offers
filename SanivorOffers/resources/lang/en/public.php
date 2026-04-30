@@ -18,6 +18,7 @@ return [
 
     // --- General UI ---
     'save'              => 'Save',
+    'saved'             => 'Saved.',
     'back'              => 'Back',
     'cancel'            => 'Cancel',
     'edit'              => 'Edit',
@@ -32,6 +33,9 @@ return [
     'object'            => 'Object',
     'city'              => 'City',
     'name'              => 'Name',
+    'username_label'    => 'Username',
+    'email_label'       => 'Email',
+    'username_readonly' => 'Cannot be changed',
 
     // --- Offert index ---
     'offers'            => 'Offers',

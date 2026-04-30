@@ -18,6 +18,7 @@ return [
 
     // --- General UI ---
     'save'              => 'Speichern',
+    'saved'             => 'Gespeichert.',
     'back'              => 'Zurück',
     'cancel'            => 'Abbrechen',
     'edit'              => 'Bearbeiten',
@@ -32,6 +33,9 @@ return [
     'object'            => 'Objekt',
     'city'              => 'Ort',
     'name'              => 'Name',
+    'username_label'    => 'Benutzername',
+    'email_label'       => 'E-Mail',
+    'username_readonly' => 'Nicht änderbar',
 
     // --- Offert index ---
     'offers'            => 'Angebote',
