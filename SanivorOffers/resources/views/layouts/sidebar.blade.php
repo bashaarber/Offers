@@ -121,24 +121,7 @@
         padding: 6px 10px;
     }
 
-    .lang-switcher {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        padding: 6px 0 2px;
-    }
 
-    .lang-switcher a {
-        padding: 3px 10px !important;
-        font-size: 11px !important;
-        border-radius: 6px;
-        background: rgba(255,255,255,0.06);
-        justify-content: center;
-    }
-
-    .lang-switcher a:hover {
-        background: rgba(96, 165, 250, 0.2);
-    }
 
     .content {
         margin-left: 220px;
@@ -255,7 +238,6 @@
         }
         .sublinks { padding-left: 0; }
         .sublinks a { padding: 8px 10px; justify-content: center; }
-        .lang-switcher a { padding: 3px 6px !important; font-size: 10px !important; }
         .sidebar-footer a span, .sidebar-footer .dropdown-link-custom span { display: none; }
     }
 </style>
@@ -350,10 +332,6 @@
                 <i class="fa-solid fa-arrow-right-from-bracket"></i><span>@lang('public.logout')</span>
             </a>
         </form>
-        <div class="lang-switcher">
-            <a href="/locale/en"><i class="fa-solid fa-globe" style="margin-right:4px;"></i>EN</a>
-            <a href="/locale/de"><i class="fa-solid fa-globe" style="margin-right:4px;"></i>DE</a>
-        </div>
     </div>
 </div>
 
