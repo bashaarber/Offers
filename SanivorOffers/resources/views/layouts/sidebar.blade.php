@@ -244,7 +244,9 @@
 
 <div class="sidebar">
     <div class="sidebar-brand">
-        <h4>Sanivor <span>Offers</span></h4>
+        <a href="{{ route('offert.index') }}" style="text-decoration:none;color:inherit;">
+            <h4>Sanivor <span>Offers</span></h4>
+        </a>
     </div>
 
     <div class="sidebar-scrollable">
