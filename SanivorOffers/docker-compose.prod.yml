@@ -2,20 +2,20 @@
 # Set these environment variables on the server before first run:
 #   $Env:APP_KEY = "base64:..."
 #   $Env:DB_PASSWORD = "your-strong-password"
-#   $Env:IMAGE = "ghcr.io/<your-org>/sanivor-offers:latest"
+# Image is built locally by the self-hosted runner — no registry needed.
 
 version: '3.8'
 
 services:
   app:
-    image: ${IMAGE:-ghcr.io/your-org/sanivor-offers:latest}
+    image: sanivor-offers:latest
     ports:
       - "8000:8000"
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
       APP_KEY: ${APP_KEY}
-      APP_URL: http://${SERVER_HOST:-localhost}:8000
+      APP_URL: http://localhost:8000
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
