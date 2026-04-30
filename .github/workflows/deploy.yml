@@ -6,7 +6,7 @@ on:
 jobs:
   deploy:
     name: Build & deploy
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout
