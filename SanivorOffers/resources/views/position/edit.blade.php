@@ -394,14 +394,7 @@
                                 </td>
                                 <td id="total-pro-typ-price" name="total-pro-typ-price">{{ $position->price_brutto }}</td>
                                 <td id="discounted-total">{{ $position->price_discount }}</td>
-                                <td>% <input id="percentage-input" name="percentage-input"
-                                        value="{{ $position->discount }}"
-                                        style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
-                                    <button type="button" id="rabatt-default-btn"
-                                        class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
-                                        Default
-                                    </button>
-                                </td>
+                                <td>% <input id="percentage-input" name="percentage-input" value="{{ $position->discount }}" disabled></td>
                                 <td id="costo-total2">{{ $position->costo_total }}</td>
                                 <td id="profit-total2">{{ $position->profit_total }}</td>
                             </tr>

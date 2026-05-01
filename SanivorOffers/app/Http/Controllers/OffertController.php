@@ -421,7 +421,20 @@ class OffertController extends Controller
         }
 
         $offert = Offert::find($id);
+        $oldRabatt = (float) ($offert->default_rabatt ?? 0);
         $offert->update($formFields);
+
+        if ($this->hasDefaultRabattColumn() && isset($formFields['default_rabatt'])) {
+            $newRabatt = (float) $formFields['default_rabatt'];
+            if ($oldRabatt !== $newRabatt) {
+                foreach ($offert->positions as $position) {
+                    $position->update([
+                        'discount'       => $newRabatt,
+                        'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
+                    ]);
+                }
+            }
+        }
 
         if ($fromPositionOverview && $returnUrl) {
             return redirect()->to($returnUrl);
@@ -452,6 +465,8 @@ class OffertController extends Controller
             $fields['finish_date'] = $fields['create_date'];
         }
 
+        $oldRabatt = (float) ($offert->default_rabatt ?? 0);
+
         if (!$this->hasDefaultRabattColumn()) {
             unset($fields['default_rabatt']);
         }
@@ -461,6 +476,18 @@ class OffertController extends Controller
         }
 
         $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
+
+        if ($this->hasDefaultRabattColumn() && isset($fields['default_rabatt']) && $fields['default_rabatt'] !== null) {
+            $newRabatt = (float) $fields['default_rabatt'];
+            if ($oldRabatt !== $newRabatt) {
+                foreach ($offert->positions as $position) {
+                    $position->update([
+                        'discount'       => $newRabatt,
+                        'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
+                    ]);
+                }
+            }
+        }
 
         return response()->json(['success' => true]);
     }

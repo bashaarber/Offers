@@ -417,12 +417,7 @@
                                 <td>@lang('public.quantity') <input id="menge-input" type="number" name="quantity" value="1" min="1"></td>
                                 <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                 <td id="discounted-total">0.00</td>
-                                <td>% <input id="percentage-input" name="percentage-input" value="{{ $offert->default_rabatt ?? 0 }}">
-                                    <button type="button" id="rabatt-default-btn"
-                                        class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
-                                        Default
-                                    </button>
-                                </td>
+                                <td>% <input id="percentage-input" name="percentage-input" value="{{ $offert->default_rabatt ?? 0 }}" disabled></td>
                                 <td id="costo-total" name="costo-total">0.00</td>
                                 <td id="profit-total" name="profit-total">0.00</td>
                             </tr>
