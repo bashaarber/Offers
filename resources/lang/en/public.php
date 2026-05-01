@@ -86,7 +86,7 @@ return [
     'client'                => 'Client',
     'client_address'        => 'Client Address',
     'coefficients_project'  => 'Coefficients for this Project',
-    'difficulty_coeff'      => 'Difficulty Coeff.',
+    'difficulty_coeff'      => 'Schw. Koeffizient',
     'material_coeff'        => 'Material Coeff.',
     'hourly_rate'           => 'Hourly Rate',
     'default_discount'      => 'Default Discount',

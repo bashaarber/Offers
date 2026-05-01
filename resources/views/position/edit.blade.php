@@ -324,12 +324,12 @@
                         value="{{ $position->profit_total }}">
                     @php $ctrl = 'height:26px;padding:1px 6px;font-size:12px;box-sizing:border-box;'; @endphp
                     <div style="display:flex;align-items:center;gap:6px;background:#212529;color:#fff;padding:6px 12px;white-space:nowrap;font-size:12px;">
-                        <span>Rahmen</span>
+                        <span>@lang('public.frame')</span>
                         <input style="width:75px;{{ $ctrl }}" value="Pos. {{ $position->position_number }}" disabled>
                         <span>mm</span>
-                        <span style="margin-left:8px">Desc.</span>
+                        <span style="margin-left:8px">@lang('public.desc')</span>
                         <input id="description" name="description" style="flex:1;min-width:150px;{{ $ctrl }}" value="{{ $position->description }}">
-                        <span style="margin-left:8px">Blocktyp</span>
+                        <span style="margin-left:8px">@lang('public.block_type')</span>
                         <select name="blocktype" id="blocktype" style="{{ $ctrl }}">
                             <option value="" @if (is_null($position->blocktype)) selected @endif> - </option>
                             <option value="Vorwand-Raumhoch" @if ($position->blocktype == 'Vorwand-Raumhoch') selected @endif>Vorwand-Raumhoch</option>
@@ -356,16 +356,16 @@
                         <thead>
                             <tr class="table-dark">
                                 <th></th>
-                                <th scope="col">Preis Brutto</th>
-                                <th scope="col">Preis mit Rabbat</th>
-                                <th scope="col">Rabbat</th>
-                                <th scope="col">Kosto CHF</th>
-                                <th scope="col">Profit CHF</th>
+                                <th scope="col">@lang('public.gross_price')</th>
+                                <th scope="col">@lang('public.price_with_discount')</th>
+                                <th scope="col">@lang('public.discount')</th>
+                                <th scope="col">@lang('public.cost_chf')</th>
+                                <th scope="col">@lang('public.profit_chf')</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="table-active">
-                                <td><strong>Materiale Pro Typ</strong></td>
+                                <td><strong>@lang('public.materials_per_type')</strong></td>
                                 <td id="price-out-input">{{ $position->material_brutto }}</td>
                                 <td id="price-out-input2">{{ $position->material_brutto }}</td>
                                 <td>% <input value="0"></td>
@@ -373,7 +373,7 @@
                                 <td id="price-profit">{{ $position->material_profit }}</td>
                             </tr>
                             <tr class="table-active">
-                                <td><strong>Zeit Pro Typ</strong></td>
+                                <td><strong>@lang('public.time_per_type')</strong></td>
                                 <td id="zeit-cost-input">{{ $position->zeit_brutto }}</td>
                                 <td id="zeit-cost-input2">{{ $position->zeit_brutto }}</td>
                                 <td>% <input value="0"></td>
@@ -381,7 +381,7 @@
                                 <td id="zeit-profit">{{ $position->ziet_profit }}</td>
                             </tr>
                             <tr class="table-secondary">
-                                <td><strong>Total Pro Typ</strong></td>
+                                <td><strong>@lang('public.total_per_type')</strong></td>
                                 <td id="total-pro-typ-price2">{{ $position->price_brutto }}</td>
                                 <td id="discounted-total2">{{ $position->price_discount }}</td>
                                 <td>% <input id="percentage-input2" disabled value="{{ $position->discount }}"></td>
@@ -389,19 +389,13 @@
                                 <td id="profit-total">{{ $position->profit_total }}</td>
                             </tr>
                             <tr style="font-weight:700;color:black" class="table-dark">
-                                <td>Menge <input id="menge-input" type="number" name="quantity"
-                                        value="{{ $position->quantity }}" min="1">
+                                <td>
+                                    @lang('public.quantity') <input id="menge-input" type="number" name="quantity" value="{{ $position->quantity }}" min="1" max="999" style="width:45px;">
+                                    &nbsp;&nbsp;@lang('public.difficulty_coeff'): <input id="difficulty-input" name="difficulty" type="number" step="0.001" min="0.001" value="{{ $position->difficulty ?? $offert->difficulty ?? 1 }}" style="width:75px;">
                                 </td>
                                 <td id="total-pro-typ-price" name="total-pro-typ-price">{{ $position->price_brutto }}</td>
                                 <td id="discounted-total">{{ $position->price_discount }}</td>
-                                <td>% <input id="percentage-input" name="percentage-input"
-                                        value="{{ $position->discount }}"
-                                        style="{{ (float)$position->discount !== (float)($offert->default_rabatt ?? 0) ? 'color:red;font-weight:bold;' : '' }}">
-                                    <button type="button" id="rabatt-default-btn"
-                                        class="btn btn-sm btn-outline-light" style="margin-left:6px;padding:1px 6px;">
-                                        Default
-                                    </button>
-                                </td>
+                                <td>% <input id="percentage-input" name="percentage-input" value="{{ $position->discount }}" disabled></td>
                                 <td id="costo-total2">{{ $position->costo_total }}</td>
                                 <td id="profit-total2">{{ $position->profit_total }}</td>
                             </tr>
@@ -475,10 +469,10 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th scope="col">Ans.</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">PStk.</th>
-                            <th scope="col" class="col-total">Total CHF</th>
+                            <th scope="col">@lang('public.qty_short')</th>
+                            <th scope="col">@lang('public.name')</th>
+                            <th scope="col">@lang('public.unit_price_short')</th>
+                            <th scope="col" class="col-total">@lang('public.total_chf')</th>
                         </tr>
                     </thead>
                 </table>
@@ -677,7 +671,7 @@
             let runningTotalMaterialsPrice = 0;
             let percentage = 0;
             const materialCoeff = {{ $materialCoeff ?? 1 }};
-            const difficultyCoeff = {{ $difficultyCoeff ?? 1 }};
+            function getDifficultyCoeff() { return Math.max(parseFloat(document.getElementById('difficulty-input')?.value) || 1, 0.001); }
             const inLaborPrice = {{ $inLaborPrice ?? 60 }};
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
@@ -686,10 +680,15 @@
             updateTotalProTypPrice();
 
             mengeInput.addEventListener('input', function() {
-
-                // Call the function to update the total based on the new menge value
                 updateTotalProTypPrice();
             });
+
+            const difficultyInput = document.getElementById('difficulty-input');
+            if (difficultyInput) {
+                difficultyInput.addEventListener('input', function() {
+                    updateTotalProTypPrice();
+                });
+            }
 
             elementNameRows.forEach(row => {
                 row.addEventListener('click', function(event) {
@@ -1083,7 +1082,8 @@
                     priceOutInput.textContent = formatSwissNumber(totalPriceOut);
                     priceOutInput2.textContent = formatSwissNumber(totalPriceOut);
 
-                    const laborKosto = difficultyCoeff > 0 ? totalZHours * inLaborPrice / difficultyCoeff : 0;
+                    const diffCoeff = getDifficultyCoeff();
+                    const laborKosto = diffCoeff > 0 ? totalZHours * inLaborPrice / diffCoeff : 0;
 
                     zeitCostInput.textContent = formatSwissNumber(totalZeitCost);
                     zeitCostInput2.textContent = formatSwissNumber(totalZeitCost);
@@ -1194,6 +1194,7 @@
                     element_optional: elementOptional,
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
+                    difficulty: document.getElementById('difficulty-input')?.value || 1,
                     totalProTypPrice: document.getElementById('totalProTypPriceInput').value || 0,
                     discountedTotal: document.getElementById('discountedTotalInput').value || 0,
                     percentage: document.getElementById('percentageInput').value || 0,
@@ -1261,6 +1262,8 @@
             window.doAutoSaveAndNavigate = function(nextUrl, callback) {
                 if (window._autoSaveLock) return;
                 window._autoSaveLock = true;
+                // Safety: reset lock after 5s in case navigation is cancelled or fails
+                const lockTimeout = setTimeout(() => { window._autoSaveLock = false; }, 5000);
                 clearTimeout(autoSaveTimeout);
                 const currentIndex = parseInt(document.getElementById('index').value || '0', 10);
                 const formData = collectFormData(currentIndex);
@@ -1278,6 +1281,7 @@
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 }).catch(() => {});
                 if (typeof callback === 'function') {
+                    clearTimeout(lockTimeout);
                     callback();
                 } else {
                     window.location.href = nextUrl;
@@ -1343,6 +1347,9 @@
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'hidden') {
                     persistPositionBeforeLeave();
+                } else {
+                    // User returned to this tab without navigating away — unlock so buttons work again
+                    window._autoSaveLock = false;
                 }
             });
             window.addEventListener('pagehide', function() {
@@ -1354,7 +1361,7 @@
                     triggerAutoSave();
                 });
             });
-            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput, #percentage-input').forEach(input => {
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput, #percentage-input, #difficulty-input').forEach(input => {
                 input.addEventListener('input', function() {
                     triggerAutoSave();
                 });
