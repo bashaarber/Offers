@@ -142,8 +142,8 @@
                                     value="{{ $offert->labor_price }}" disabled>
                             </div>
                         </div>
-                        <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">Back</a>
-                        <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-info mt-3 float-right">Edit Offert</a>
+                        <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                        <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-info mt-3 float-right">@lang('public.edit')</a>
                     </div>
                     @foreach ($offert->positions as $position)<br>
                         <h4>Position {{ $position->position_number }}:  Price {{ $position->price_discount }}</h4>

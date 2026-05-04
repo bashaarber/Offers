@@ -68,7 +68,7 @@
 
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary">{{ __('Register') }}</button>
-                                    <a href="{{ url('/users') }}" class="btn btn-secondary ml-2">Back</a>
+                                    <a href="{{ url('/users') }}" class="btn btn-secondary ml-2">@lang('public.back')</a>
                                 </div>
                             </form>
                         </div>

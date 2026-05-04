@@ -73,8 +73,8 @@
                             </div>
                             <button type="button" class="btn btn-primary" id="add-material"><i
                                     class="fa-solid fa-plus"></i></button>
-                            <button type="submit" class="btn btn-primary">Update Element</button>
-                            <a href="{{ route('element.index') }}" class="btn btn-secondary">Back</a>
+                            <button type="submit" class="btn btn-primary">@lang('public.save')</button>
+                            <a href="{{ route('element.index') }}" class="btn btn-secondary">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

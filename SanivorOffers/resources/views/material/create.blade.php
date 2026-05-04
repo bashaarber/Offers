@@ -65,8 +65,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3">Create Material</button>
-                            <a href="{{ route('material.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_material')</button>
+                            <a href="{{ route('material.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

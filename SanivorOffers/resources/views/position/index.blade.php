@@ -31,7 +31,7 @@
     <div class="content">
         <div class="container">
             <h1 class="mb-3">Positions List</h1>
-            <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">Back to Offert</a>
+            <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">@lang('public.back')</a>
             <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 4</a>
             <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 3</a>
             <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 2</a>

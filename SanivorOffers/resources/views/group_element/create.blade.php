@@ -33,8 +33,8 @@
                                         @endforeach
                                     </select>
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3">Create GroupElement</button>
-                            <a href="{{ route('group_element.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_group_element')</button>
+                            <a href="{{ route('group_element.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

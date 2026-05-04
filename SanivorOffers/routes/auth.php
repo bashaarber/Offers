@@ -56,6 +56,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth','role:admin')->group(function () {
     Route::get('users',[AdminController::class,'getAllUsers'])->name('user.index');
+    Route::get('users/{user}/edit', [AdminController::class, 'edit'])->name('user.edit');
+    Route::put('users/{user}', [AdminController::class, 'update'])->name('user.update');
+    Route::delete('users/{user}', [AdminController::class, 'destroy'])->name('user.destroy');
 
     Route::get('register', [RegisteredUserController::class, 'create'])
                 ->name('register');

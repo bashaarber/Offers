@@ -35,8 +35,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3">Update Organigram</button>
-                            <a href="{{ route('organigram.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.save')</button>
+                            <a href="{{ route('organigram.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

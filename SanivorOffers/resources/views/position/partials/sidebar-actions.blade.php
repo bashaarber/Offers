@@ -267,6 +267,7 @@
                 document.addEventListener('click', function(e) {
                     const link = e.target.closest('a[data-overview-popup="true"]');
                     if (!link || !modalBackdrop || !modalIframe) return;
+                    if (typeof window.openOffertOverviewPopup !== 'function') return;
                     e.preventDefault();
                     window.openOffertOverviewPopup(link);
                 });

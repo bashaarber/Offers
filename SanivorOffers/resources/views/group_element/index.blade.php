@@ -20,7 +20,7 @@
     <div class="content">
         <div class="container">
             <div class="d-flex align-items-center mt-3 mb-2">
-                <a href="{{ route('group_element.create') }}" class="btn btn-primary ml-auto">Create GroupElement</a>
+                <a href="{{ route('group_element.create') }}" class="btn btn-primary ml-auto">@lang('public.create_group_element')</a>
             </div>
 
             @include('layouts.partials.list-filter')
@@ -52,13 +52,13 @@
                             </td>
                             <td class="edit-delete-btns" style="white-space: nowrap;">
                                 <a href="{{ route('group_element.edit', $group_element->id) }}" class="btn btn-primary btn-sm"><i
-                                        class="fas fa-pencil"></i> Edit</a>
+                                        class="fas fa-pencil"></i> @lang('public.edit')</a>
                                 <form action="{{ route('group_element.destroy', $group_element->id) }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("Are you sure?");'><i class="fas fa-trash"></i>
-                                        Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("{{ __('public.confirm_delete') }}");'><i class="fas fa-trash"></i>
+                                        @lang('public.delete')</button>
                                 </form>
                             </td>
                         </tr>

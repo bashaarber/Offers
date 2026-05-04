@@ -414,7 +414,10 @@
                                 <td id="profit-total2">0.00</td>
                             </tr>
                             <tr style="font-weight:700;color:black" class="table-dark">
-                                <td>@lang('public.quantity') <input id="menge-input" type="number" name="quantity" value="1" min="1"></td>
+                                <td>
+                                    @lang('public.quantity') <input id="menge-input" type="number" name="quantity" value="1" min="1" max="999" style="width:45px;">
+                                    &nbsp;&nbsp;@lang('public.difficulty_coeff'): <input id="difficulty-input" name="difficulty" type="number" step="0.001" min="0.001" value="{{ $offert->difficulty ?? 1 }}" style="width:75px;">
+                                </td>
                                 <td id="total-pro-typ-price" name="total-pro-typ-price">0.00</td>
                                 <td id="discounted-total">0.00</td>
                                 <td>% <input id="percentage-input" name="percentage-input" value="{{ $offert->default_rabatt ?? 0 }}" disabled></td>
@@ -614,7 +617,7 @@
             let runningTotalMaterialsPrice = 0;
             let percentage = parseFloat({{ $offert->default_rabatt ?? 0 }});
             const materialCoeff = {{ $materialCoeff ?? 1 }};
-            const difficultyCoeff = {{ $difficultyCoeff ?? 1 }};
+            function getDifficultyCoeff() { return Math.max(parseFloat(document.getElementById('difficulty-input')?.value) || 1, 0.001); }
             const inLaborPrice = {{ $inLaborPrice ?? 60 }};
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
@@ -973,7 +976,8 @@
                     priceOutInput.textContent = formatSwissNumber(totalPriceOut);
                     priceOutInput2.textContent = formatSwissNumber(totalPriceOut);
 
-                    const laborKosto = difficultyCoeff > 0 ? totalZHours * inLaborPrice / difficultyCoeff : 0;
+                    const diffCoeff = getDifficultyCoeff();
+                    const laborKosto = diffCoeff > 0 ? totalZHours * inLaborPrice / diffCoeff : 0;
 
                     zeitCostInput.textContent = formatSwissNumber(totalZeitCost);
                     zeitCostInput2.textContent = formatSwissNumber(totalZeitCost);
@@ -1051,7 +1055,7 @@
             });
 
             // Listen to quantity and other input changes
-            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput').forEach(input => {
+            document.querySelectorAll('.quantity-input, .element-quantity-input, #description, textarea[name="description2"], #blocktype, #b, #h, #t, #menge-input, #percentageInput, #difficulty-input').forEach(input => {
                 input.addEventListener('input', function() {
                     updateTotalProTypPrice();
                     triggerAutoSave();
@@ -1130,6 +1134,7 @@
                     element_optional: elementOptional,
                     material_quantity: materialQuantities,
                     quantity: document.getElementById('menge-input').value || 1,
+                    difficulty: document.getElementById('difficulty-input')?.value || 1,
                     totalProTypPrice: document.getElementById('totalProTypPriceInput').value || 0,
                     discountedTotal: document.getElementById('discountedTotalInput').value || 0,
                     percentage: document.getElementById('percentageInput').value || 0,
@@ -1199,6 +1204,8 @@
                 // Guard: prevent double-invocation (double-click or visibilitychange race)
                 if (window._autoSaveLock) return;
                 window._autoSaveLock = true;
+                // Safety: reset lock after 5s in case navigation is cancelled or fails
+                const lockTimeout = setTimeout(() => { window._autoSaveLock = false; }, 5000);
                 // Cancel any pending auto-save timer
                 clearTimeout(autoSaveTimeout);
 
@@ -1218,6 +1225,7 @@
                     body: JSON.stringify({ ...formData, position_id: currentPositionId, offert_id: offertId })
                 }).catch(() => {});
                 if (typeof callback === 'function') {
+                    clearTimeout(lockTimeout);
                     callback();
                 } else {
                     window.location.href = nextUrl;
@@ -1280,6 +1288,9 @@
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'hidden') {
                     persistPositionBeforeLeave();
+                } else {
+                    // User returned to this tab without navigating away — unlock so buttons work again
+                    window._autoSaveLock = false;
                 }
             });
 

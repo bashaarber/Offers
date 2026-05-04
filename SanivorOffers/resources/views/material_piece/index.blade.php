@@ -56,11 +56,11 @@
                         <td>{{ $material->price_in }}</td>
                         <td>{{ $material->price_out }}</td>
                         <td class="edit-delete-btns" style="white-space: nowrap;">
-                            <a href="{{ route('material_piece.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
+                            <a href="{{ route('material_piece.edit',$material->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> @lang('public.edit')</a>
                             <form action="{{ route('material_piece.destroy', $material->id) }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("Are you sure?");'><i class="fas fa-trash"></i> Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("{{ __('public.confirm_delete') }}");'><i class="fas fa-trash"></i> @lang('public.delete')</button>
                             </form>
                         </td>
                     </tr>

@@ -38,8 +38,8 @@
                                     </select>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary mt-3">Update GroupElement</button>
-                            <a href="{{ route('group_element.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.save')</button>
+                            <a href="{{ route('group_element.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

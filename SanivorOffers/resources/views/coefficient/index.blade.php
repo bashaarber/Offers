@@ -107,7 +107,7 @@
                             </tr>
                             <tr>
                                 <td class="edit-delete-btns text-right" colspan="2">
-                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Update</button>
+                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> @lang('public.save')</button>
                                 </td>
                         </tr>
                         </form>

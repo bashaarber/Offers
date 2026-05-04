@@ -35,8 +35,8 @@
                             </div>
                           
 
-                            <button type="submit" class="btn btn-primary mt-3">Create Organigram</button>
-                            <a href="{{ route('organigram.index') }}" class="btn btn-secondary mt-3">Back</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_organigram')</button>
+                            <a href="{{ route('organigram.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>

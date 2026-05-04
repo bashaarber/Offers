@@ -64,22 +64,22 @@
                             <td>{{ $client->address }}</td>
                             <td style="white-space: nowrap; text-align: right;">
                                 <div class="btn-group" style="gap: 4px;">
-                                    <a href="{{ route('client.edit', $client->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> Edit</a>
+                                    <a href="{{ route('client.edit', $client->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-pencil"></i> @lang('public.edit')</a>
                                     @if($client->archived)
                                         <form action="{{ route('client.unarchive', $client->id) }}" method="post" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-box-open"></i> Unarchive</button>
+                                            <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-box-open"></i> @lang('public.unarchive')</button>
                                         </form>
                                     @else
                                         <form action="{{ route('client.archive', $client->id) }}" method="post" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-warning btn-sm" onclick='return confirm("Are you sure you want to archive this client?");'><i class="fas fa-archive"></i> Archive</button>
+                                            <button type="submit" class="btn btn-warning btn-sm" onclick='return confirm("{{ __('public.confirm_archive') }}");'><i class="fas fa-archive"></i> @lang('public.archive')</button>
                                         </form>
                                     @endif
                                     <form action="{{ route('client.destroy', $client->id) }}" method="post" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("Are you sure you want to delete this client?");'><i class="fas fa-trash"></i> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("{{ __('public.confirm_delete') }}");'><i class="fas fa-trash"></i> @lang('public.delete')</button>
                                     </form>
                                 </div>
                             </td>

@@ -35,8 +35,8 @@
                                     <label for="address">Address</label>
                                     <input type="text" class="form-control" id="address" name="address" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-3">Create Client</button>
-                                <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">Back</a>
+                                <button type="submit" class="btn btn-primary mt-3">@lang('public.create_client')</button>
+                                <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                             </form>
                         </div>
                     </div>
