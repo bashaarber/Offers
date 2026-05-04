@@ -177,7 +177,8 @@ class PositionController extends Controller
 
         $maxPositionNumber = (int) $offert->positions()->max('position_number');
 
-        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
+        $defaultDiscount    = (float) ($offert->default_rabatt ?? 0);
+        $defaultDifficulty  = (float) ($offert->difficulty ?: 1);
 
         $position = Position::create([
             'description'     => '',
@@ -186,6 +187,7 @@ class PositionController extends Controller
             'price_brutto'    => 0,
             'price_discount'  => 0,
             'discount'        => $defaultDiscount,
+            'difficulty'      => $defaultDifficulty,
             'material_brutto' => 0,
             'zeit_brutto'     => 0,
             'material_costo'  => 0,
@@ -291,6 +293,7 @@ class PositionController extends Controller
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
+        $difficulty = $request->input('difficulty');
         $material_brutto = $request->input('price-out-input');
         $zeit_brutto = $request->input('zeit-cost-input');
         $material_costo = $request->input('material-costo');
@@ -313,6 +316,7 @@ class PositionController extends Controller
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
+            'difficulty' => $difficulty,
             'quantity' => $quantity,
             'material_brutto' => $material_brutto,
             'zeit_brutto' => $zeit_brutto,
@@ -469,7 +473,7 @@ class PositionController extends Controller
         }
 
         // Pre-compute offert coefficients once (same for every element/material row).
-        $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
+        $difficultyCoeff = max((float) ($position->difficulty ?? $offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
         $coefficient     = Coefficient::first();
         $inLaborPrice    = (float) ($coefficient->in_labor_price ?? 60);
@@ -532,6 +536,7 @@ class PositionController extends Controller
         $totalProTypPrice = $request->input('totalProTypPrice');
         $discountedTotal = $request->input('discountedTotal');
         $percentage = $request->input('percentage');
+        $difficulty = $request->input('difficulty');
         $material_brutto = $request->input('price-out-input');
         $zeit_brutto = $request->input('zeit-cost-input');
         $material_costo = $request->input('material-costo');
@@ -554,6 +559,7 @@ class PositionController extends Controller
             'price_brutto' => $totalProTypPrice,
             'price_discount' => $discountedTotal,
             'discount' => $percentage,
+            'difficulty' => $difficulty,
             'quantity' => $quantity,
             'material_brutto' => $material_brutto,
             'zeit_brutto' => $zeit_brutto,
@@ -766,6 +772,7 @@ class PositionController extends Controller
                     'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
                     'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
                     'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                    'difficulty' => $data['difficulty'] ?? null,
                     'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
                     'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
                     'material_costo' => $data['material_costo'] ?? 0,
@@ -795,6 +802,7 @@ class PositionController extends Controller
                     'price_brutto' => $data['totalProTypPrice'] ?? $data['price_brutto'] ?? 0,
                     'price_discount' => $data['discountedTotal'] ?? $data['price_discount'] ?? 0,
                     'discount' => $data['percentage'] ?? $data['discount'] ?? 0,
+                    'difficulty' => $data['difficulty'] ?? $offert->difficulty ?? 1,
                     'material_brutto' => $data['price_out'] ?? $data['material_brutto'] ?? 0,
                     'zeit_brutto' => $data['zeit_cost'] ?? $data['zeit_brutto'] ?? 0,
                     'material_costo' => $data['material_costo'] ?? 0,
