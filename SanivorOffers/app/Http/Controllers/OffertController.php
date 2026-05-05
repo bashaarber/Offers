@@ -136,7 +136,8 @@ class OffertController extends Controller
                             continue;
                         }
 
-                        $elementQuantity = max((float) ($element->pivot->quantity ?? 1), 0);
+                        $isExterneWasser = $element->group_elements->contains('name', 'Externe Wasser Anschl.');
+                        $elementQuantity = $isExterneWasser ? 1 : max((float) ($element->pivot->quantity ?? 1), 0);
                         $key = $position->id . '_' . $elementId;
                         $pms = $pmRows->get($key, collect());
 

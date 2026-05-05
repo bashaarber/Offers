@@ -52,6 +52,21 @@ class PositionController extends Controller
         return collect($ids);
     }
 
+    private function computeExterneWasserElementIds(\Illuminate\Support\Collection $organigrams): \Illuminate\Support\Collection
+    {
+        $ids = [];
+        foreach ($organigrams as $organigram) {
+            foreach ($organigram->group_elements as $ge) {
+                if ($ge->name === 'Externe Wasser Anschl.') {
+                    foreach ($ge->elements as $el) {
+                        $ids[$el->id] = true;
+                    }
+                }
+            }
+        }
+        return collect($ids);
+    }
+
     private function hasElementPivotOptionalColumn(): bool
     {
         // Cache for 24 hours — this column never changes after the migration runs.
@@ -232,6 +247,7 @@ class PositionController extends Controller
         );
         $nextPositionNumber = (int) $index + 1;
         $rahmeElementIds    = $this->computeRahmeElementIds($organigrams);
+        $externeWasserElementIds = $this->computeExterneWasserElementIds($organigrams);
 
         $difficultyCoeff = max((float) ($offert->difficulty ?: 1), 0.001);
         $materialCoeff   = (float) ($offert->material ?: 1);
@@ -269,8 +285,8 @@ class PositionController extends Controller
 
         return view('position.create', compact(
             'positions', 'organigrams', 'elements', 'index', 'offert',
-            'nextPositionNumber', 'rahmeElementIds', 'allElementsData',
-            'materialCoeff', 'difficultyCoeff', 'inLaborPrice'
+            'nextPositionNumber', 'rahmeElementIds', 'externeWasserElementIds',
+            'allElementsData', 'materialCoeff', 'difficultyCoeff', 'inLaborPrice'
         ));
     }
 
@@ -464,6 +480,7 @@ class PositionController extends Controller
         $positionMaterials = PositionMaterial::where('position_id', $id)->get();
 
         $rahmeElementIds = $this->computeRahmeElementIds($organigrams);
+        $externeWasserElementIds = $this->computeExterneWasserElementIds($organigrams);
 
         // Pre-index saved material quantities for O(1) lookup in the blade.
         // Replaces $positionMaterials->where(element)->where(material)->first() scan per row.
@@ -517,7 +534,8 @@ class PositionController extends Controller
         return view('position.edit', compact(
             'positions', 'offertId', 'position', 'organigrams',
             'elements', 'offert', 'elementPivots', 'rahmeElementIds',
-            'positionMaterialsMap', 'difficultyCoeff', 'materialCoeff',
+            'externeWasserElementIds', 'positionMaterialsMap',
+            'difficultyCoeff', 'materialCoeff',
             'unselectedElementsData', 'inLaborPrice'
         ));
     }

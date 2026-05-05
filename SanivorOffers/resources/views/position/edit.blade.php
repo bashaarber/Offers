@@ -431,6 +431,7 @@
                                                                         class="element-checkbox"
                                                                         data-element-id="{{ $element->id }}"
                                                                         data-group-element-id="{{ $group_element->id }}"
+                                                                        data-group-element-name="{{ $group_element->name }}"
                                                                         data-organigram-id="{{ $organigram->id }}"
                                                                         value="{{ $element->id }}"
                                                                         {{ $elementPivots->has($element->id) ? 'checked' : '' }}>
@@ -484,6 +485,7 @@
                     @php
                         if (!$elementPivots->has($element->id)) continue;
                         $pivotQuantity = $elementPivots->get($element->id)->quantity ?? 1;
+                        $isExterneWasser = $externeWasserElementIds->has($element->id);
                     @endphp
                     <div class="element-materials-wrap" id="element-materials-wrap-{{ $element->id }}" style="display:block;">
                     <table class="table element-materials" id="element-materials-{{ $element->id }}">
@@ -506,7 +508,7 @@
                                 <th scope="col" class="col-pstk total-materials-header"
                                     data-element-id="{{ $element->id }}">
                                     CHF <span class="total-materials-value">0</span> X
-                                    <span class="element-quantity">{{ $pivotQuantity }}</span>
+                                    <span class="element-quantity">{{ $isExterneWasser ? 1 : $pivotQuantity }}</span>
                                 </th>
                                 <th scope="col" class="col-total total-materials-header"
                                     data-element-id="{{ $element->id }}">
@@ -594,7 +596,11 @@
                     var el = window._unselectedElements[elementId];
                     if (!el) return;
 
+                    var cb = document.querySelector('.element-checkbox[data-element-id="' + elementId + '"]');
+                    var isExterne = cb && cb.getAttribute('data-group-element-name') === 'Externe Wasser Anschl.';
                     var qty = el.qty || 1;
+                    var displayQty = isExterne ? '' : qty;
+                    var pstkQty = isExterne ? 1 : qty;
                     var rows = '';
                     el.mats.forEach(function(m) {
                         var total = (m.calc * m.qty).toFixed(2);
@@ -626,10 +632,10 @@
                         + '<tbody>'
                         + '<tr style="text-align:left" class="table-dark">'
                         + '<th><input type="number" min="1" style="width:130px" class="element-quantity-input"'
-                        + ' data-element-id="' + elementId + '" name="element_quantity[' + elementId + ']" value="' + qty + '"></th>'
+                        + ' data-element-id="' + elementId + '" name="element_quantity[' + elementId + ']" value="' + displayQty + '"></th>'
                         + '<th class="col-name"><span class="element-summary-name">' + el.name + '</span></th>'
                         + '<th class="col-pstk total-materials-header" data-element-id="' + elementId + '">'
-                        + 'CHF <span class="total-materials-value">0</span> X <span class="element-quantity">' + qty + '</span></th>'
+                        + 'CHF <span class="total-materials-value">0</span> X <span class="element-quantity">' + pstkQty + '</span></th>'
                         + '<th class="col-total total-materials-header" data-element-id="' + elementId + '">'
                         + '<span class="total-materials-value-header">0</span></th>'
                         + '</tr>' + rows + '</tbody></table>';
@@ -643,9 +649,12 @@
                         updateTotalProTypPrice();
                         saveSingleMaterialQuantity($(this));
                     });
+                    var isExterneForHandler = isExterne;
                     $(wrap).find('.element-quantity-input').on('input', function() {
                         var eId = $(this).data('element-id');
-                        $('.total-materials-header[data-element-id="' + eId + '"] .element-quantity').text($(this).val() || 1);
+                        if (!isExterneForHandler) {
+                            $('.total-materials-header[data-element-id="' + eId + '"] .element-quantity').text($(this).val() || 1);
+                        }
                         updateTotalMaterialsPrice();
                         updateTotalProTypPrice();
                     });
@@ -673,6 +682,8 @@
             const materialCoeff = {{ $materialCoeff ?? 1 }};
             function getDifficultyCoeff() { return Math.max(parseFloat(document.getElementById('difficulty-input')?.value) || 1, 0.001); }
             const inLaborPrice = {{ $inLaborPrice ?? 60 }};
+            const externeWasserElementIds = new Set(@json($externeWasserElementIds->keys()->map(fn($id) => (string) $id)));
+            function isExterneWasserElement(elementId) { return externeWasserElementIds.has(String(elementId)); }
             // Declare mengeInput before any function that references it
             const mengeInput = document.getElementById('menge-input');
             // Update the total materials price on document ready, then recalculate totals
@@ -777,8 +788,11 @@
                 const totalElement = $(`.total-materials-header[data-element-id="${elementId}"] .element-quantity`);
                 const currentQuantity = parseFloat(elementQuantityInput.val());
 
-                // Update the element quantity in the table header
-                totalElement.text(currentQuantity);
+                if (isExterneWasserElement(elementId)) {
+                    totalElement.text(1);
+                } else {
+                    totalElement.text(currentQuantity);
+                }
             }
 
             elementCheckboxes.forEach(checkbox => {
@@ -840,7 +854,8 @@
                     const totalElementValue = $(this).find('.total-materials-value');
                     const elementQuantityInput = $(
                         `.element-quantity-input[data-element-id="${elementId}"]`);
-                    const elementQuantity = parseFloat(elementQuantityInput.val());
+                    const rawQuantity = parseFloat(elementQuantityInput.val());
+                    const elementQuantity = isExterneWasserElement(elementId) ? 1 : rawQuantity;
                     const totalMaterialsPrice = calculateTotalMaterialsPrice(elementId);
 
                     // Update the total in the table header
@@ -1028,7 +1043,7 @@
 
                             const elementQuantityInput = $(
                                 `.element-quantity-input[data-element-id="${elementId}"]`);
-                            const elementQuantity = parseFloat(elementQuantityInput.val()) || 0;
+                            const elementQuantity = isExterneWasserElement(elementId) ? 1 : (parseFloat(elementQuantityInput.val()) || 0);
 
                             // Fetch and accumulate price_out, zeit_cost, and z_total values
                             const materials = document.querySelectorAll(
@@ -1380,6 +1395,7 @@
             window.updateTotalProTypPrice = updateTotalProTypPrice;
             window.triggerAutoSave = triggerAutoSave;
             window.saveSingleMaterialQuantity = saveSingleMaterialQuantity;
+            window.isExterneWasserElement = isExterneWasserElement;
 
         });
         // Add an event listener to toggle sublinks
