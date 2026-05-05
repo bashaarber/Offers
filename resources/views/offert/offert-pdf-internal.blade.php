@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 10pt;
+            font-size: 9pt;
             color: #000;
             margin: 0;
             padding: 0;
@@ -26,32 +26,46 @@
         /* ── Totals box ── */
         .totals-label { width:55%; text-align:left; padding:4pt 6pt; }
         .totals-unit  { width:12%; text-align:left; padding:4pt 3pt; }
-        .totals-value { width:33%; text-align:right; padding:4pt 6pt; }
+        .totals-value { width:33%; text-align:left; padding:4pt 6pt; }
 
         /* ── Position block ── */
         .pos-header-row td, .pos-header-row th {
             font-weight: bold;
-            font-size: 9.5pt;
-            padding: 4pt 6pt;
-            vertical-align: middle;
+            font-size: 8.5pt;
+            padding: 3pt 4pt;
+            vertical-align: top;
             border-bottom: 0.5pt solid #808080;
         }
         .pos-value-row td {
             font-weight: bold;
-            font-size: 9.5pt;
-            padding: 4pt 6pt;
+            font-size: 8.5pt;
+            padding: 3pt 4pt;
             vertical-align: top;
             border-bottom: 0.5pt solid #808080;
         }
         .pos-right { text-align: right; }
+        .pos-table { table-layout: fixed; }
+        .pos-description {
+            padding-left: 4pt !important;
+            padding-right: 4pt !important;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .pos-metric {
+            padding-left: 2pt !important;
+            padding-right: 2pt !important;
+            white-space: nowrap;
+        }
 
         /* ── Detail rows ── */
-        .detail-label { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:38%; font-size:9pt; }
-        .detail-group { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:30%; text-align:right; font-size:9pt; white-space:nowrap; }
-        .detail-items { vertical-align:top; padding:3pt 5pt; font-size:9pt; }
+        .detail-label { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:38%; font-size:8.5pt; }
+        .detail-group { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
+        .detail-items { vertical-align:top; padding:3pt 4pt; font-size:8.5pt; }
+        .detail-row-table { width:100%; border-collapse:collapse; table-layout:fixed; }
         .qty-table { width:100%; border-collapse:collapse; margin-bottom:1pt; }
-        .qty-table td { padding:0; vertical-align:top; font-size:9pt; }
+        .qty-table td { padding:0; vertical-align:top; font-size:8.5pt; }
         .qty-table td:first-child { white-space:nowrap; padding-right:5pt; width:1%; }
+        .pos-nowrap { white-space: nowrap; }
         .material-list { font-size:8.5pt; color:#333; margin-top:1pt; padding-left:0; }
 
         /* ── Teal accent row ── */
@@ -136,20 +150,22 @@
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="width:240pt; height:52pt; margin-bottom:12pt;"><br>
             @endif
-            <strong style="font-size:11pt;">Sanivor AG</strong><br>
+            <strong style="font-size:10pt;">Sanivor AG</strong><br>
             <span>Buckstrasse 1</span><br>
             <span>8317 Tagelswangen</span><br>
             <span>Tel +41 (0)52 213 20 90</span><br>
             <span>info@sanivor.ch</span><br>
             <span>www.sanivor.ch</span>
         </td>
-        <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0;">
-            <strong>{{ $offert->client->name ?? '' }}</strong><br>
-            @foreach($clientAddressLines as $line)
-                @if(trim($line) !== '')
-                    {{ $line }}<br>
-                @endif
-            @endforeach
+        <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
+            <div style="display:inline-block; text-align:left;">
+                <strong>{{ $offert->client->name ?? '' }}</strong><br>
+                @foreach($clientAddressLines as $line)
+                    @if(trim($line) !== '')
+                        {{ $line }}<br>
+                    @endif
+                @endforeach
+            </div>
         </td>
     </tr>
 </table>
@@ -158,7 +174,7 @@
 <div class="sep-black"></div>
 
 {{-- ANGEBOT INFO BLOCK --}}
-<table class="w100" style="margin-bottom:0;">
+<table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
         <td style="width:20%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Angebot Nr.</strong></td>
         <td style="width:30%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->display_number }}</strong></td>
@@ -226,7 +242,7 @@
 @endphp
 
 <div class="band-top" style="padding-top:10pt;">
-    <table style="width:55%; margin-left:45%;">
+    <table style="width:50%; margin-left:50%;">
         <tr>
             <td class="totals-label"><strong>Total Elemente:</strong></td>
             <td class="totals-unit"><strong>Stk.</strong></td>
@@ -304,40 +320,52 @@
 <div style="page-break-inside:avoid; border:0.75pt solid #808080; margin-bottom:12pt;">
 
 {{-- POSITION HEADER ROW --}}
-<table class="w100" style="margin-bottom:0;">
+<table class="w100 pos-table" style="margin-bottom:0;">
     <colgroup>
-        <col style="width:8%">
-        <col style="width:44%">
-        <col style="width:10%">
-        <col style="width:10%">
-        <col style="width:10%">
-        <col style="width:6%">
-        <col style="width:12%">
+        <col style="width:46pt">
+        <col>
+        <col style="width:46pt">
+        <col style="width:40pt">
+        <col style="width:46pt">
+        <col style="width:26pt">
+        <col style="width:54pt">
     </colgroup>
     <tbody>
         <tr class="pos-header-row">
-            <td>Pos.&nbsp;{{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</td>
-            <td>{{ $position->description }}</td>
-            <td class="pos-right">Brutto</td>
-            <td class="pos-right">Rabatt</td>
-            <td class="pos-right">Netto</td>
-            <td style="text-align:center;">Stk.</td>
-            <td class="pos-right">Total</td>
+            <td class="pos-nowrap">Pos.&nbsp;{{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</td>
+            <td class="pos-description">
+                {{
+                    trim((string) $position->description) !== ''
+                        ? $position->description
+                        : (
+                            trim((string) ($position->blocktype ?? '')) !== ''
+                                ? $position->blocktype
+                                : ''
+                        )
+                }}
+            </td>
+            <td class="pos-right pos-metric">Brutto</td>
+            <td class="pos-right pos-metric">Rabatt</td>
+            <td class="pos-right pos-metric">Netto</td>
+            <td class="pos-metric" style="text-align:center;">Stk.</td>
+            <td class="pos-right pos-metric">Total</td>
         </tr>
         <tr class="pos-value-row">
             <td colspan="2" style="font-weight:bold;">
-                {{ $position->blocktype }}<br>
-                <span style="font-weight:normal; font-size:7.5pt;">
+                @if(trim((string) ($position->blocktype ?? '')) !== '')
+                    {{ $position->blocktype }}<br>
+                @endif
+                <span style="font-weight:bold; font-size:8pt;">
                     B:{{ $position->b }}
                     H:{{ $position->h }}
                     T:{{ $position->t }} (in cm)
                 </span>
             </td>
-            <td class="pos-right">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-right">{{ $position->discount }}%</td>
-            <td class="pos-right">{{ $chf($unitNetto) }}</td>
-            <td style="text-align:center;">{{ $chInt($position->quantity) }}</td>
-            <td class="pos-right">
+            <td class="pos-right pos-metric">{{ $chf($unitBrutto) }}</td>
+            <td class="pos-right pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-right pos-metric">{{ $chf($unitNetto) }}</td>
+            <td class="pos-metric" style="text-align:center;">{{ $chInt($position->quantity) }}</td>
+            <td class="pos-right pos-metric">
                 @if($position->is_optional)
                     Optional
                 @else
@@ -394,12 +422,12 @@
         <td class="detail-label" style="border-bottom:0.5pt solid #808080;">Enthalten {{ $organigramName }}:</td>
         <td colspan="2" style="padding:2pt 0; border-bottom:0.5pt solid #808080;">
             @foreach ($groupedElements as $groupName => $groupElements)
-            <table class="w100" style="border-collapse:collapse;">
+            <table class="detail-row-table">
                 <tr>
                     <td class="detail-group">{{ $groupName }}</td>
                     <td class="detail-items">
-                        @foreach ($groupElements as $groupElement)
                         <table class="qty-table">
+                            @foreach ($groupElements as $groupElement)
                             <tr>
                                 <td><strong>{{ $groupElement['quantity'] }}&nbsp;x</strong></td>
                                 <td>
@@ -409,8 +437,8 @@
                                     @endforeach
                                 </td>
                             </tr>
+                            @endforeach
                         </table>
-                        @endforeach
                     </td>
                 </tr>
             </table>

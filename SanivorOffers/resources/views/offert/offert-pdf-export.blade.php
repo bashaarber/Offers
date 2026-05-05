@@ -44,6 +44,20 @@
             vertical-align: top;
         }
         .pos-right { text-align: right; }
+        .pos-table { table-layout: fixed; }
+        .pos-description {
+            padding-left: 2pt !important;
+            padding-right: 1pt !important;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .pos-metric {
+            padding-left: 0pt !important;
+            padding-right: 0pt !important;
+            white-space: nowrap;
+        }
+        .pos-metric-header { text-align: right !important; }
+        .pos-total { padding-right: 0pt !important; }
 
         /* ── Detail rows ── */
         .detail-label { font-weight:bold; vertical-align:top; padding:2pt 4pt; width:20%; }
@@ -67,10 +81,15 @@
 </head>
 <body>
 @php
-    $logoPath = public_path('images/sanivor.jpg');
+    $logoPath = public_path('images/sanivor-logo.png');
     $logoSrc  = null;
     if (file_exists($logoPath)) {
-        $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+        $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+    } else {
+        $logoFallbackPath = public_path('images/sanivor.jpg');
+        if (file_exists($logoFallbackPath)) {
+            $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoFallbackPath));
+        }
     }
 
     $coefficientRow = \App\Models\Coefficient::query()->first();
@@ -296,25 +315,34 @@
 <div style="border-top:0.75pt solid #000; margin-bottom:0;"></div>
 
 {{-- POSITION HEADER ROW --}}
-<table class="w100" style="margin-bottom:0;">
+<table class="pos-table" style="width:508pt; margin-left:auto; margin-right:0; margin-bottom:0;">
     <colgroup>
         <col style="width:8%">
-        <col style="width:44%">
-        <col style="width:10%">
-        <col style="width:10%">
-        <col style="width:10%">
+        <col style="width:62%">
+        <col style="width:7%">
         <col style="width:6%">
-        <col style="width:12%">
+        <col style="width:7%">
+        <col style="width:4%">
+        <col style="width:6%">
     </colgroup>
     <tbody>
+        @php
+            $positionDescription = trim((string) $position->description) !== ''
+                ? (string) $position->description
+                : (
+                    trim((string) ($position->blocktype ?? '')) !== ''
+                        ? (string) $position->blocktype
+                        : ''
+                );
+        @endphp
         <tr class="pos-header-row">
             <td>Pos.&nbsp;{{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</td>
-            <td>{{ $position->description }}</td>
-            <td class="pos-right">Brutto</td>
-            <td class="pos-right">Rabatt</td>
-            <td class="pos-right">Netto</td>
-            <td style="text-align:center;">Stk.</td>
-            <td class="pos-right">Total</td>
+            <td class="pos-description">{!! $positionDescription !== '' ? e($positionDescription) : '&nbsp;' !!}</td>
+            <td class="pos-metric pos-metric-header">Brutto</td>
+            <td class="pos-metric pos-metric-header">Rabatt</td>
+            <td class="pos-metric pos-metric-header">Netto</td>
+            <td class="pos-metric pos-metric-header" style="text-align:center !important;">Stk.</td>
+            <td class="pos-metric pos-metric-header pos-total">Total</td>
         </tr>
         <tr class="pos-value-row">
             <td colspan="2" style="font-weight:bold;">
@@ -325,11 +353,11 @@
                     T:{{ $position->t }} (in cm)
                 </span>
             </td>
-            <td class="pos-right">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-right">{{ $position->discount }}%</td>
-            <td class="pos-right">{{ $chf($unitNetto) }}</td>
-            <td style="text-align:center;">{{ $chInt($position->quantity) }}</td>
-            <td class="pos-right">{{ $chf($posTotalNetto) }}</td>
+            <td class="pos-right pos-metric">{{ $chf($unitBrutto) }}</td>
+            <td class="pos-right pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-right pos-metric">{{ $chf($unitNetto) }}</td>
+            <td class="pos-metric" style="text-align:center;">{{ $chInt($position->quantity) }}</td>
+            <td class="pos-right pos-metric pos-total">{{ $chf($posTotalNetto) }}</td>
         </tr>
     </tbody>
 </table>
