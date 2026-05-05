@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@lang('public.update_offer')</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+</head>
+<style>
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f0f2f5;
+    }
+
+    h6 {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        padding: 8px 14px;
+        color: #fff;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1.5px solid #d1d5db;
+        padding: 6px 10px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 12px;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-info {
+        background: #06b6d4;
+        border-color: #06b6d4;
+        color: #fff;
+    }
+
+    .btn-info:hover {
+        background: #0891b2;
+        border-color: #0891b2;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        border-color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        border-color: #4b5563;
+    }
+
+    .select-users+.select2-container .select2-selection--single {
+        height: 35px;
+    }
+
+    .rabatt-section-card {
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background: #f8fbff;
+        padding: 14px 16px 8px;
+        margin-bottom: 12px;
+    }
+
+    .rabatt-input {
+        -moz-appearance: textfield;
+    }
+
+    .rabatt-input::-webkit-outer-spin-button,
+    .rabatt-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .embedded-overview-body .content {
+        margin-left: 0;
+    }
+</style>
+
+<body class="{{ !empty($embeddedOverview) ? 'embedded-overview-body' : '' }}">
+    @if (empty($embeddedOverview))
+        @include('layouts.sidebar')
+    @endif
+    <div class="content">
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                        <h6>@lang('public.project_information')</h6>
+                            <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
+                                @csrf
+                                @method('put')
+                                @if (!empty($fromPositionOverview))
+                                    <input type="hidden" name="from_position" value="1">
+                                    <input type="hidden" name="return_url" value="{{ $returnUrl }}">
+                                    @if (!empty($embeddedOverview))
+                                        <input type="hidden" name="embed" value="1">
+                                    @endif
+                                @endif
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="id">@lang('public.offer_number')</label>
+                                        <input type="text" class="form-control" id="id" name="id"
+                                            value="{{ $offert->display_number }}" disabled>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="type">@lang('public.offer_type')</label>
+                                        <select class="form-control" name="type" required>
+                                            <option value="client" @if ($offert->type == 'client') selected @endif>
+                                                Client
+                                            </option>
+                                            <option value="company" @if ($offert->type == 'company') selected @endif>
+                                                Company</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="user_sign">@lang('public.our_reference')</label>
+                                        <input type="text" class="form-control" id="user_sign" name="user_sign"
+                                            value="{{ $offert->user_sign }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="status">@lang('public.status')</label>
+                                        <select class="form-control" name="status" required>
+                                            <option value="Neu" @if ($offert->status == 'Neu - In progress') selected @endif>Neu
+                                                -
+                                                In progress</option>
+                                                <option value="Zusage" @if ($offert->status == 'Zusage') selected @endif>
+                                                    Zusage</option>
+                                                    <option value="Abszage" @if ($offert->status == 'Abszage') selected @endif>
+                                                        Abszage</option>
+                                            <option value="Finished" @if ($offert->status == 'Finished') selected @endif>
+                                                Finished</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="create_date">@lang('public.offer_date')</label>
+                                        <input type="date" class="form-control" id="create_date" name="create_date"
+                                            value="{{ $offert->create_date }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="validity">@lang('public.offer_validity')</label>
+                                        <input type="text" class="form-control" id="validity" name="validity"
+                                            value="{{ $offert->validity }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="client_sign">@lang('public.your_reference')</label>
+                                        <input type="text" class="form-control" id="client_sign" name="client_sign"
+                                            value="{{ $offert->client_sign }}"required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="finish_date">@lang('public.from')</label>
+                                        <input type="date" class="form-control" id="finish_date" name="finish_date"
+                                            value="{{ $offert->finish_date }}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="object">@lang('public.object')</label>
+                                        <input type="text" class="form-control" id="object" name="object"
+                                            value="{{ $offert->object }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="city">@lang('public.city')</label>
+                                        <input type="text" class="form-control" id="city" name="city"
+                                            value="{{ $offert->city }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="service">@lang('public.delivery')</label>
+                                        <input type="text" class="form-control" id="service" name="service"
+                                            value="{{ $offert->service }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="payment_conditions">@lang('public.payment_terms')</label>
+                                        <input type="text" class="form-control" id="payment_conditions"
+                                            name="payment_conditions" value="{{ $offert->payment_conditions }}"
+                                            required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="clients">@lang('public.client')</label>
+                                        <select style="width: 100%" class="select-users form-control"
+                                            id="client_id" name="client_id" required>
+                                            @foreach ($clients as $client)
+                                                <option value="{{ $client->id }}"
+                                                    {{ $client->id == $offert->client_id ? 'selected' : '' }}>
+                                                    {{ $client->name ? $client->name : $client->email }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="client_address">@lang('public.client_address')</label>
+                                        <input type="text" class="form-control" id="client_address" name="client_address"
+                                            value="{{ old('client_address', $offert->client_address ?? ($offert->client->address ?? '')) }}">
+                                    </div>
+                                </div>
+                                <h6>@lang('public.coefficients_project')</h6>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="difficulty">@lang('public.difficulty_coeff')</label>
+                                        <input type="text" class="form-control" id="difficulty" name="difficulty"
+                                            value="{{ $offert->difficulty }}" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="material">@lang('public.material_coeff')</label>
+                                        <input type="text" class="form-control" id="material" name="material"
+                                            value="{{ $offert->material }}" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="labor_price">@lang('public.hourly_rate')</label>
+                                        <input type="text" class="form-control" id="labor_price"
+                                            name="labor_price" value="{{ $offert->labor_price }}" required>
+                                    </div>
+                                </div>
+                                <h6>@lang('public.default_discount')</h6>
+                                <div class="rabatt-section-card">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="default_rabatt">@lang('public.discount_percent_label')</label>
+                                            <input type="text" class="form-control rabatt-input" id="default_rabatt"
+                                                name="default_rabatt" value="{{ $offert->default_rabatt ?? 20 }}"
+                                                inputmode="decimal" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (!empty($fromPositionOverview))
+                                    <button type="submit" class="btn btn-info mt-3">@lang('public.update_offer')</button>
+                                    <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-3">@lang('public.cancel')</button>
+                                @else
+                                    <a href="{{ route('offert.show', $offert->id) }}"
+                                        class="btn btn-info mt-3">@lang('public.update_offer')</a>
+                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                                    <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
+                                @endif
+                            </form>
+                        </div>
+                        {{-- @foreach ($offert->positions as $position)
+                            <br>
+                            <h4>Position {{ $position->position_number }}: Price {{ $position->price_discount }}</h4>
+                            <div class="card">
+                                <div class="card-body">
+                                    @foreach ($position->elements as $element)
+                                        <strong>- {{ $element->name }}</strong><br>
+                                        @foreach ($element->materials as $material)
+                                            {{ $material->pivot->quantity }}{{ $material->unit }}
+                                            {{ $material->name }}<br>
+                                        @endforeach
+                                        <hr>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select-users').select2();
+        });
+
+        const clientAddressById = @json($clients->mapWithKeys(fn($client) => [$client->id => $client->address ?? ''])->toArray());
+
+        function syncClientAddressFromSelection() {
+            const clientSelect = document.getElementById('client_id');
+            const addressInput = document.getElementById('client_address');
+            if (!clientSelect || !addressInput) return;
+            const selectedId = clientSelect.value;
+            addressInput.value = selectedId ? (clientAddressById[selectedId] || '') : '';
+        }
+
+        $(document).on('change', '#client_id', function() {
+            syncClientAddressFromSelection();
+        });
+    </script>
+
+    @if (empty($fromPositionOverview))
+        <script>
+            // Auto-save offert header fields on change/blur
+            (function () {
+            const autoSaveUrl = "{{ route('offert.auto-save', $offert->id) }}";
+            const csrfToken   = "{{ csrf_token() }}";
+            const statusEl    = document.getElementById('autosave-status');
+            let saveTimer     = null;
+
+            function showStatus(msg, color) {
+                statusEl.textContent = msg;
+                statusEl.style.color = color;
+            }
+
+            function collectFormData() {
+                const form = document.getElementById('offert-edit-form');
+                const data = new FormData(form);
+                // Autosave endpoint expects POST (not PUT spoofing).
+                data.delete('_method');
+                // Select2 client dropdown needs manual inclusion
+                const clientId = document.getElementById('client_id');
+                if (clientId && clientId.value) {
+                    data.set('client_id', clientId.value);
+                }
+                return data;
+            }
+
+            function buildRequestBody() {
+                const body = new URLSearchParams();
+                body.append('_token', csrfToken);
+                const data = collectFormData();
+                data.forEach((v, k) => body.append(k, v));
+                return body;
+            }
+
+            function persistNow() {
+                return fetch(autoSaveUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: buildRequestBody(),
+                });
+            }
+
+            function triggerSave() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(function () {
+                    showStatus('Saving…', '#6b7280');
+                    persistNow()
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.success) {
+                            showStatus('Saved ✓', '#16a34a');
+                            setTimeout(() => { statusEl.textContent = ''; }, 2000);
+                        } else {
+                            statusEl.textContent = '';
+                        }
+                    })
+                    .catch(() => {
+                        statusEl.textContent = '';
+                    });
+                }, 600); // 600 ms debounce
+            }
+
+            // Listen on all form inputs
+            const form = document.getElementById('offert-edit-form');
+            if (form) {
+                form.addEventListener('input',  triggerSave);
+                form.addEventListener('change', triggerSave);
+            }
+            })();
+        </script>
+    @else
+        <script>
+            (function () {
+                const abbrechenBtn = document.getElementById('abbrechen-btn');
+                const returnUrl = @json($returnUrl);
+                const isEmbeddedOverview = @json(!empty($embeddedOverview));
+                const confirmMsg = "{{ __('public.confirm_cancel_edit') }}";
+
+                if (!abbrechenBtn || !returnUrl) {
+                    return;
+                }
+
+                abbrechenBtn.addEventListener('click', function () {
+                    const shouldLeave = confirm(confirmMsg);
+                    if (shouldLeave) {
+                        if (isEmbeddedOverview && window.parent && window.parent !== window) {
+                            window.parent.postMessage({ type: 'offert-overview-close', reason: 'cancel' }, '*');
+                        } else {
+                            window.location.href = returnUrl;
+                        }
+                    }
+                });
+            })();
+        </script>
+    @endif
+</body>
+
+</html>
