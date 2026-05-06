@@ -182,13 +182,13 @@ class OffertController extends Controller
      */
     public function create()
     {
-        $latestOffert = Offert::latest()->first();
-        $newOffertId = $latestOffert ? $latestOffert->id + 1 : 1;
+        $nextOffertId = ((int) Offert::max('id')) + 1;
+        $newOffertNumber = Offert::formatDisplayNumber($nextOffertId);
         $users = User::all();
         $clients = Client::all();
         $coefficients = Coefficient::get();
 
-        return view('offert.create', compact('newOffertId', 'users', 'clients', 'coefficients'));
+        return view('offert.create', compact('newOffertNumber', 'users', 'clients', 'coefficients'));
     }
 
     /**

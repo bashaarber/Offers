@@ -44,7 +44,7 @@
                             <div class="form-group col-md-3">
                                 <label for="id">Offerte NR.</label>
                                 <input type="text" class="form-control" id="id" name="id"
-                                    value="{{ $offert->id }}" disabled>
+                                    value="{{ $offert->display_number }}" disabled>
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="type">Offerte Typ</label>

@@ -72,7 +72,7 @@
                             @forelse ($offerts as $offert)
                                 <tr>
                                     <td>
-                                        <strong>{{ $offert->id }}</strong>
+                                        <strong>{{ $offert->display_number }}</strong>
                                         @if($offert->isLockedByOther())
                                             <span title="Being edited by {{ $offert->lockingUser?->username ?? 'another user' }}" style="color:#dc3545; margin-left:4px;"><i class="fas fa-lock" style="font-size:11px;"></i></span>
                                         @endif

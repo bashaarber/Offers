@@ -2,9 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Offert - {{ $offert->id }}</title>
+    <title>Offert - {{ $offert->display_number }}</title>
     <style>
-        @page { size: A4; margin: 10mm 13mm; }
+        @page { size: A4; margin: 12mm 15mm; }
         * { box-sizing: border-box; }
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
@@ -17,31 +17,31 @@
         .w100 { width: 100%; }
 
         /* ── Separator lines ── */
-        .sep-black { width:100%; border-top:0.75pt solid #000000; margin:6pt 0; }
+        .sep-black { width:100%; border-top:0.75pt solid #000000; margin:8pt 0; }
         .sep-gray  { width:100%; border-top:0.75pt solid #808080; margin:0; }
 
         /* ── Blue-gray band (top of each section) ── */
         .band-top  { border-top:1pt solid #CFD8DC; }
 
         /* ── Totals box ── */
-        .totals-label { width:55%; text-align:left; padding:2.5pt 4pt; }
-        .totals-unit  { width:12%; text-align:left; padding:2.5pt 2pt; }
-        .totals-value { width:33%; text-align:right; padding:2.5pt 4pt; }
+        .totals-label { width:55%; text-align:left; padding:4pt 6pt; }
+        .totals-unit  { width:12%; text-align:left; padding:4pt 3pt; }
+        .totals-value { width:33%; text-align:left; padding:4pt 6pt; }
 
         /* ── Position block ── */
         .pos-header-row td, .pos-header-row th {
-            background-color: #CFD8DC;
             font-weight: bold;
-            font-size: 9pt;
-            padding: 3pt 5pt;
-            vertical-align: middle;
+            font-size: 8pt;
+            padding: 3pt 4pt;
+            vertical-align: top;
+            border-bottom: 0.5pt solid #808080;
         }
         .pos-value-row td {
-            background-color: #fff;
             font-weight: bold;
-            font-size: 9pt;
-            padding: 3pt 5pt;
+            font-size: 8pt;
+            padding: 3pt 4pt;
             vertical-align: top;
+            border-bottom: 0.5pt solid #808080;
         }
         .pos-right { text-align: right; }
         .pos-table { table-layout: fixed; }
@@ -52,23 +52,26 @@
             overflow-wrap: anywhere;
         }
         .pos-metric {
-            padding-left: 0pt !important;
-            padding-right: 0pt !important;
+            padding-left: 5pt !important;
+            padding-right: 5pt !important;
             white-space: nowrap;
+            text-align: left;
         }
-        .pos-metric-header { text-align: right !important; }
-        .pos-total { padding-right: 0pt !important; }
+        .pos-metric-header { text-align: left !important; }
+        .pos-total { text-align: left !important; }
 
         /* ── Detail rows ── */
-        .detail-label { font-weight:bold; vertical-align:top; padding:2pt 4pt; width:20%; }
-        .detail-group { font-weight:bold; vertical-align:top; padding:2pt 4pt; width:22%; text-align:right; }
-        .detail-items { vertical-align:top; padding:2pt 4pt; }
+        .detail-label { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:38%; font-size:8.5pt; }
+        .detail-group { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
+        .detail-items { vertical-align:top; padding:3pt 4pt; font-size:8.5pt; }
+        .detail-row-table { width:100%; border-collapse:collapse; table-layout:fixed; }
         .qty-table { width:100%; border-collapse:collapse; margin-bottom:1pt; }
-        .qty-table td { padding:0; vertical-align:top; }
-        .qty-table td:first-child { white-space:nowrap; padding-right:4pt; width:1%; }
+        .qty-table td { padding:0; vertical-align:top; font-size:8.5pt; }
+        .qty-table td:first-child { white-space:nowrap; padding-right:5pt; width:1%; }
+        .pos-nowrap { white-space: nowrap; }
 
         /* ── Footnote / closing ── */
-        .footnote { font-size:9pt; padding:5pt 4pt; }
+        .footnote { font-size:9.5pt; padding:6pt 5pt; }
 
         /* ── Teal accent row ── */
         .teal-row td {
@@ -76,6 +79,18 @@
             border-bottom:0.75pt solid #63C2DE;
             padding:0;
             font-size:0.1pt;
+        }
+
+        .cover-page {
+            position: relative;
+            min-height: 248mm;
+        }
+
+        .cover-closing {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
     </style>
 </head>
@@ -134,13 +149,14 @@
 {{-- ═══════════════════════════════════════════════════════ --}}
 {{-- PAGE 1 — COVER                                         --}}
 {{-- ═══════════════════════════════════════════════════════ --}}
+<div class="cover-page">
 
 {{-- HEADER: Logo + Company (left) | Client (right) --}}
-<table class="w100" style="margin-bottom:6pt;">
+<table class="w100" style="margin-bottom:18pt;">
     <tr>
-        <td style="width:58%; vertical-align:top; padding-right:10pt;">
+        <td style="width:68%; vertical-align:top; padding-right:10pt; padding-bottom:10pt;">
             @if($logoSrc)
-                <img src="{{ $logoSrc }}" style="width:210pt; height:42pt; margin-bottom:8pt;"><br>
+                <img src="{{ $logoSrc }}" style="width:240pt; height:52pt; margin-bottom:12pt;"><br>
             @endif
             <strong style="font-size:10pt;">Sanivor AG</strong><br>
             <span>Buckstrasse 1</span><br>
@@ -149,13 +165,15 @@
             <span>info@sanivor.ch</span><br>
             <span>www.sanivor.ch</span>
         </td>
-        <td style="width:42%; vertical-align:top; padding-top:38pt;">
-            <strong>{{ $offert->client->name ?? '' }}</strong><br>
-            @foreach($clientAddressLines as $line)
-                @if(trim($line) !== '')
-                    {{ $line }}<br>
-                @endif
-            @endforeach
+        <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
+            <div style="display:inline-block; text-align:left;">
+                <strong>{{ $offert->client->name ?? '' }}</strong><br>
+                @foreach($clientAddressLines as $line)
+                    @if(trim($line) !== '')
+                        {{ $line }}<br>
+                    @endif
+                @endforeach
+            </div>
         </td>
     </tr>
 </table>
@@ -164,18 +182,18 @@
 <div class="sep-black"></div>
 
 {{-- ANGEBOT INFO BLOCK --}}
-<table class="w100" style="background-color:#CFD8DC; margin-bottom:0;">
+<table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
-        <td style="width:20%; font-weight:bold; font-size:12pt; padding:4pt 5pt;"><strong>Angebot Nr.</strong></td>
-        <td style="width:30%; font-weight:bold; font-size:12pt; padding:4pt 5pt;"><strong>{{ $offert->id }}</strong></td>
-        <td style="width:18%; font-weight:bold; font-size:12pt; padding:4pt 5pt;"><strong>Objekt:</strong></td>
-        <td style="width:32%; font-weight:bold; font-size:12pt; padding:4pt 5pt;"><strong>{{ $offert->object }}</strong></td>
+        <td style="width:20%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Angebot Nr.</strong></td>
+        <td style="width:30%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->display_number }}</strong></td>
+        <td style="width:18%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Objekt:</strong></td>
+        <td style="width:32%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->object }}</strong></td>
     </tr>
     <tr>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 5pt 5pt;"><strong>Datum</strong></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 5pt 5pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
-        <td style="padding:2pt 5pt 5pt;"></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 5pt 5pt;"><strong>{{ $offert->city }}</strong></td>
+        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>Datum</strong></td>
+        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
+        <td style="padding:2pt 6pt 16pt;"></td>
+        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong></td>
     </tr>
 </table>
 
@@ -183,25 +201,25 @@
 <div class="sep-gray"></div>
 
 {{-- IHR AUFTRAG INFO BLOCK --}}
-<div class="band-top" style="padding-top:4pt; margin-bottom:0;">
+<div class="band-top" style="padding-top:6pt; margin-bottom:0;">
     <table class="w100">
         <tr>
-            <td style="width:20%; padding:2.5pt 5pt;"><strong>Ihr Auftrag</strong></td>
-            <td style="width:30%; padding:2.5pt 5pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
-            <td style="width:23%; padding:2.5pt 5pt;"><strong>Angebot Gültigkeit</strong></td>
-            <td style="width:27%; padding:2.5pt 5pt;">{{ $offert->validity }}</td>
+            <td style="width:20%; padding:5pt 6pt;"><strong>Ihr Auftrag</strong></td>
+            <td style="width:30%; padding:5pt 6pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
+            <td style="width:23%; padding:5pt 6pt;"><strong>Angebot Gültigkeit</strong></td>
+            <td style="width:27%; padding:5pt 6pt;">{{ $offert->validity }}</td>
         </tr>
         <tr>
-            <td style="padding:2.5pt 5pt;"><strong>Ihre Referenz</strong></td>
-            <td style="padding:2.5pt 5pt;">{{ $offert->client_sign }}</td>
-            <td style="padding:2.5pt 5pt;"><strong>Zahlungskonditionen</strong></td>
-            <td style="padding:2.5pt 5pt;">{{ $offert->payment_conditions }}</td>
+            <td style="padding:5pt 6pt;"><strong>Ihre Referenz</strong></td>
+            <td style="padding:5pt 6pt;">{{ $offert->client_sign }}</td>
+            <td style="padding:5pt 6pt;"><strong>Zahlungskonditionen</strong></td>
+            <td style="padding:5pt 6pt;">{{ $offert->payment_conditions }}</td>
         </tr>
         <tr>
-            <td style="padding:2.5pt 5pt 5pt;"><strong>Unsere Referenz</strong></td>
-            <td style="padding:2.5pt 5pt 5pt;">{{ $unsereReferenzLine }}</td>
-            <td style="padding:2.5pt 5pt 5pt;"><strong>Lieferung</strong></td>
-            <td style="padding:2.5pt 5pt 5pt;">{{ $offert->service }}</td>
+            <td style="padding:5pt 6pt 8pt;"><strong>Unsere Referenz</strong></td>
+            <td style="padding:5pt 6pt 8pt;">{{ $unsereReferenzLine }}</td>
+            <td style="padding:5pt 6pt 8pt;"><strong>Lieferung</strong></td>
+            <td style="padding:5pt 6pt 8pt;">{{ $offert->service }}</td>
         </tr>
     </table>
 </div>
@@ -237,8 +255,8 @@
     $gesamt = $totalNetto + $mwst;
 @endphp
 
-<div class="band-top" style="padding-top:6pt;">
-    <table style="width:55%; margin-left:45%;">
+<div class="band-top" style="padding-top:10pt;">
+    <table style="width:50%; margin-left:50%;">
         <tr>
             <td class="totals-label"><strong>Total Elemente:</strong></td>
             <td class="totals-unit"><strong>Stk.</strong></td>
@@ -271,7 +289,7 @@
         </tr>
         @if($optionalPositions > 0)
         <tr>
-            <td colspan="3" style="font-size:8pt; padding:4pt 4pt 0;">
+            <td colspan="3" style="font-size:9pt; padding:5pt 6pt 0;">
                 * {{ $optionalPositions }} optionale Position(en) sind im Gesamtpreis nicht enthalten.
             </td>
         </tr>
@@ -282,20 +300,26 @@
 {{-- Gray separator --}}
 <div class="sep-gray" style="margin-top:8pt;"></div>
 
-{{-- CLOSING TEXT + SIGNATURE --}}
-<div class="band-top" style="padding-top:6pt; padding-bottom:4pt;">
-    <div style="padding:0 4pt;">
-        {!! nl2br(e($pdfClosingText)) !!}
-        <p style="margin-top:10pt;">{{ $pdfFooterName }}</p>
+{{-- CLOSING TEXT + SIGNATURE (pushed toward bottom) --}}
+<div class="cover-closing">
+    <div style="page-break-inside:avoid;">
+    <div class="band-top" style="padding-top:6pt; padding-bottom:4pt;">
+        <div style="padding:0 4pt;">
+            {!! nl2br(e($pdfClosingText)) !!}
+            <p style="margin-top:10pt;">{{ $pdfFooterName }}</p>
+        </div>
     </div>
-</div>
 
 {{-- Gray separator --}}
-<div class="sep-gray" style="margin-top:4pt;"></div>
+    <div class="sep-gray" style="margin-top:4pt;"></div>
+    </div>
+</div>
+</div>
 
 {{-- ═══════════════════════════════════════════════════════ --}}
 {{-- POSITION DETAIL PAGES                                  --}}
 {{-- ═══════════════════════════════════════════════════════ --}}
+@if($offert->positions->count() > 0)
 <div style="page-break-after:always;"></div>
 
 @foreach ($offert->positions as $key => $position)
@@ -311,20 +335,10 @@
     $unitNetto  = $quantity > 0 ? $posTotalNetto  / $quantity : 0;
 @endphp
 
-{{-- Black top line on each position page --}}
-<div style="border-top:0.75pt solid #000; margin-bottom:0;"></div>
+<div style="page-break-inside:avoid; border:0.75pt solid #808080; margin-bottom:12pt;">
 
 {{-- POSITION HEADER ROW --}}
-<table class="pos-table" style="width:508pt; margin-left:auto; margin-right:0; margin-bottom:0;">
-    <colgroup>
-        <col style="width:8%">
-        <col style="width:62%">
-        <col style="width:7%">
-        <col style="width:6%">
-        <col style="width:7%">
-        <col style="width:4%">
-        <col style="width:6%">
-    </colgroup>
+<table class="pos-table" style="width:100%; margin-bottom:0; table-layout:fixed;">
     <tbody>
         @php
             $positionDescription = trim((string) $position->description) !== ''
@@ -336,34 +350,35 @@
                 );
         @endphp
         <tr class="pos-header-row">
-            <td>Pos.&nbsp;{{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</td>
-            <td class="pos-description">{!! $positionDescription !== '' ? e($positionDescription) : '&nbsp;' !!}</td>
-            <td class="pos-metric pos-metric-header">Brutto</td>
-            <td class="pos-metric pos-metric-header">Rabatt</td>
-            <td class="pos-metric pos-metric-header">Netto</td>
-            <td class="pos-metric pos-metric-header" style="text-align:center !important;">Stk.</td>
-            <td class="pos-metric pos-metric-header pos-total">Total</td>
+            <td class="pos-nowrap" style="width:9%;">Pos.&nbsp;{{ $position->position_number }}{{ $position->is_optional ? ' (Option)' : '' }}</td>
+            <td class="pos-description" style="width:41%;">
+                {!! $positionDescription !== '' ? e($positionDescription) : '&nbsp;' !!}
+            </td>
+            <td class="pos-metric pos-metric-header" style="width:10%;">Brutto</td>
+            <td class="pos-metric pos-metric-header" style="width:10%;">Rabatt</td>
+            <td class="pos-metric pos-metric-header" style="width:10%;">Netto</td>
+            <td class="pos-metric pos-metric-header" style="width:10%;">Stk.</td>
+            <td class="pos-metric pos-metric-header pos-total" style="width:10%;">Total</td>
         </tr>
         <tr class="pos-value-row">
-            <td colspan="2" style="font-weight:bold;">
-                {{ $position->blocktype }}<br>
-                <span style="font-weight:normal; font-size:8.5pt;">
+            <td colspan="2" style="font-weight:bold; width:50%;">
+                @if(trim((string) ($position->blocktype ?? '')) !== '')
+                    {{ $position->blocktype }}<br>
+                @endif
+                <span style="font-weight:bold; font-size:8pt;">
                     B:{{ $position->b }}
                     H:{{ $position->h }}
                     T:{{ $position->t }} (in cm)
                 </span>
             </td>
-            <td class="pos-right pos-metric">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-right pos-metric">{{ $position->discount }}%</td>
-            <td class="pos-right pos-metric">{{ $chf($unitNetto) }}</td>
-            <td class="pos-metric" style="text-align:center;">{{ $chInt($position->quantity) }}</td>
-            <td class="pos-right pos-metric pos-total">{{ $chf($posTotalNetto) }}</td>
+            <td class="pos-metric">{{ $chf($unitBrutto) }}</td>
+            <td class="pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-metric">{{ $chf($unitNetto) }}</td>
+            <td class="pos-metric">{{ $chInt($position->quantity) }}</td>
+            <td class="pos-metric pos-total">{{ $chf($posTotalNetto) }}</td>
         </tr>
     </tbody>
 </table>
-
-{{-- Gray separator --}}
-<div style="border-top:0.75pt solid #808080; margin:0;"></div>
 
 @php
     $groupedGroupElements = [];
@@ -395,24 +410,24 @@
 @endphp
 
 {{-- DETAIL ROWS --}}
-<table class="w100" style="background-color:#CFD8DC;">
+<table class="w100">
     @foreach ($orderedGroupElements as $organigramName => $groupedElements)
     <tr>
-        <td class="detail-label" style="background:#fff;">Enthalten {{ $organigramName }}:</td>
-        <td colspan="2" style="background:#fff; padding:2pt 0;">
+        <td class="detail-label" style="border-bottom:0.5pt solid #808080;">Enthalten {{ $organigramName }}:</td>
+        <td colspan="2" style="padding:2pt 0; border-bottom:0.5pt solid #808080;">
             @foreach ($groupedElements as $groupName => $groupElements)
-            <table class="w100" style="border-collapse:collapse;">
+            <table class="detail-row-table">
                 <tr>
                     <td class="detail-group">{{ $groupName }}</td>
                     <td class="detail-items">
-                        @foreach ($groupElements as $groupElement)
                         <table class="qty-table">
+                            @foreach ($groupElements as $groupElement)
                             <tr>
                                 <td>{{ $groupElement['quantity'] }}&nbsp;x</td>
                                 <td>{{ $groupElement['element_name'] }}{{ $groupElement['is_optional'] ? ' (opt*)' : '' }}</td>
                             </tr>
+                            @endforeach
                         </table>
-                        @endforeach
                     </td>
                 </tr>
             </table>
@@ -423,12 +438,12 @@
 
     {{-- FOOTNOTE ROW --}}
     <tr>
-        <td colspan="3" style="background:#fff; padding:5pt 5pt 4pt;">
+        <td colspan="3" style="padding:5pt 5pt 4pt; border-top:0.5pt solid #808080;">
             @if($position->description2)
                 {{ $position->description2 }}<br>
                 <div style="border-top:0.5pt solid #ccc; margin:3pt 0;"></div>
             @endif
-            <span style="font-size:8.5pt;">
+            <span style="font-size:7.5pt;">
                 Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
                 SIA 181. (Fraunhofer Institut Stuttgart)<br>
                 MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
@@ -437,17 +452,9 @@
     </tr>
 </table>
 
-{{-- TEAL ACCENT LINES --}}
-<table class="w100" style="border-collapse:collapse; margin-top:0;">
-    <tr class="teal-row"><td>&nbsp;</td></tr>
-    <tr class="teal-row"><td>&nbsp;</td></tr>
-    <tr class="teal-row"><td>&nbsp;</td></tr>
-</table>
-
-@if(!$loop->last)
-<div style="page-break-after:always;"></div>
-@endif
+</div>{{-- end page-break-inside:avoid --}}
 
 @endforeach
+@endif
 </body>
 </html>

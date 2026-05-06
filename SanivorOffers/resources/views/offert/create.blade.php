@@ -50,7 +50,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="id">@lang('public.offer_number')</label>
-                                    <input type="text" class="form-control" value="{{ $newOffertId }}" disabled>
+                                    <input type="text" class="form-control" value="{{ $newOffertNumber }}" disabled>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="type">@lang('public.offer_type')</label>

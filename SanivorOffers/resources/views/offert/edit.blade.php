@@ -135,7 +135,7 @@
                                     <div class="form-group col-md-3">
                                         <label for="id">@lang('public.offer_number')</label>
                                         <input type="text" class="form-control" id="id" name="id"
-                                            value="{{ $offert->id }}" disabled>
+                                            value="{{ $offert->display_number }}" disabled>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="type">@lang('public.offer_type')</label>

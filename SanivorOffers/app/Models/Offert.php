@@ -10,6 +10,9 @@ class Offert extends Model
 {
     use HasFactory;
 
+    public const DISPLAY_NUMBER_OFFSET = 599;
+    public const DISPLAY_NUMBER_SUFFIX = '-H';
+
     protected $fillable = [
         'type',
         'user_sign',
@@ -81,5 +84,15 @@ class Offert extends Model
    {
        return $this->belongsToMany(Position::class)->withTimestamps();
    }
+
+    public static function formatDisplayNumber(int $offertId): string
+    {
+        return ($offertId + self::DISPLAY_NUMBER_OFFSET) . self::DISPLAY_NUMBER_SUFFIX;
+    }
+
+    public function getDisplayNumberAttribute(): string
+    {
+        return self::formatDisplayNumber((int) $this->id);
+    }
    
 }
