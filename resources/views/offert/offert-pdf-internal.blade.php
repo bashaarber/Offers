@@ -91,10 +91,15 @@
 </head>
 <body>
 @php
-    $logoPath = public_path('images/sanivor.jpg');
+    $logoPath = public_path('images/sanivor-logo.png');
     $logoSrc  = null;
     if (file_exists($logoPath)) {
-        $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+        $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+    } else {
+        $logoFallbackPath = public_path('images/sanivor.jpg');
+        if (file_exists($logoFallbackPath)) {
+            $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoFallbackPath));
+        }
     }
 
     $coefficientInternal = \App\Models\Coefficient::query()->first();
