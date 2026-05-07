@@ -362,7 +362,7 @@
                 </span>
             </td>
             <td class="pos-right pos-metric">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-right pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-right pos-metric">{{ $chf($position->discount) }}%</td>
             <td class="pos-right pos-metric">{{ $chf($unitNetto) }}</td>
             <td class="pos-metric" style="text-align:center;">{{ $chInt($position->quantity) }}</td>
             <td class="pos-right pos-metric">

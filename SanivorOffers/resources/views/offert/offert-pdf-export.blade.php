@@ -162,8 +162,8 @@
             <span>Buckstrasse 1</span><br>
             <span>8317 Tagelswangen</span><br>
             <span>Tel +41 (0)52 213 20 90</span><br>
-            <span>info@sanivor.ch</span><br>
-            <span>www.sanivor.ch</span>
+            <span style="color:#1155cc;">info@sanivor.ch</span><br>
+            <span style="color:#1155cc;">www.sanivor.ch</span>
         </td>
         <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
             <div style="display:inline-block; text-align:left;">
@@ -258,34 +258,34 @@
 <div class="band-top" style="padding-top:10pt;">
     <table style="width:50%; margin-left:50%;">
         <tr>
-            <td class="totals-label"><strong>Total Elemente:</strong></td>
-            <td class="totals-unit"><strong>Stk.</strong></td>
-            <td class="totals-value"><strong>{{ $chInt($totalMengeStk) }}</strong></td>
+            <td class="totals-label" style="padding-bottom:8pt;"><strong>Total Elemente:</strong></td>
+            <td class="totals-unit" style="padding-bottom:8pt;"><strong>Stk.</strong></td>
+            <td class="totals-value" style="padding-bottom:8pt;"><strong>{{ $chInt($totalMengeStk) }}</strong></td>
         </tr>
         <tr>
-            <td class="totals-label">Total Brutto</td>
-            <td class="totals-unit">CHF</td>
-            <td class="totals-value">{{ $chf($totalBrutto) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;">Total Brutto</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;">{{ $chf($totalBrutto) }}</td>
         </tr>
         <tr>
-            <td class="totals-label" style="padding-bottom:8pt;">Rabatt</td>
-            <td class="totals-unit" style="padding-bottom:8pt;">CHF</td>
-            <td class="totals-value" style="padding-bottom:8pt;">-{{ $chf($totalDiscount) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:8pt;">Rabatt</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:8pt;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:8pt;">-{{ $chf($totalDiscount) }}</td>
         </tr>
         <tr>
-            <td class="totals-label"><strong>Total Netto</strong></td>
-            <td class="totals-unit"><strong>CHF</strong></td>
-            <td class="totals-value"><strong>{{ $chf($totalNetto) }}</strong></td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;"><strong>Total Netto</strong></td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;"><strong>CHF</strong></td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;"><strong>{{ $chf($totalNetto) }}</strong></td>
         </tr>
         <tr>
-            <td class="totals-label">MwSt. 8.1%</td>
-            <td class="totals-unit">CHF</td>
-            <td class="totals-value">{{ $chf($mwst) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;">MwSt. 8.1%</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;">{{ $chf($mwst) }}</td>
         </tr>
         <tr>
-            <td class="totals-label"><strong>Gesamt</strong></td>
-            <td class="totals-unit"><strong>CHF</strong></td>
-            <td class="totals-value"><strong>{{ $chf($gesamt) }}</strong></td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;"><strong>Gesamt</strong></td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;"><strong>CHF</strong></td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;"><strong>{{ $chf($gesamt) }}</strong></td>
         </tr>
         @if($optionalPositions > 0)
         <tr>
@@ -372,7 +372,7 @@
                 </span>
             </td>
             <td class="pos-metric">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-metric">{{ $chf($position->discount) }}%</td>
             <td class="pos-metric">{{ $chf($unitNetto) }}</td>
             <td class="pos-metric">{{ $chInt($position->quantity) }}</td>
             <td class="pos-metric pos-total">{{ $chf($posTotalNetto) }}</td>
@@ -456,5 +456,24 @@
 
 @endforeach
 @endif
+
+<script type="text/php">
+    if (isset($pdf)) {
+        $font = $fontMetrics->getFont('DejaVu Sans', 'normal');
+        $size = 9;
+        $w = $pdf->get_width();
+        $h = $pdf->get_height();
+        $pdf->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($font, $size, $w, $h) {
+            if ($pageNumber === 1) {
+                return;
+            }
+            $text = $pageNumber . '/' . $pageCount;
+            $textWidth = $fontMetrics->getTextWidth($text, $font, $size);
+            $x = ($w - $textWidth) / 2;
+            $y = $h - 25;
+            $canvas->text($x, $y, $text, $font, $size);
+        });
+    }
+</script>
 </body>
 </html>

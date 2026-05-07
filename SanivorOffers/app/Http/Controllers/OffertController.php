@@ -163,7 +163,8 @@ class OffertController extends Controller
                 }
             }
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices'));
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices'))
+                ->setOption(['isPhpEnabled' => true]);
             return $pdf->stream();
         } catch (\Throwable $e) {
             Log::error('External PDF generation failed', [
