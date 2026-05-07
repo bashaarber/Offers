@@ -62,8 +62,8 @@
 
         /* ── Detail rows ── */
         .detail-label { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:38%; font-size:8.5pt; }
-        .detail-group { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
-        .detail-items { vertical-align:top; padding:3pt 4pt; font-size:8.5pt; }
+        .detail-group { font-weight:bold; vertical-align:top; padding:0 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
+        .detail-items { vertical-align:top; padding:0 4pt; font-size:8.5pt; }
         .detail-row-table { width:100%; border-collapse:collapse; table-layout:fixed; }
         .qty-table { width:100%; border-collapse:collapse; margin-bottom:1pt; }
         .qty-table td { padding:0; vertical-align:top; font-size:8.5pt; }
@@ -154,7 +154,7 @@
 {{-- HEADER: Logo + Company (left) | Client (right) --}}
 <table class="w100" style="margin-bottom:18pt;">
     <tr>
-        <td style="width:68%; vertical-align:top; padding-right:10pt; padding-bottom:10pt;">
+        <td style="width:63%; vertical-align:top; padding-right:10pt; padding-bottom:10pt;">
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="width:240pt; height:52pt; margin-bottom:12pt;"><br>
             @endif
@@ -165,15 +165,13 @@
             <span style="color:#1155cc;">info@sanivor.ch</span><br>
             <span style="color:#1155cc;">www.sanivor.ch</span>
         </td>
-        <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
-            <div style="display:inline-block; text-align:left;">
-                <strong>{{ $offert->client->name ?? '' }}</strong><br>
-                @foreach($clientAddressLines as $line)
-                    @if(trim($line) !== '')
-                        {{ $line }}<br>
-                    @endif
-                @endforeach
-            </div>
+        <td style="width:37%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:left;">
+            <strong>{{ $offert->client->name ?? '' }}</strong><br>
+            @foreach($clientAddressLines as $line)
+                @if(trim($line) !== '')
+                    {{ $line }}<br>
+                @endif
+            @endforeach
         </td>
     </tr>
 </table>
@@ -184,16 +182,16 @@
 {{-- ANGEBOT INFO BLOCK --}}
 <table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
-        <td style="width:20%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Angebot Nr.</strong></td>
-        <td style="width:30%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->display_number }}</strong></td>
-        <td style="width:18%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Objekt:</strong></td>
-        <td style="width:32%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->object }}</strong></td>
+        <td style="width:20%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>Angebot Nr.</strong></td>
+        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}</strong></td>
+        <td style="width:13%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>Objekt:</strong></td>
+        <td style="width:37%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>{{ $offert->object }}</strong></td>
     </tr>
     <tr>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>Datum</strong></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
-        <td style="padding:2pt 6pt 16pt;"></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong></td>
+        <td style="font-weight:bold; font-size:8.5pt; padding:0 6pt 16pt;"><strong>Datum</strong></td>
+        <td style="font-weight:bold; font-size:8.5pt; padding:0 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
+        <td style="padding:0 6pt 16pt 0;"></td>
+        <td style="font-weight:bold; font-size:10pt; padding:0 6pt 16pt 0;"><strong>{{ $offert->city }}</strong></td>
     </tr>
 </table>
 
@@ -202,7 +200,7 @@
 
 {{-- IHR AUFTRAG INFO BLOCK --}}
 <div class="band-top" style="padding-top:6pt; margin-bottom:0;">
-    <table class="w100">
+    <table class="w100" style="font-size:8pt;">
         <tr>
             <td style="width:20%; padding:5pt 6pt;"><strong>Ihr Auftrag</strong></td>
             <td style="width:30%; padding:5pt 6pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
