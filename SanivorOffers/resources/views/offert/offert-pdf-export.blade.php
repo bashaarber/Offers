@@ -199,13 +199,13 @@
 <div class="sep-gray"></div>
 
 {{-- IHR AUFTRAG INFO BLOCK --}}
-<div class="band-top" style="padding-top:6pt; margin-bottom:0;">
+<div class="band-top" style="margin-bottom:0;">
     <table class="w100" style="font-size:8pt;">
         <tr>
-            <td style="width:20%; padding:5pt 6pt;"><strong>Ihr Auftrag</strong></td>
-            <td style="width:30%; padding:5pt 6pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
-            <td style="width:23%; padding:5pt 6pt;"><strong>Angebot Gültigkeit</strong></td>
-            <td style="width:27%; padding:5pt 6pt;">{{ $offert->validity }}</td>
+            <td style="width:20%; padding:12pt 6pt 5pt;"><strong>Ihr Auftrag</strong></td>
+            <td style="width:30%; padding:12pt 6pt 5pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
+            <td style="width:23%; padding:12pt 6pt 5pt;"><strong>Angebot Gültigkeit</strong></td>
+            <td style="width:27%; padding:12pt 6pt 5pt;">{{ $offert->validity }}</td>
         </tr>
         <tr>
             <td style="padding:5pt 6pt;"><strong>Ihre Referenz</strong></td>
@@ -214,16 +214,16 @@
             <td style="padding:5pt 6pt;">{{ $offert->payment_conditions }}</td>
         </tr>
         <tr>
-            <td style="padding:5pt 6pt 8pt;"><strong>Unsere Referenz</strong></td>
-            <td style="padding:5pt 6pt 8pt;">{{ $unsereReferenzLine }}</td>
-            <td style="padding:5pt 6pt 8pt;"><strong>Lieferung</strong></td>
-            <td style="padding:5pt 6pt 8pt;">{{ $offert->service }}</td>
+            <td style="padding:5pt 6pt 16pt;"><strong>Unsere Referenz</strong></td>
+            <td style="padding:5pt 6pt 16pt;">{{ $unsereReferenzLine }}</td>
+            <td style="padding:5pt 6pt 16pt;"><strong>Lieferung</strong></td>
+            <td style="padding:5pt 6pt 16pt;">{{ $offert->service }}</td>
         </tr>
     </table>
 </div>
 
 {{-- Gray separator --}}
-<div class="sep-gray" style="margin-top:4pt;"></div>
+<div class="sep-gray"></div>
 
 {{-- TOTALS BOX (right half) --}}
 @php
@@ -281,9 +281,9 @@
             <td class="totals-value" style="padding-top:0; padding-bottom:0;">{{ $chf($mwst) }}</td>
         </tr>
         <tr>
-            <td class="totals-label" style="padding-top:0; padding-bottom:0;"><strong>Gesamt</strong></td>
-            <td class="totals-unit" style="padding-top:0; padding-bottom:0;"><strong>CHF</strong></td>
-            <td class="totals-value" style="padding-top:0; padding-bottom:0;"><strong>{{ $chf($gesamt) }}</strong></td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:11pt;"><strong>Gesamt</strong></td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:11pt;"><strong>CHF</strong></td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:11pt;"><strong>{{ $chf($gesamt) }}</strong></td>
         </tr>
         @if($optionalPositions > 0)
         <tr>
