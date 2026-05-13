@@ -149,9 +149,35 @@
 </div>
 
 <script>
+    const POS_LIST_SCROLL_KEY = 'posListScroll:{{ $offertId }}';
+
+    function savePosListScroll() {
+        const el = document.querySelector('.pos-list-container');
+        if (!el) return;
+        try { sessionStorage.setItem(POS_LIST_SCROLL_KEY, String(el.scrollTop)); } catch (e) {}
+    }
+
+    function restorePosListScroll() {
+        const el = document.querySelector('.pos-list-container');
+        if (!el) return;
+        let saved = null;
+        try { saved = sessionStorage.getItem(POS_LIST_SCROLL_KEY); } catch (e) {}
+        if (saved !== null) {
+            el.scrollTop = parseFloat(saved) || 0;
+            return;
+        }
+        const active = el.querySelector('a[style*="#3b82f6"]');
+        if (active) {
+            const row = active.closest('.position-row') || active;
+            const offset = row.offsetTop - (el.clientHeight / 2) + (row.offsetHeight / 2);
+            el.scrollTop = Math.max(0, offset);
+        }
+    }
+
     window.handlePositionSidebarNavigate = function(linkEl, event) {
         if (!linkEl || !linkEl.href) return true;
         if (event) event.preventDefault();
+        savePosListScroll();
         const nextUrl = linkEl.href;
         if (typeof window.doAutoSaveAndNavigate === 'function') {
             window.doAutoSaveAndNavigate(nextUrl);
@@ -168,6 +194,17 @@
             event.preventDefault();
             window.handlePositionSidebarNavigate(navLink, event);
         });
+
+        // Persist scroll position whenever something inside the position list triggers a reload
+        // (copy form, delete form, new-position button, etc.)
+        document.addEventListener('submit', function(event) {
+            if (event.target.closest('.pos-list-container')) savePosListScroll();
+        }, true);
+        document.addEventListener('click', function(event) {
+            const btn = event.target.closest('.pos-list-container button, .position-sidebar-section button');
+            if (btn) savePosListScroll();
+        }, true);
+        window.addEventListener('beforeunload', savePosListScroll);
 
         const sidebar = document.querySelector('.sidebar');
         const footer = sidebar?.querySelector('.sidebar-footer');
@@ -186,6 +223,8 @@
             } else {
                 sidebar.insertBefore(positionSection, footer);
             }
+
+            restorePosListScroll();
         }
 
         const pdfFooterTemplate = document.getElementById('external-pdf-footer-slot-template');

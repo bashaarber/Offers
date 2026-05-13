@@ -91,15 +91,10 @@
 </head>
 <body>
 @php
-    $logoPath = public_path('images/sanivor-logo.png');
+    $logoPath = public_path('images/sanivor.jpg');
     $logoSrc  = null;
     if (file_exists($logoPath)) {
-        $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
-    } else {
-        $logoFallbackPath = public_path('images/sanivor.jpg');
-        if (file_exists($logoFallbackPath)) {
-            $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoFallbackPath));
-        }
+        $logoSrc = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
     }
 
     $coefficientInternal = \App\Models\Coefficient::query()->first();
@@ -367,7 +362,7 @@
                 </span>
             </td>
             <td class="pos-right pos-metric">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-right pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-right pos-metric">{{ $chf($position->discount) }}%</td>
             <td class="pos-right pos-metric">{{ $chf($unitNetto) }}</td>
             <td class="pos-metric" style="text-align:center;">{{ $chInt($position->quantity) }}</td>
             <td class="pos-right pos-metric">
@@ -417,6 +412,14 @@
         if (!isset($orderedGroupElements[$key_name])) {
             $orderedGroupElements[$key_name] = $value;
         }
+    }
+    foreach ($orderedGroupElements as $orgName => $groups) {
+        ksort($groups, SORT_NATURAL | SORT_FLAG_CASE);
+        foreach ($groups as $groupName => $elements) {
+            usort($elements, fn($a, $b) => strnatcasecmp($a['element_name'], $b['element_name']));
+            $groups[$groupName] = $elements;
+        }
+        $orderedGroupElements[$orgName] = $groups;
     }
 @endphp
 

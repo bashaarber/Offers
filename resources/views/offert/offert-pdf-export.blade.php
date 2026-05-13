@@ -62,8 +62,8 @@
 
         /* ── Detail rows ── */
         .detail-label { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:38%; font-size:8.5pt; }
-        .detail-group { font-weight:bold; vertical-align:top; padding:3pt 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
-        .detail-items { vertical-align:top; padding:3pt 4pt; font-size:8.5pt; }
+        .detail-group { font-weight:bold; vertical-align:top; padding:0 5pt; width:21%; text-align:right; font-size:8.5pt; white-space:nowrap; }
+        .detail-items { vertical-align:top; padding:0 4pt; font-size:8.5pt; }
         .detail-row-table { width:100%; border-collapse:collapse; table-layout:fixed; }
         .qty-table { width:100%; border-collapse:collapse; margin-bottom:1pt; }
         .qty-table td { padding:0; vertical-align:top; font-size:8.5pt; }
@@ -154,7 +154,7 @@
 {{-- HEADER: Logo + Company (left) | Client (right) --}}
 <table class="w100" style="margin-bottom:18pt;">
     <tr>
-        <td style="width:68%; vertical-align:top; padding-right:10pt; padding-bottom:10pt;">
+        <td style="width:63%; vertical-align:top; padding-right:10pt; padding-bottom:10pt;">
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="width:240pt; height:52pt; margin-bottom:12pt;"><br>
             @endif
@@ -162,18 +162,16 @@
             <span>Buckstrasse 1</span><br>
             <span>8317 Tagelswangen</span><br>
             <span>Tel +41 (0)52 213 20 90</span><br>
-            <span>info@sanivor.ch</span><br>
-            <span>www.sanivor.ch</span>
+            <span style="color:#1155cc;">info@sanivor.ch</span><br>
+            <span style="color:#1155cc;">www.sanivor.ch</span>
         </td>
-        <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
-            <div style="display:inline-block; text-align:left;">
-                <strong>{{ $offert->client->name ?? '' }}</strong><br>
-                @foreach($clientAddressLines as $line)
-                    @if(trim($line) !== '')
-                        {{ $line }}<br>
-                    @endif
-                @endforeach
-            </div>
+        <td style="width:37%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:left;">
+            <strong>{{ $offert->client->name ?? '' }}</strong><br>
+            @foreach($clientAddressLines as $line)
+                @if(trim($line) !== '')
+                    {{ $line }}<br>
+                @endif
+            @endforeach
         </td>
     </tr>
 </table>
@@ -184,16 +182,16 @@
 {{-- ANGEBOT INFO BLOCK --}}
 <table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
-        <td style="width:20%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Angebot Nr.</strong></td>
-        <td style="width:30%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->display_number }}</strong></td>
-        <td style="width:18%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Objekt:</strong></td>
-        <td style="width:32%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->object }}</strong></td>
+        <td style="width:20%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>Angebot Nr.</strong></td>
+        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}</strong></td>
+        <td style="width:13%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>Objekt:</strong></td>
+        <td style="width:37%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>{{ $offert->object }}</strong></td>
     </tr>
     <tr>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>Datum</strong></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
-        <td style="padding:2pt 6pt 16pt;"></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong></td>
+        <td style="font-weight:bold; font-size:8.5pt; padding:0 6pt 16pt;"><strong>Datum</strong></td>
+        <td style="font-weight:bold; font-size:8.5pt; padding:0 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
+        <td style="padding:0 6pt 16pt 0;"></td>
+        <td style="font-weight:bold; font-size:10pt; padding:0 6pt 16pt 0;"><strong>{{ $offert->city }}</strong></td>
     </tr>
 </table>
 
@@ -201,13 +199,13 @@
 <div class="sep-gray"></div>
 
 {{-- IHR AUFTRAG INFO BLOCK --}}
-<div class="band-top" style="padding-top:6pt; margin-bottom:0;">
-    <table class="w100">
+<div class="band-top" style="margin-bottom:0;">
+    <table class="w100" style="font-size:8pt;">
         <tr>
-            <td style="width:20%; padding:5pt 6pt;"><strong>Ihr Auftrag</strong></td>
-            <td style="width:30%; padding:5pt 6pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
-            <td style="width:23%; padding:5pt 6pt;"><strong>Angebot Gültigkeit</strong></td>
-            <td style="width:27%; padding:5pt 6pt;">{{ $offert->validity }}</td>
+            <td style="width:20%; padding:12pt 6pt 5pt;"><strong>Ihr Auftrag</strong></td>
+            <td style="width:30%; padding:12pt 6pt 5pt;">Email vom {{ $vomDate ? \Carbon\Carbon::parse($vomDate)->format('d/m/Y') : '' }}</td>
+            <td style="width:23%; padding:12pt 6pt 5pt;"><strong>Angebot Gültigkeit</strong></td>
+            <td style="width:27%; padding:12pt 6pt 5pt;">{{ $offert->validity }}</td>
         </tr>
         <tr>
             <td style="padding:5pt 6pt;"><strong>Ihre Referenz</strong></td>
@@ -216,16 +214,16 @@
             <td style="padding:5pt 6pt;">{{ $offert->payment_conditions }}</td>
         </tr>
         <tr>
-            <td style="padding:5pt 6pt 8pt;"><strong>Unsere Referenz</strong></td>
-            <td style="padding:5pt 6pt 8pt;">{{ $unsereReferenzLine }}</td>
-            <td style="padding:5pt 6pt 8pt;"><strong>Lieferung</strong></td>
-            <td style="padding:5pt 6pt 8pt;">{{ $offert->service }}</td>
+            <td style="padding:5pt 6pt 16pt;"><strong>Unsere Referenz</strong></td>
+            <td style="padding:5pt 6pt 16pt;">{{ $unsereReferenzLine }}</td>
+            <td style="padding:5pt 6pt 16pt;"><strong>Lieferung</strong></td>
+            <td style="padding:5pt 6pt 16pt;">{{ $offert->service }}</td>
         </tr>
     </table>
 </div>
 
 {{-- Gray separator --}}
-<div class="sep-gray" style="margin-top:4pt;"></div>
+<div class="sep-gray"></div>
 
 {{-- TOTALS BOX (right half) --}}
 @php
@@ -258,34 +256,34 @@
 <div class="band-top" style="padding-top:10pt;">
     <table style="width:50%; margin-left:50%;">
         <tr>
-            <td class="totals-label"><strong>Total Elemente:</strong></td>
-            <td class="totals-unit"><strong>Stk.</strong></td>
-            <td class="totals-value"><strong>{{ $chInt($totalMengeStk) }}</strong></td>
+            <td class="totals-label" style="padding-bottom:8pt;"><strong>Total Elemente:</strong></td>
+            <td class="totals-unit" style="padding-bottom:8pt;"><strong>Stk.</strong></td>
+            <td class="totals-value" style="padding-bottom:8pt;"><strong>{{ $chInt($totalMengeStk) }}</strong></td>
         </tr>
         <tr>
-            <td class="totals-label">Total Brutto</td>
-            <td class="totals-unit">CHF</td>
-            <td class="totals-value">{{ $chf($totalBrutto) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;">Total Brutto</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;">{{ $chf($totalBrutto) }}</td>
         </tr>
         <tr>
-            <td class="totals-label" style="padding-bottom:8pt;">Rabatt</td>
-            <td class="totals-unit" style="padding-bottom:8pt;">CHF</td>
-            <td class="totals-value" style="padding-bottom:8pt;">-{{ $chf($totalDiscount) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:8pt;">Rabatt</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:8pt;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:8pt;">-{{ $chf($totalDiscount) }}</td>
         </tr>
         <tr>
-            <td class="totals-label"><strong>Total Netto</strong></td>
-            <td class="totals-unit"><strong>CHF</strong></td>
-            <td class="totals-value"><strong>{{ $chf($totalNetto) }}</strong></td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;"><strong>Total Netto</strong></td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;"><strong>CHF</strong></td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;"><strong>{{ $chf($totalNetto) }}</strong></td>
         </tr>
         <tr>
-            <td class="totals-label">MwSt. 8.1%</td>
-            <td class="totals-unit">CHF</td>
-            <td class="totals-value">{{ $chf($mwst) }}</td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:0;">MwSt. 8.1%</td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:0;">CHF</td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:0;">{{ $chf($mwst) }}</td>
         </tr>
         <tr>
-            <td class="totals-label"><strong>Gesamt</strong></td>
-            <td class="totals-unit"><strong>CHF</strong></td>
-            <td class="totals-value"><strong>{{ $chf($gesamt) }}</strong></td>
+            <td class="totals-label" style="padding-top:0; padding-bottom:11pt;"><strong>Gesamt</strong></td>
+            <td class="totals-unit" style="padding-top:0; padding-bottom:11pt;"><strong>CHF</strong></td>
+            <td class="totals-value" style="padding-top:0; padding-bottom:11pt;"><strong>{{ $chf($gesamt) }}</strong></td>
         </tr>
         @if($optionalPositions > 0)
         <tr>
@@ -372,7 +370,7 @@
                 </span>
             </td>
             <td class="pos-metric">{{ $chf($unitBrutto) }}</td>
-            <td class="pos-metric">{{ $position->discount }}%</td>
+            <td class="pos-metric">{{ $chf($position->discount) }}%</td>
             <td class="pos-metric">{{ $chf($unitNetto) }}</td>
             <td class="pos-metric">{{ $chInt($position->quantity) }}</td>
             <td class="pos-metric pos-total">{{ $chf($posTotalNetto) }}</td>
@@ -407,6 +405,14 @@
             $orderedGroupElements[$key_name] = $value;
         }
     }
+    foreach ($orderedGroupElements as $orgName => $groups) {
+        ksort($groups, SORT_NATURAL | SORT_FLAG_CASE);
+        foreach ($groups as $groupName => $elements) {
+            usort($elements, fn($a, $b) => strnatcasecmp($a['element_name'], $b['element_name']));
+            $groups[$groupName] = $elements;
+        }
+        $orderedGroupElements[$orgName] = $groups;
+    }
 @endphp
 
 {{-- DETAIL ROWS --}}
@@ -422,7 +428,7 @@
                     <td class="detail-items">
                         <table class="qty-table">
                             @foreach ($groupElements as $groupElement)
-                            <tr>
+                            <tr @if($groupElement['is_optional']) style="color:#808080;" @endif>
                                 <td>{{ $groupElement['quantity'] }}&nbsp;x</td>
                                 <td>{{ $groupElement['element_name'] }}{{ $groupElement['is_optional'] ? ' (opt*)' : '' }}</td>
                             </tr>
@@ -456,5 +462,24 @@
 
 @endforeach
 @endif
+
+<script type="text/php">
+    if (isset($pdf)) {
+        $font = $fontMetrics->getFont('DejaVu Sans', 'normal');
+        $size = 9;
+        $w = $pdf->get_width();
+        $h = $pdf->get_height();
+        $pdf->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($font, $size, $w, $h) {
+            if ($pageNumber === 1) {
+                return;
+            }
+            $text = $pageNumber . '/' . $pageCount;
+            $textWidth = $fontMetrics->getTextWidth($text, $font, $size);
+            $x = ($w - $textWidth) / 2;
+            $y = $h - 25;
+            $canvas->text($x, $y, $text, $font, $size);
+        });
+    }
+</script>
 </body>
 </html>
