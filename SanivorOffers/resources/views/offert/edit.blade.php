@@ -236,8 +236,19 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
                                         <label for="difficulty">@lang('public.difficulty_coeff')</label>
-                                        <input type="text" class="form-control" id="difficulty" name="difficulty"
-                                            value="{{ $offert->difficulty }}" required>
+                                        @if (!empty($fromPositionOverview))
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="difficulty" name="difficulty"
+                                                    value="{{ $offert->difficulty }}" required>
+                                                <div class="input-group-append">
+                                                    <button type="button" id="override-difficulty-btn"
+                                                        class="btn btn-outline-secondary">@lang('public.override_all')</button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <input type="text" class="form-control" id="difficulty" name="difficulty"
+                                                value="{{ $offert->difficulty }}" required>
+                                        @endif
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="material">@lang('public.material_coeff')</label>
@@ -315,6 +326,52 @@
         $(document).on('change', '#client_id', function() {
             syncClientAddressFromSelection();
         });
+
+        // "Alle überschreiben" — push the offert's current Schw. Koeffizient onto every position.
+        (function () {
+            const btn = document.getElementById('override-difficulty-btn');
+            if (!btn) return;
+
+            const confirmMsg   = @json(__('public.confirm_override_difficulty'));
+            const successMsg   = @json(__('public.override_difficulty_success'));
+            const failedMsg    = @json(__('public.override_difficulty_failed'));
+            const overrideUrl  = "{{ route('offert.override-difficulty-all', $offert->id) }}";
+            const autoSaveUrl  = "{{ route('offert.auto-save', $offert->id) }}";
+            const csrfToken    = "{{ csrf_token() }}";
+
+            btn.addEventListener('click', function () {
+                if (!confirm(confirmMsg)) return;
+
+                // Persist the current Schw. Koeffizient value first (in case the user just edited
+                // the input and the debounced autosave hasn't fired yet), then trigger the override.
+                const difficultyInput = document.getElementById('difficulty');
+                const body = new URLSearchParams();
+                body.append('_token', csrfToken);
+                if (difficultyInput) body.append('difficulty', difficultyInput.value);
+
+                btn.disabled = true;
+                fetch(autoSaveUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: body,
+                })
+                .then(() => fetch(overrideUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: new URLSearchParams({ _token: csrfToken }),
+                }))
+                .then(r => r.json())
+                .then(json => {
+                    if (json && json.success) {
+                        alert(successMsg);
+                    } else {
+                        alert(failedMsg);
+                    }
+                })
+                .catch(() => alert(failedMsg))
+                .finally(() => { btn.disabled = false; });
+            });
+        })();
     </script>
 
     @if (empty($fromPositionOverview))

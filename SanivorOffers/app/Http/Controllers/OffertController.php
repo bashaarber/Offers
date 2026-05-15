@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\Offert;
 use App\Models\Coefficient;
+use App\Models\Organigram;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PositionMaterial;
@@ -47,6 +49,103 @@ class OffertController extends Controller
         return Cache::remember('schema_coefficients_has_default_rabatt', 86400, function () {
             return Schema::hasColumn('coefficients', 'default_rabatt');
         });
+    }
+
+    /**
+     * Recompute every position's stored price snapshot using the offert's CURRENT
+     * Material-Koeffizient. Each position keeps its own Schw.Koeffizient (difficulty).
+     * Mirrors the JS calc in resources/views/position/edit.blade.php.
+     */
+    private function recomputePositionsForMaterialCoefficient(Offert $offert): void
+    {
+        $materialCoeff = (float) ($offert->material ?: 1);
+        $coefficient   = Coefficient::first();
+        $inLaborPrice  = (float) ($coefficient->in_labor_price ?? 60);
+        $offertDifficulty = (float) ($offert->difficulty ?: 1);
+
+        $organigrams = Cache::remember('organigrams_tree', 600, function () {
+            return Organigram::with(['group_elements.elements'])->get();
+        });
+        $externeWasserIds = [];
+        foreach ($organigrams as $org) {
+            foreach ($org->group_elements as $ge) {
+                if ($ge->name === 'Externe Wasser Anschl.') {
+                    foreach ($ge->elements as $el) {
+                        $externeWasserIds[$el->id] = true;
+                    }
+                }
+            }
+        }
+
+        $supportsOptional = Schema::hasColumn('element_position', 'is_optional');
+
+        foreach ($offert->positions as $position) {
+            $diffCoeff = max((float) ($position->difficulty ?: $offertDifficulty), 0.001);
+
+            $elements = $position->elements()->with('materials')->get();
+            $pmMap = [];
+            foreach (PositionMaterial::where('position_id', $position->id)->get() as $pm) {
+                $pmMap[(int) $pm->element_id][(int) $pm->material_id] = (float) $pm->quantity;
+            }
+
+            $totalProTypPrice = 0.0;
+            $totalPriceOut    = 0.0;
+            $totalPriceIn     = 0.0;
+            $totalZeitCost    = 0.0;
+            $totalZHours      = 0.0;
+
+            foreach ($elements as $element) {
+                $isOptional = $supportsOptional
+                    && Position::truthyElementOptionalPivot($element->pivot->is_optional ?? null);
+                if ($isOptional) {
+                    continue;
+                }
+
+                $elementQty = isset($externeWasserIds[$element->id])
+                    ? 1.0
+                    : (float) ($element->pivot->quantity ?? 1);
+
+                foreach ($element->materials as $material) {
+                    $matQty = $pmMap[(int) $element->id][(int) $material->id]
+                        ?? (float) ($material->pivot->quantity ?? 1);
+                    $priceOut    = (float) $material->price_out;
+                    $priceIn     = (float) $material->price_in;
+                    $zeitCost    = (float) $material->zeit_cost;
+                    $zTotal      = (float) ($material->z_total ?? 0);
+                    $totalArbeit = (float) ($material->total_arbeit ?? 0);
+
+                    $totalPriceOut += $priceOut * $matQty * $elementQty;
+                    $totalPriceIn  += $priceIn  * $matQty * $elementQty;
+                    $totalZeitCost += $zeitCost * $matQty * $elementQty;
+                    $totalZHours   += $zTotal   * $matQty * $elementQty;
+
+                    $matCalc = $priceOut * $materialCoeff + $totalArbeit / $diffCoeff;
+                    $totalProTypPrice += $matCalc * $matQty * $elementQty;
+                }
+            }
+
+            $menge    = (float) ($position->quantity ?: 1);
+            $discount = (float) ($position->discount ?? 0);
+
+            $laborKosto      = $totalZHours * $inLaborPrice / $diffCoeff;
+            $costoTotal      = $totalPriceIn * $materialCoeff + $laborKosto;
+            $discountedTotal = $totalProTypPrice * (1 - $discount / 100) * $menge;
+            $profitTotal     = $discountedTotal - $costoTotal;
+            $priceBrutto     = $totalProTypPrice * $menge;
+
+            $position->update([
+                'price_brutto'    => round($priceBrutto, 2),
+                'price_discount'  => round($discountedTotal, 2),
+                'material_brutto' => round($totalPriceOut, 2),
+                'material_costo'  => round($totalPriceIn, 2),
+                'material_profit' => round($totalPriceOut - $totalPriceIn, 2),
+                'zeit_brutto'     => round($totalZeitCost, 2),
+                'ziet_costo'      => round($laborKosto, 2),
+                'ziet_profit'     => round($totalZeitCost - $laborKosto, 2),
+                'costo_total'     => round($costoTotal, 2),
+                'profit_total'    => round($profitTotal, 2),
+            ]);
+        }
     }
 
     /**
@@ -424,7 +523,7 @@ class OffertController extends Controller
 
         $offert = Offert::find($id);
         $oldRabatt = (float) ($offert->default_rabatt ?? 0);
-        $oldDifficulty = (float) ($offert->difficulty ?? 0);
+        $oldMaterial = (float) ($offert->material ?? 0);
         $offert->update($formFields);
 
         if ($this->hasDefaultRabattColumn() && isset($formFields['default_rabatt'])) {
@@ -439,12 +538,12 @@ class OffertController extends Controller
             }
         }
 
-        if (isset($formFields['difficulty'])) {
-            $newDifficulty = (float) $formFields['difficulty'];
-            if ($oldDifficulty !== $newDifficulty) {
-                foreach ($offert->positions as $position) {
-                    $position->update(['difficulty' => $newDifficulty]);
-                }
+        // Schw.Koeffizient (difficulty) intentionally does NOT propagate to existing
+        // positions — each position keeps its own value; new positions inherit from the offert.
+        if (isset($formFields['material'])) {
+            $newMaterial = (float) $formFields['material'];
+            if ($oldMaterial !== $newMaterial) {
+                $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
             }
         }
 
@@ -478,7 +577,7 @@ class OffertController extends Controller
         }
 
         $oldRabatt = (float) ($offert->default_rabatt ?? 0);
-        $oldDifficulty = (float) ($offert->difficulty ?? 0);
+        $oldMaterial = (float) ($offert->material ?? 0);
 
         if (!$this->hasDefaultRabattColumn()) {
             unset($fields['default_rabatt']);
@@ -502,14 +601,36 @@ class OffertController extends Controller
             }
         }
 
-        if (isset($fields['difficulty']) && $fields['difficulty'] !== null && $fields['difficulty'] !== '') {
-            $newDifficulty = (float) $fields['difficulty'];
-            if ($oldDifficulty !== $newDifficulty) {
-                foreach ($offert->positions as $position) {
-                    $position->update(['difficulty' => $newDifficulty]);
-                }
+        // Schw.Koeffizient (difficulty) intentionally does NOT propagate to existing
+        // positions — each position keeps its own value; new positions inherit from the offert.
+        if (isset($fields['material']) && $fields['material'] !== null && $fields['material'] !== '') {
+            $newMaterial = (float) $fields['material'];
+            if ($oldMaterial !== $newMaterial) {
+                $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
             }
         }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Manual action triggered by the "Alle überschreiben" button next to
+     * Schw. Koeffizient — copies the offert's current difficulty onto every
+     * position and refreshes the stored price snapshots.
+     */
+    public function overrideDifficultyAll(string $id)
+    {
+        $offert = Offert::find($id);
+        if (!$offert) {
+            return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+        }
+
+        $newDifficulty = (float) ($offert->difficulty ?: 1);
+        foreach ($offert->positions as $position) {
+            $position->update(['difficulty' => $newDifficulty]);
+        }
+
+        $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
 
         return response()->json(['success' => true]);
     }
