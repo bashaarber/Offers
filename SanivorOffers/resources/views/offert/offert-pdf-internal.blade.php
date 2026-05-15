@@ -413,6 +413,14 @@
             $orderedGroupElements[$key_name] = $value;
         }
     }
+    foreach ($orderedGroupElements as $orgName => $groups) {
+        ksort($groups, SORT_NATURAL | SORT_FLAG_CASE);
+        foreach ($groups as $groupName => $elements) {
+            usort($elements, fn($a, $b) => strnatcasecmp($a['element_name'], $b['element_name']));
+            $groups[$groupName] = $elements;
+        }
+        $orderedGroupElements[$orgName] = $groups;
+    }
 @endphp
 
 {{-- DETAIL ROWS --}}

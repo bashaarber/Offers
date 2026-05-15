@@ -424,6 +424,7 @@ class OffertController extends Controller
 
         $offert = Offert::find($id);
         $oldRabatt = (float) ($offert->default_rabatt ?? 0);
+        $oldDifficulty = (float) ($offert->difficulty ?? 0);
         $offert->update($formFields);
 
         if ($this->hasDefaultRabattColumn() && isset($formFields['default_rabatt'])) {
@@ -434,6 +435,15 @@ class OffertController extends Controller
                         'discount'       => $newRabatt,
                         'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
                     ]);
+                }
+            }
+        }
+
+        if (isset($formFields['difficulty'])) {
+            $newDifficulty = (float) $formFields['difficulty'];
+            if ($oldDifficulty !== $newDifficulty) {
+                foreach ($offert->positions as $position) {
+                    $position->update(['difficulty' => $newDifficulty]);
                 }
             }
         }
@@ -468,6 +478,7 @@ class OffertController extends Controller
         }
 
         $oldRabatt = (float) ($offert->default_rabatt ?? 0);
+        $oldDifficulty = (float) ($offert->difficulty ?? 0);
 
         if (!$this->hasDefaultRabattColumn()) {
             unset($fields['default_rabatt']);
@@ -487,6 +498,15 @@ class OffertController extends Controller
                         'discount'       => $newRabatt,
                         'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
                     ]);
+                }
+            }
+        }
+
+        if (isset($fields['difficulty']) && $fields['difficulty'] !== null && $fields['difficulty'] !== '') {
+            $newDifficulty = (float) $fields['difficulty'];
+            if ($oldDifficulty !== $newDifficulty) {
+                foreach ($offert->positions as $position) {
+                    $position->update(['difficulty' => $newDifficulty]);
                 }
             }
         }
