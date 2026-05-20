@@ -4,12 +4,12 @@
 #
 # Install (one-time, elevated PowerShell):
 #   schtasks /Create /TN "WSL Port Proxy" /SC ONSTART /RL HIGHEST /RU SYSTEM `
-#     /TR "powershell.exe -ExecutionPolicy Bypass -File C:\app\Update-WSLPortProxy.ps1"
+#     /TR "powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\Update-WSLPortProxy.ps1"
 #
-# Manual run (elevated): powershell -ExecutionPolicy Bypass -File C:\app\Update-WSLPortProxy.ps1
+# Manual run (elevated): powershell -ExecutionPolicy Bypass -File C:\Scripts\Update-WSLPortProxy.ps1
 
 $ErrorActionPreference = "Stop"
-$logFile = "C:\app\wsl-portproxy.log"
+$logFile = Join-Path $PSScriptRoot "wsl-portproxy.log"
 
 function Log($msg) {
     $line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')  $msg"
