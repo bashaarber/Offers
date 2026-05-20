@@ -33,7 +33,7 @@ for ($i = 1; $i -le 30; $i++) {
 }
 
 if (-not $wslIp) {
-    Log "ERROR: could not get WSL IP after 60s — aborting."
+    Log "ERROR: could not get WSL IP after 60s - aborting."
     exit 1
 }
 Log "WSL IP: $wslIp"
