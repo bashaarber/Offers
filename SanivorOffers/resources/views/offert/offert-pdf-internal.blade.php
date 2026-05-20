@@ -413,13 +413,12 @@
             $orderedGroupElements[$key_name] = $value;
         }
     }
+    $organigrams = $organigrams ?? \Illuminate\Support\Facades\Cache::remember('organigrams_tree', 600, function () {
+        return \App\Models\Organigram::with(['group_elements.elements'])->get();
+    });
+    $organigramSortMaps = \App\Support\OrganigramDisplayOrder::buildSortMaps($organigrams);
     foreach ($orderedGroupElements as $orgName => $groups) {
-        ksort($groups, SORT_NATURAL | SORT_FLAG_CASE);
-        foreach ($groups as $groupName => $elements) {
-            usort($elements, fn($a, $b) => strnatcasecmp($a['element_name'], $b['element_name']));
-            $groups[$groupName] = $elements;
-        }
-        $orderedGroupElements[$orgName] = $groups;
+        $orderedGroupElements[$orgName] = \App\Support\OrganigramDisplayOrder::sortGroupsAndElements($groups, $orgName, $organigramSortMaps);
     }
 @endphp
 
