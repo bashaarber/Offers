@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GroupElement;
 use App\Models\Organigram;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -12,9 +13,17 @@ class OrganigramController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $organigrams = Organigram::orderBy('id', 'ASC')->paginate(50);
+        $query = Organigram::query();
+
+        ListFilter::apply($query, $request, [
+            'id'             => 'organigrams.id',
+            'name'           => 'organigrams.name',
+            'group_elements' => ['relation' => 'group_elements', 'column' => 'name'],
+        ]);
+
+        $organigrams = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('organigram.index', compact('organigrams'));
     }

@@ -1,20 +1,25 @@
 (function () {
     'use strict';
 
-    var DEBOUNCE_MS = 120;
+    var DEBOUNCE_MS = 350;
     var timer = null;
 
     var toggleBtn = document.getElementById('toggleFilterBtn');
     var table = document.querySelector('table[data-filterable]');
     if (!table) return;
 
-    var tbody = table.querySelector('tbody');
-    if (!tbody) return;
-
     var filterRow = table.querySelector('thead tr.filter-row');
     if (!filterRow) return;
 
     var filterCells = filterRow.querySelectorAll('td, th');
+    var inputs = filterRow.querySelectorAll('input[name^="f["], select[name^="f["]');
+
+    function anyFilterActive() {
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].value && String(inputs[i].value).trim() !== '') return true;
+        }
+        return false;
+    }
 
     function hideFilters() {
         filterRow.style.visibility = 'hidden';
@@ -44,15 +49,28 @@
         });
     }
 
-    hideFilters();
-    var filtersVisible = false;
+    // Start visible if any filter has a server-echoed value, else hidden.
+    var filtersVisible = anyFilterActive();
+    if (filtersVisible) {
+        showFilters();
+        if (toggleBtn) {
+            toggleBtn.classList.remove('btn-outline-secondary');
+            toggleBtn.classList.add('btn-secondary');
+        }
+    } else {
+        hideFilters();
+    }
 
-    var colInputs = [];
-    var inputs = filterRow.querySelectorAll('input[data-col], select[data-col]');
     inputs.forEach(function (inp) {
-        colInputs.push({ el: inp, col: parseInt(inp.getAttribute('data-col'), 10) });
-        inp.addEventListener('input', scheduleFilter);
-        inp.addEventListener('change', scheduleFilter);
+        inp.addEventListener('input', scheduleSubmit);
+        inp.addEventListener('change', scheduleSubmit);
+        inp.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(timer);
+                navigate();
+            }
+        });
     });
 
     if (toggleBtn) {
@@ -62,45 +80,40 @@
                 filtersVisible = false;
                 toggleBtn.classList.remove('btn-secondary');
                 toggleBtn.classList.add('btn-outline-secondary');
-                colInputs.forEach(function (ci) { ci.el.value = ''; });
-                scheduleFilter();
+                if (anyFilterActive()) {
+                    inputs.forEach(function (i) { i.value = ''; });
+                    navigate();
+                }
             } else {
                 showFilters();
                 filtersVisible = true;
                 toggleBtn.classList.remove('btn-outline-secondary');
                 toggleBtn.classList.add('btn-secondary');
-                if (colInputs.length > 0) colInputs[0].el.focus();
+                if (inputs.length > 0) inputs[0].focus();
             }
         });
     }
 
-    function scheduleFilter() {
+    function scheduleSubmit() {
         clearTimeout(timer);
-        timer = setTimeout(runFilter, DEBOUNCE_MS);
+        timer = setTimeout(navigate, DEBOUNCE_MS);
     }
 
-    function runFilter() {
-        var rows = tbody.querySelectorAll('tr');
+    function navigate() {
+        var url = new URL(window.location.href);
 
-        rows.forEach(function (row) {
-            var cells = row.querySelectorAll('td');
-            if (cells.length === 0) return;
-
-            var show = true;
-
-            for (var i = 0; i < colInputs.length; i++) {
-                var ci = colInputs[i];
-                var term = ci.el.value.toLowerCase().trim();
-                if (!term) continue;
-                var cell = cells[ci.col];
-                if (!cell) { show = false; break; }
-                if (cell.textContent.toLowerCase().indexOf(term) === -1) {
-                    show = false;
-                    break;
-                }
-            }
-
-            row.style.display = show ? '' : 'none';
+        // Drop existing f[*] params + page so filter reset goes back to page 1.
+        var keysToDrop = [];
+        url.searchParams.forEach(function (val, key) {
+            if (key === 'page' || key.indexOf('f[') === 0) keysToDrop.push(key);
         });
+        keysToDrop.forEach(function (k) { url.searchParams.delete(k); });
+
+        inputs.forEach(function (inp) {
+            var v = String(inp.value || '').trim();
+            if (v !== '') url.searchParams.append(inp.name, v);
+        });
+
+        window.location.href = url.toString();
     }
 })();

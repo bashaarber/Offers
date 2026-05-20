@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MaterialPiece;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 
 class MaterialPieceController extends Controller
@@ -10,9 +11,18 @@ class MaterialPieceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $materials = MaterialPiece::orderBy('id', 'ASC')->paginate(50);
+        $query = MaterialPiece::query();
+
+        ListFilter::apply($query, $request, [
+            'id'        => 'id',
+            'name'      => 'name',
+            'price_in'  => 'price_in',
+            'price_out' => 'price_out',
+        ]);
+
+        $materials = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('material_piece.index', compact('materials'));
     }

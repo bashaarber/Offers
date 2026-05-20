@@ -48,23 +48,25 @@
                                 <th>@lang('public.user')</th>
                                 <th style="text-align: right;">@lang('public.actions')</th>
                             </tr>
+                            @php $f = (array) request('f', []); @endphp
                             <tr class="filter-row" style="background:#f8f9fa;">
-                                <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="1" type="text" placeholder="{{ __('public.date') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="2" type="text" placeholder="{{ __('public.client') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="3" type="text" placeholder="{{ __('public.your_reference') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="4" type="text" placeholder="{{ __('public.object') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[id]" value="{{ $f['id'] ?? '' }}" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[date]" value="{{ $f['date'] ?? '' }}" type="text" placeholder="{{ __('public.date') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[client]" value="{{ $f['client'] ?? '' }}" type="text" placeholder="{{ __('public.client') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[client_sign]" value="{{ $f['client_sign'] ?? '' }}" type="text" placeholder="{{ __('public.your_reference') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[object]" value="{{ $f['object'] ?? '' }}" type="text" placeholder="{{ __('public.object') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
                                 <td>
-                                    <select data-col="5" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;">
+                                    @php $statusVal = $f['status'] ?? ''; @endphp
+                                    <select name="f[status]" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;">
                                         <option value="">All</option>
-                                        <option value="Neu">Neu</option>
-                                        <option value="Zusage">Zusage</option>
-                                        <option value="Abszage">Abszage</option>
-                                        <option value="Finished">Finished</option>
+                                        <option value="Neu" {{ $statusVal === 'Neu' ? 'selected' : '' }}>Neu</option>
+                                        <option value="Zusage" {{ $statusVal === 'Zusage' ? 'selected' : '' }}>Zusage</option>
+                                        <option value="Abszage" {{ $statusVal === 'Abszage' ? 'selected' : '' }}>Abszage</option>
+                                        <option value="Finished" {{ $statusVal === 'Finished' ? 'selected' : '' }}>Finished</option>
                                     </select>
                                 </td>
-                                <td><input data-col="6" type="text" placeholder="{{ __('public.type') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="7" type="text" placeholder="{{ __('public.user') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[type]" value="{{ $f['type'] ?? '' }}" type="text" placeholder="{{ __('public.type') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[user]" value="{{ $f['user'] ?? '' }}" type="text" placeholder="{{ __('public.user') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
                                 <td></td>
                             </tr>
                         </thead>

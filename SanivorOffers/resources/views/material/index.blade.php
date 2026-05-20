@@ -50,18 +50,19 @@
                         <th>Material Pieces</th>
                         <th>@lang('public.actions')</th>
                     </tr>
+                    @php $f = (array) request('f', []); @endphp
                     <tr class="filter-row" style="background:#f8f9fa;">
-                        <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="2" type="text" placeholder="{{ __('public.unit') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="3" type="text" placeholder="{{ __('public.price_in') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="4" type="text" placeholder="{{ __('public.price_out') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="5" type="text" placeholder="Schl." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="6" type="text" placeholder="PE" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="7" type="text" placeholder="Mont." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="8" type="text" placeholder="Total" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="9" type="text" placeholder="Arbeit" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="10" type="text" placeholder="Pieces" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[id]" value="{{ $f['id'] ?? '' }}" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[name]" value="{{ $f['name'] ?? '' }}" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[unit]" value="{{ $f['unit'] ?? '' }}" type="text" placeholder="{{ __('public.unit') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[price_in]" value="{{ $f['price_in'] ?? '' }}" type="text" placeholder="{{ __('public.price_in') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[price_out]" value="{{ $f['price_out'] ?? '' }}" type="text" placeholder="{{ __('public.price_out') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[z_schlosserei]" value="{{ $f['z_schlosserei'] ?? '' }}" type="text" placeholder="Schl." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[z_pe]" value="{{ $f['z_pe'] ?? '' }}" type="text" placeholder="PE" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[z_montage]" value="{{ $f['z_montage'] ?? '' }}" type="text" placeholder="Mont." style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[z_total]" value="{{ $f['z_total'] ?? '' }}" type="text" placeholder="Total" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[total_arbeit]" value="{{ $f['total_arbeit'] ?? '' }}" type="text" placeholder="Arbeit" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[material_pieces]" value="{{ $f['material_pieces'] ?? '' }}" type="text" placeholder="Pieces" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td></td>
                     </tr>
                 </thead>

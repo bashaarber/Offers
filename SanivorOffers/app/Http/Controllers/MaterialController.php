@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Material;
 use App\Models\Coefficient;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use App\Models\MaterialPiece;
 
@@ -13,9 +14,25 @@ class MaterialController extends Controller
      * Display a listing of the resource.
      */
 
-    public function index()
+    public function index(Request $request)
     {
-        $materials = Material::orderBy('id', 'ASC')->paginate(50);
+        $query = Material::query();
+
+        ListFilter::apply($query, $request, [
+            'id'             => 'materials.id',
+            'name'           => 'materials.name',
+            'unit'           => 'materials.unit',
+            'price_in'       => 'materials.price_in',
+            'price_out'      => 'materials.total',
+            'z_schlosserei'  => 'materials.z_schlosserei',
+            'z_pe'           => 'materials.z_pe',
+            'z_montage'      => 'materials.z_montage',
+            'z_total'        => 'materials.z_total',
+            'total_arbeit'   => 'materials.total_arbeit',
+            'material_pieces' => ['relation' => 'material_pieces', 'column' => 'name'],
+        ]);
+
+        $materials = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('material.index', compact('materials'));
     }

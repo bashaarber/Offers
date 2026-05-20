@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -24,7 +25,15 @@ class ClientController extends Controller
             });
         }
 
-        $clients = $clients->orderBy('id', 'ASC')->paginate(50);
+        ListFilter::apply($clients, $request, [
+            'id'      => 'clients.id',
+            'name'    => 'clients.name',
+            'email'   => 'clients.email',
+            'number'  => 'clients.number',
+            'address' => 'clients.address',
+        ]);
+
+        $clients = $clients->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('client.index', compact('clients', 'showArchived'));
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Element;
 use App\Models\GroupElement;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -12,9 +13,17 @@ class GroupElementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $group_elements = GroupElement::orderBy('id', 'ASC')->paginate(50);
+        $query = GroupElement::query();
+
+        ListFilter::apply($query, $request, [
+            'id'       => 'group_elements.id',
+            'name'     => 'group_elements.name',
+            'elements' => ['relation' => 'elements', 'column' => 'name'],
+        ]);
+
+        $group_elements = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('group_element.index', compact('group_elements'));
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Element;
 use App\Models\Material;
+use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -12,9 +13,17 @@ class ElementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $elements = Element::with('materials')->orderBy('id', 'ASC')->paginate(50);
+        $query = Element::with('materials');
+
+        ListFilter::apply($query, $request, [
+            'id'        => 'elements.id',
+            'name'      => 'elements.name',
+            'materials' => ['relation' => 'materials', 'column' => 'name'],
+        ]);
+
+        $elements = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
 
         return view('element.index', compact('elements'));
     }

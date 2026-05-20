@@ -153,11 +153,24 @@ class OffertController extends Controller
      */
     public function index(Request $request)
     {
-        $offerts = Offert::with([
+        $query = Offert::with([
             'client:id,name',
             'user:id,username',
             'lockingUser:id,username',
-        ])->orderBy('id', 'DESC')->paginate(50);
+        ]);
+
+        \App\Support\ListFilter::apply($query, $request, [
+            'id'          => 'offerts.id',
+            'date'        => 'offerts.create_date',
+            'client'      => ['relation' => 'client', 'column' => 'name'],
+            'client_sign' => 'offerts.client_sign',
+            'object'      => 'offerts.object',
+            'status'      => 'offerts.status',
+            'type'        => 'offerts.type',
+            'user'        => ['relation' => 'user', 'column' => 'username'],
+        ]);
+
+        $offerts = $query->orderBy('id', 'DESC')->paginate(50)->withQueryString();
 
         return view('offert.index', compact('offerts'));
     }
@@ -262,7 +275,11 @@ class OffertController extends Controller
                 }
             }
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices'))
+            $organigrams = Cache::remember('organigrams_tree', 600, function () {
+                return Organigram::with(['group_elements.elements'])->get();
+            });
+
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices', 'organigrams'))
                 ->setOption(['isPhpEnabled' => true]);
             return $pdf->stream();
         } catch (\Throwable $e) {

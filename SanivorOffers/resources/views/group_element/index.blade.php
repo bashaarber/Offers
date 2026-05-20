@@ -33,10 +33,11 @@
                         <th>Elements</th>
                         <th>@lang('public.actions')</th>
                     </tr>
+                    @php $f = (array) request('f', []); @endphp
                     <tr class="filter-row" style="background:#f8f9fa;">
-                        <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="1" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
-                        <td><input data-col="2" type="text" placeholder="Elements" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[id]" value="{{ $f['id'] ?? '' }}" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[name]" value="{{ $f['name'] ?? '' }}" type="text" placeholder="{{ __('public.name') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
+                        <td><input name="f[elements]" value="{{ $f['elements'] ?? '' }}" type="text" placeholder="Elements" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:2px 4px;font-size:11px;"></td>
                         <td></td>
                     </tr>
                 </thead>
