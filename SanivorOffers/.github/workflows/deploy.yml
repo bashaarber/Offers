@@ -1,0 +1,29 @@
+name: Deploy to Windows Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & deploy
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --no-cache -t sanivor-offers:latest ./SanivorOffers
+
+      - name: Copy compose file to app directory
+        run: |
+          mkdir -p /app/storage
+          cp SanivorOffers/docker-compose.prod.yml /app/docker-compose.prod.yml
+
+      - name: Restart containers
+        run: |
+          docker compose --env-file /app/.env -f /app/docker-compose.prod.yml down --remove-orphans || true
+          docker compose --env-file /app/.env -f /app/docker-compose.prod.yml up -d
+
+      - name: Remove dangling images
+        run: docker image prune -f

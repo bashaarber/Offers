@@ -5,12 +5,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
-      APP_KEY: ${APP_KEY}
+      # APP_KEY comes from .env via env_file above (do not override here —
+      # an empty ${APP_KEY} in the environment block would nuke the real value).
       APP_URL: http://localhost:8000
       DB_CONNECTION: pgsql
       DB_HOST: db
