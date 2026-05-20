@@ -1,0 +1,32 @@
+name: Deploy QA to Windows Server
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & deploy QA
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --no-cache -t sanivor-offers:qa ./SanivorOffers
+
+      - name: Copy compose file to app-qa directory
+        run: |
+          mkdir -p /app-qa/storage
+          cp SanivorOffers/docker-compose.qa.yml /app-qa/docker-compose.qa.yml
+
+      - name: Restart QA containers
+        run: |
+          docker compose -p app-qa --env-file /app-qa/.env -f /app-qa/docker-compose.qa.yml down --remove-orphans || true
+          docker compose -p app-qa --env-file /app-qa/.env -f /app-qa/docker-compose.qa.yml up -d
+
+      - name: Remove dangling images
+        run: docker image prune -f

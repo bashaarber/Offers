@@ -1,0 +1,62 @@
+# Place this file on the Windows server at C:\app-qa\docker-compose.qa.yml
+# Set these environment variables in C:\app-qa\.env before first run:
+#   APP_KEY=base64:...        (different from prod)
+#   DB_PASSWORD=...           (different from prod)
+# Image is built locally by the self-hosted runner — no registry needed.
+# Compose project name `app-qa` keeps containers/volumes/network fully isolated from prod.
+
+services:
+  app:
+    image: sanivor-offers:qa
+    ports:
+      - "9000:8000"
+    environment:
+      APP_ENV: qa
+      APP_DEBUG: "true"
+      APP_KEY: ${APP_KEY}
+      APP_URL: http://localhost:9000
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: sanivoroffers_qa
+      DB_USERNAME: sanivor
+      DB_PASSWORD: ${DB_PASSWORD}
+      LOG_CHANNEL: stack
+      LOG_LEVEL: debug
+      SESSION_DRIVER: file
+      CACHE_DRIVER: file
+      FORCE_HTTPS: "false"
+      RUN_MIGRATIONS: "true"
+      RUN_SEEDERS: "false"
+    volumes:
+      - /app-qa/storage:/app/storage
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sanivor-qa
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: sanivoroffers_qa
+      POSTGRES_USER: sanivor
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sanivor -d sanivoroffers_qa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - sanivor-qa
+
+networks:
+  sanivor-qa:
+    driver: bridge
+
+volumes:
+  pgdata:
