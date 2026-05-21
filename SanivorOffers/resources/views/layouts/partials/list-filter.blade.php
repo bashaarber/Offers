@@ -4,4 +4,4 @@
         <i class="fa-solid fa-filter" style="font-size:11px;"></i> Filter
     </button>
 </div>
-<script src="{{ asset('js/list-filter.js') }}" defer></script>
+<script src="{{ asset('js/list-filter.js') }}?v={{ @filemtime(public_path('js/list-filter.js')) ?: '1' }}" defer></script>
