@@ -242,10 +242,31 @@
     }
 </style>
 
+@php $isTestEnv = app()->environment('qa', 'local'); @endphp
+@if ($isTestEnv)
+<style>
+    .sidebar {
+        background: linear-gradient(180deg, #7c2d12 0%, #c2410c 100%) !important;
+    }
+    .test-badge {
+        display: inline-block;
+        background: #facc15;
+        color: #1a1d23;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+</style>
+@endif
+
 <div class="sidebar">
     <div class="sidebar-brand">
         <a href="{{ route('offert.index') }}" style="text-decoration:none;color:inherit;">
-            <h4>Sanivor <span>Offers</span></h4>
+            <h4>Sanivor <span>Offers</span>@if ($isTestEnv)<span class="test-badge">TEST</span>@endif</h4>
         </a>
     </div>
 
