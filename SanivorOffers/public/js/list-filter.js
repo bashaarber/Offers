@@ -1,7 +1,8 @@
 (function () {
     'use strict';
 
-    var DEBOUNCE_MS = 350;
+    var DEBOUNCE_MS = 600;
+    var FOCUS_KEY = 'listFilterFocus';
     var timer = null;
 
     var toggleBtn = document.getElementById('toggleFilterBtn');
@@ -48,6 +49,27 @@
             c.style.borderBottom = '';
         });
     }
+
+    // Restore focus + caret after the filter-triggered page reload.
+    (function restoreFocus() {
+        var raw = null;
+        try { raw = sessionStorage.getItem(FOCUS_KEY); } catch (e) { return; }
+        if (!raw) return;
+        try { sessionStorage.removeItem(FOCUS_KEY); } catch (e) {}
+        var saved;
+        try { saved = JSON.parse(raw); } catch (e) { return; }
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].name === saved.name) {
+                var inp = inputs[i];
+                inp.focus();
+                if (typeof inp.setSelectionRange === 'function') {
+                    var pos = typeof saved.caret === 'number' ? saved.caret : inp.value.length;
+                    try { inp.setSelectionRange(pos, pos); } catch (e) {}
+                }
+                break;
+            }
+        }
+    })();
 
     // Start visible if any filter has a server-echoed value, else hidden.
     var filtersVisible = anyFilterActive();
@@ -100,6 +122,17 @@
     }
 
     function navigate() {
+        // Remember which filter input is focused so we can restore it after reload.
+        var active = document.activeElement;
+        if (active && active.name && active.name.indexOf('f[') === 0) {
+            try {
+                sessionStorage.setItem(FOCUS_KEY, JSON.stringify({
+                    name: active.name,
+                    caret: typeof active.selectionStart === 'number' ? active.selectionStart : null
+                }));
+            } catch (e) {}
+        }
+
         var url = new URL(window.location.href);
 
         // Drop existing f[*] params + page so filter reset goes back to page 1.

@@ -62,8 +62,6 @@ class MaterialController extends Controller
         $z_total = $request->input('z_schlosserei') + $request->input('z_pe') + $request->input('z_montage');
         $coefficient = Coefficient::first();
         $laborPrice = (float) ($coefficient->labor_price ?? 0);
-        $materialKoeff = (float) ($coefficient->material ?? 1);
-        $difficultyKoeff = (float) ($coefficient->difficulty ?? 1);
         $total_arbeit = $z_total * $laborPrice;
         $zeit_cost = $total_arbeit;
 
@@ -78,7 +76,6 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total = ($price_out * $materialKoeff) + ($total_arbeit / ($difficultyKoeff ?: 1));
 
         $materials = new Material();
         $materials->fill($formFields);
@@ -86,8 +83,8 @@ class MaterialController extends Controller
         $materials->zeit_cost = $zeit_cost;
         $materials->total_arbeit = $total_arbeit;
         $materials->price_in = $price_in;
-        $materials->price_out = $total;
-        $materials->total = $total;
+        $materials->price_out = $price_out;
+        $materials->total = $price_out;
         $materials->save();
 
         $materials->material_pieces()->attach($selectedMaterialPieces);
@@ -134,8 +131,6 @@ class MaterialController extends Controller
 
         $coefficient = Coefficient::first();
         $laborPrice = (float) ($coefficient->labor_price ?? 0);
-        $materialKoeff = (float) ($coefficient->material ?? 1);
-        $difficultyKoeff = (float) ($coefficient->difficulty ?? 1);
         $total_arbeit = $z_total * $laborPrice;
         $zeit_cost = $total_arbeit;
 
@@ -150,7 +145,6 @@ class MaterialController extends Controller
                 $price_out += $materialPiece->price_out;
             }
         }
-        $total = ($price_out * $materialKoeff) + ($total_arbeit / ($difficultyKoeff ?: 1));
 
         $material->update([
             'name' => $formFields['name'],
@@ -162,8 +156,8 @@ class MaterialController extends Controller
             'zeit_cost' => $zeit_cost,
             'total_arbeit' => $total_arbeit,
             'price_in' => $price_in,
-            'price_out' => $total,
-            'total' => $total,
+            'price_out' => $price_out,
+            'total' => $price_out,
         ]);
 
         // Attach the selected material_pieces without detaching existing ones

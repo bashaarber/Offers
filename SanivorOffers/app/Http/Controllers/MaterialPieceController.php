@@ -80,6 +80,10 @@ class MaterialPieceController extends Controller
         $material = MaterialPiece::find($id);
         $material->update($formFields);
 
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'ok', 'material' => $material]);
+        }
+
         return redirect()->route('material_piece.index');
     }
 
