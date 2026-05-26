@@ -80,6 +80,20 @@ class MaterialPieceController extends Controller
         $material = MaterialPiece::find($id);
         $material->update($formFields);
 
+        // Propagate price changes to every parent Material that uses this piece.
+        // Material price_in/price_out is the plain sum of its attached pieces;
+        // total mirrors price_out (see MaterialController).
+        foreach ($material->materials as $parent) {
+            $parent->loadMissing('material_pieces');
+            $price_in  = (float) $parent->material_pieces->sum('price_in');
+            $price_out = (float) $parent->material_pieces->sum('price_out');
+            $parent->update([
+                'price_in'  => $price_in,
+                'price_out' => $price_out,
+                'total'     => $price_out,
+            ]);
+        }
+
         if ($request->wantsJson()) {
             return response()->json(['status' => 'ok', 'material' => $material]);
         }
