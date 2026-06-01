@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -31,6 +32,9 @@ return new class extends Migration
                     ->update(['sort_order' => $index]);
             }
         }
+
+        // Drop the memoized schema check so the ordered relation activates now.
+        Cache::forget('schema_element_material_has_sort_order');
     }
 
     public function down(): void

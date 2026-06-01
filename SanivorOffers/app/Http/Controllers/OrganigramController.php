@@ -23,7 +23,7 @@ class OrganigramController extends Controller
             'group_elements' => ['relation' => 'group_elements', 'column' => 'name'],
         ]);
 
-        $organigrams = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $organigrams = $query->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('organigram.index', compact('organigrams'));
     }

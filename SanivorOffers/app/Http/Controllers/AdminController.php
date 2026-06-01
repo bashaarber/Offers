@@ -12,7 +12,7 @@ class AdminController extends Controller
 {
     public function getAllUsers(): View
     {
-        $users = User::orderBy('id', 'DESC')->paginate(50);
+        $users = User::orderBy('id', 'DESC')->paginate(20);
         $adminCount = User::where('role', 'admin')->count();
 
         return view('admin.index', compact('users', 'adminCount'));

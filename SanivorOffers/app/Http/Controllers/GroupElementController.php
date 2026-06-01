@@ -23,7 +23,7 @@ class GroupElementController extends Controller
             'elements' => ['relation' => 'elements', 'column' => 'name'],
         ]);
 
-        $group_elements = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $group_elements = $query->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('group_element.index', compact('group_elements'));
     }

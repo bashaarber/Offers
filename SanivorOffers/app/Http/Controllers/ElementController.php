@@ -7,7 +7,6 @@ use App\Models\Material;
 use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 
 class ElementController extends Controller
 {
@@ -24,7 +23,7 @@ class ElementController extends Controller
             'materials' => ['relation' => 'materials', 'column' => 'name'],
         ]);
 
-        $elements = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $elements = $query->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('element.index', compact('elements'));
     }
@@ -56,7 +55,7 @@ class ElementController extends Controller
         $materials = $request->input('materials', []);
         $quantities = $request->input('quantities', []);
 
-        $hasSortOrder = Schema::hasColumn('element_material', 'sort_order');
+        $hasSortOrder = Element::elementMaterialHasSortOrder();
         $order = 0;
         foreach ($materials as $key => $materialId) {
             if (empty($materialId)) {
@@ -108,7 +107,7 @@ class ElementController extends Controller
         $materials = $request->input('materials', []);
         $quantities = $request->input('quantities', []);
 
-        $hasSortOrder = Schema::hasColumn('element_material', 'sort_order');
+        $hasSortOrder = Element::elementMaterialHasSortOrder();
         $syncData = [];
         $order = 0;
         foreach ($materials as $key => $materialId) {
