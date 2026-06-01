@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\MaterialPiece;
 use App\Support\ListFilter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MaterialPieceController extends Controller
 {
@@ -78,21 +80,29 @@ class MaterialPieceController extends Controller
             'price_out' => 'required',
         ]);
         $material = MaterialPiece::find($id);
-        $material->update($formFields);
 
         // Propagate price changes to every parent Material that uses this piece.
         // Material price_in/price_out is the plain sum of its attached pieces;
-        // total mirrors price_out (see MaterialController).
-        foreach ($material->materials as $parent) {
-            $parent->loadMissing('material_pieces');
-            $price_in  = (float) $parent->material_pieces->sum('price_in');
-            $price_out = (float) $parent->material_pieces->sum('price_out');
-            $parent->update([
-                'price_in'  => $price_in,
-                'price_out' => $price_out,
-                'total'     => $price_out,
-            ]);
-        }
+        // total mirrors price_out (see MaterialController). Wrapped in a
+        // transaction so a piece edit can't leave parents half-updated.
+        DB::transaction(function () use ($material, $formFields) {
+            $material->update($formFields);
+
+            foreach ($material->materials as $parent) {
+                $parent->loadMissing('material_pieces');
+                $price_in  = (float) $parent->material_pieces->sum('price_in');
+                $price_out = (float) $parent->material_pieces->sum('price_out');
+                $parent->update([
+                    'price_in'  => $price_in,
+                    'price_out' => $price_out,
+                    'total'     => $price_out,
+                ]);
+            }
+        });
+
+        // New offers read element/material prices from this cache; clear it so a
+        // price change is reflected immediately (existing offers keep their snapshot).
+        Cache::forget('elements_with_materials');
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'ok', 'material' => $material]);
