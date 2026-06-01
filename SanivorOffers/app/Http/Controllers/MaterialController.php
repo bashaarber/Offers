@@ -33,7 +33,7 @@ class MaterialController extends Controller
             'material_pieces' => ['relation' => 'material_pieces', 'column' => 'name'],
         ]);
 
-        $materials = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $materials = $query->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('material.index', compact('materials'));
     }

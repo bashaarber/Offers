@@ -33,7 +33,7 @@ class ClientController extends Controller
             'address' => 'clients.address',
         ]);
 
-        $clients = $clients->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $clients = $clients->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('client.index', compact('clients', 'showArchived'));
     }

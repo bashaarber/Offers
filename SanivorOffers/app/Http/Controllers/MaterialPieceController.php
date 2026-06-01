@@ -24,7 +24,7 @@ class MaterialPieceController extends Controller
             'price_out' => 'price_out',
         ]);
 
-        $materials = $query->orderBy('id', 'ASC')->paginate(50)->withQueryString();
+        $materials = $query->orderBy('id', 'ASC')->paginate(20)->withQueryString();
 
         return view('material_piece.index', compact('materials'));
     }

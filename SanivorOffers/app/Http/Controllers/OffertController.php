@@ -170,7 +170,7 @@ class OffertController extends Controller
             'user'        => ['relation' => 'user', 'column' => 'username'],
         ]);
 
-        $offerts = $query->orderBy('id', 'DESC')->paginate(50)->withQueryString();
+        $offerts = $query->orderBy('id', 'DESC')->paginate(20)->withQueryString();
 
         return view('offert.index', compact('offerts'));
     }
