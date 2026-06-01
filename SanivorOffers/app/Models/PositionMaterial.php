@@ -9,5 +9,8 @@ class PositionMaterial extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = null;
+    public $incrementing = false;
+
     protected $fillable = ['position_id', 'element_id', 'material_id', 'quantity'];
 }

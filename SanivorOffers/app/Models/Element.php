@@ -17,7 +17,12 @@ class Element extends Model
 
    public function materials():BelongsToMany
    {
-       return $this->belongsToMany(Material::class)->withPivot('quantity')->withTimestamps();
+       $relation = $this->belongsToMany(Material::class)->withPivot('quantity');
+       if (Schema::hasColumn('element_material', 'sort_order')) {
+           $relation->withPivot('sort_order')->orderByPivot('sort_order');
+       }
+
+       return $relation->withTimestamps();
    }
 
    public function group_elements():BelongsToMany

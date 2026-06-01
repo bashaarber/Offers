@@ -7,6 +7,7 @@ use App\Models\Material;
 use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class ElementController extends Controller
 {
@@ -55,12 +56,18 @@ class ElementController extends Controller
         $materials = $request->input('materials', []);
         $quantities = $request->input('quantities', []);
 
+        $hasSortOrder = Schema::hasColumn('element_material', 'sort_order');
+        $order = 0;
         foreach ($materials as $key => $materialId) {
             if (empty($materialId)) {
                 continue;
             }
-            $quantity = $quantities[$key] ?? 1;
-            $element->materials()->attach($materialId, ['quantity' => $quantity]);
+            $pivot = ['quantity' => $quantities[$key] ?? 1];
+            if ($hasSortOrder) {
+                $pivot['sort_order'] = $order;
+            }
+            $element->materials()->attach($materialId, $pivot);
+            $order++;
         }
 
         Cache::forget('elements_with_materials');
@@ -101,13 +108,19 @@ class ElementController extends Controller
         $materials = $request->input('materials', []);
         $quantities = $request->input('quantities', []);
 
+        $hasSortOrder = Schema::hasColumn('element_material', 'sort_order');
         $syncData = [];
+        $order = 0;
         foreach ($materials as $key => $materialId) {
             if (empty($materialId)) {
                 continue;
             }
-            $quantity = $quantities[$key] ?? 1;
-            $syncData[$materialId] = ['quantity' => $quantity];
+            $pivot = ['quantity' => $quantities[$key] ?? 1];
+            if ($hasSortOrder) {
+                $pivot['sort_order'] = $order;
+            }
+            $syncData[$materialId] = $pivot;
+            $order++;
         }
 
         $element->materials()->sync($syncData);

@@ -7,6 +7,7 @@ use App\Models\Coefficient;
 use App\Support\ListFilter;
 use Illuminate\Http\Request;
 use App\Models\MaterialPiece;
+use Illuminate\Support\Facades\Cache;
 
 class MaterialController extends Controller
 {
@@ -163,6 +164,10 @@ class MaterialController extends Controller
         // Attach the selected material_pieces without detaching existing ones
         $material->material_pieces()->sync($selectedMaterialPieces);
 
+        // New offers read element/material prices from this cache; clear it so a
+        // price change is reflected immediately (existing offers keep their snapshot).
+        Cache::forget('elements_with_materials');
+
         return redirect()->route('material.index');
     }
     /**
@@ -172,6 +177,10 @@ class MaterialController extends Controller
     {
         $material = Material::find($id);
         $material->delete();
+
+        // Clear the new-offer price cache so a deleted material can't linger in it.
+        Cache::forget('elements_with_materials');
+
         return redirect()->route('material.index');
     }
 }
