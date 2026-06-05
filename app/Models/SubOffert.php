@@ -121,6 +121,12 @@ class SubOffert extends Model
      */
     public function rootId(): int
     {
+        return (int) ($this->rootModel()->id ?? $this->id);
+    }
+
+    /** Walk up the parent chain to the top-level (root) sub-offert. */
+    public function rootModel(): self
+    {
         $node = $this;
         $guard = 0;
         while (!empty($node->parent_id) && $guard < 20) {
@@ -132,11 +138,33 @@ class SubOffert extends Model
             $guard++;
         }
 
-        return (int) ($node->id ?? $this->id);
+        return $node;
     }
 
     public function getDisplayNumberAttribute(): string
     {
         return self::formatDisplayNumber($this->rootId());
+    }
+
+    /**
+     * Objekt and Ort are inherited from the root sub-offert for nested records,
+     * resolved live at read time — so editing the parent updates the children.
+     */
+    public function getObjectAttribute($value)
+    {
+        if (empty($this->parent_id)) {
+            return $value;
+        }
+        $root = $this->rootModel();
+        return $root->is($this) ? $value : ($root->getRawOriginal('object') ?? $value);
+    }
+
+    public function getCityAttribute($value)
+    {
+        if (empty($this->parent_id)) {
+            return $value;
+        }
+        $root = $this->rootModel();
+        return $root->is($this) ? $value : ($root->getRawOriginal('city') ?? $value);
     }
 }

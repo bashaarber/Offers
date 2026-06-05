@@ -72,8 +72,11 @@
                                 $pfStatus     = old('status', 'Neu');
                                 $pfValidity   = old('validity', $coeff0->validity ?? '');
                                 $pfClientSign = old('client_sign', '');
-                                $pfObject     = old('object', '');
-                                $pfCity       = old('city', '');
+                                // Objekt & Ort are inherited from the parent (locked) for a nested
+                                // Sub-Offerte; a top-level one keeps them editable/empty.
+                                $lockObjectCity = (bool) ($parent ?? null);
+                                $pfObject     = $lockObjectCity ? $parent->object : old('object', '');
+                                $pfCity       = $lockObjectCity ? $parent->city : old('city', '');
                                 $pfService    = old('service', $coeff0->service ?? '');
                                 $pfPayment    = old('payment_conditions', $coeff0->payment_conditions ?? '');
                                 $pfClientId   = old('client_id');
@@ -139,11 +142,11 @@
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="object">@lang('public.object')</label>
-                                    <input type="text" class="form-control" id="object" name="object" value="{{ $pfObject }}" required>
+                                    <input type="text" class="form-control" id="object" name="object" value="{{ $pfObject }}" required @readonly($lockObjectCity) @if($lockObjectCity) style="background:#e9ecef;" title="{{ __('public.creating_sub_offer_for') }}" @endif>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="city">@lang('public.city')</label>
-                                    <input type="text" class="form-control" id="city" name="city" value="{{ $pfCity }}" required>
+                                    <input type="text" class="form-control" id="city" name="city" value="{{ $pfCity }}" required @readonly($lockObjectCity) @if($lockObjectCity) style="background:#e9ecef;" @endif>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="service">@lang('public.delivery')</label>

@@ -193,12 +193,12 @@
                                     <div class="form-group col-md-3">
                                         <label for="object">@lang('public.object')</label>
                                         <input type="text" class="form-control" id="object" name="object"
-                                            value="{{ $offert->object }}" required>
+                                            value="{{ $offert->object }}" required @readonly($offert->isSubOffert()) @if($offert->isSubOffert()) style="background:#e9ecef;" @endif>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="city">@lang('public.city')</label>
                                         <input type="text" class="form-control" id="city" name="city"
-                                            value="{{ $offert->city }}" required>
+                                            value="{{ $offert->city }}" required @readonly($offert->isSubOffert()) @if($offert->isSubOffert()) style="background:#e9ecef;" @endif>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="service">@lang('public.delivery')</label>
