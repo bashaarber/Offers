@@ -63,29 +63,27 @@
                                 @endif
                             @endisset
                             @php
-                                // When creating a nested sub-offert ($parent set), every field is
-                                // pre-filled from the parent so the user only tweaks what changed.
-                                $pParent = $parent ?? null;
+                                // Header fields are NOT copied from the parent — a nested Sub-Offerte
+                                // starts with the normal defaults (same as a top-level one). Only the
+                                // parent's POSITIONS are copied, on store (via the parent_id above).
                                 $coeff0  = $coefficients->first();
-                                $pfUserSign   = old('user_sign', $pParent->user_sign ?? 'Blerant Kqiku');
-                                $pfType       = old('type', $pParent->type ?? 'client');
-                                $pfStatus     = old('status', $pParent->status ?? 'Neu');
-                                $pfValidity   = old('validity', $pParent->validity ?? ($coeff0->validity ?? ''));
-                                $pfClientSign = old('client_sign', $pParent->client_sign ?? '');
-                                $pfObject     = old('object', $pParent->object ?? '');
-                                $pfCity       = old('city', $pParent->city ?? '');
-                                $pfService    = old('service', $pParent->service ?? ($coeff0->service ?? ''));
-                                $pfPayment    = old('payment_conditions', $pParent->payment_conditions ?? ($coeff0->payment_conditions ?? ''));
-                                // Client (and its addresses) are intentionally NOT prefilled —
-                                // the user must choose or add a client for the new sub-offert.
+                                $pfUserSign   = old('user_sign', 'Blerant Kqiku');
+                                $pfType       = old('type', 'client');
+                                $pfStatus     = old('status', 'Neu');
+                                $pfValidity   = old('validity', $coeff0->validity ?? '');
+                                $pfClientSign = old('client_sign', '');
+                                $pfObject     = old('object', '');
+                                $pfCity       = old('city', '');
+                                $pfService    = old('service', $coeff0->service ?? '');
+                                $pfPayment    = old('payment_conditions', $coeff0->payment_conditions ?? '');
                                 $pfClientId   = old('client_id');
                                 $pfAddr1      = old('client_address', '');
                                 $pfAddr2      = old('client_address_2', '');
                                 $pfAddr3      = old('client_address_3', '');
-                                $pfDifficulty = old('difficulty', $pParent->difficulty ?? ($coeff0->difficulty ?? ''));
-                                $pfMaterial   = old('material', $pParent->material ?? ($coeff0->material ?? ''));
-                                $pfLabor      = old('labor_price', $pParent->labor_price ?? ($coeff0->labor_price ?? ''));
-                                $pfRabatt     = old('default_rabatt', $pParent->default_rabatt ?? ($coeff0->default_rabatt ?? 20));
+                                $pfDifficulty = old('difficulty', $coeff0->difficulty ?? '');
+                                $pfMaterial   = old('material', $coeff0->material ?? '');
+                                $pfLabor      = old('labor_price', $coeff0->labor_price ?? '');
+                                $pfRabatt     = old('default_rabatt', $coeff0->default_rabatt ?? 20);
                             @endphp
                             <div class="form-row">
                                 <div class="form-group col-md-3">
