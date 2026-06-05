@@ -13,6 +13,23 @@
     .select-material + .select2-container .select2-selection--single {
         height: 38px;
     }
+    .drag-handle {
+        cursor: grab;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        background: #f1f1f1;
+        border: 1px solid #ced4da;
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        color: #6c757d;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    .sortable-ghost {
+        opacity: 0.4;
+    }
 </style>
 <body>
     @include('layouts.sidebar')
@@ -36,7 +53,8 @@
                                 <label>Materials:</label>
                                 <div id="materials-list">
                                     @forelse ($element->materials as $material)
-                                        <div class="input-group mb-2">
+                                        <div class="input-group mb-2 material-row">
+                                            <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
                                             <select class="select-material" name="materials[]" required>
                                                 <option value="">-- Select Material --</option>
                                                 @foreach ($materials as $materialOption)
@@ -53,7 +71,8 @@
                                                     class="fa-solid fa-minus"></i></button>
                                         </div>
                                     @empty
-                                        <div class="input-group mb-2">
+                                        <div class="input-group mb-2 material-row">
+                                            <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
                                             <select class="select-material" name="materials[]" required>
                                                 <option value="">-- Select Material --</option>
                                                 @foreach ($materials as $materialOption)
@@ -85,7 +104,8 @@
 
     {{-- Hidden template for adding new material rows --}}
     <template id="material-row-template">
-        <div class="input-group mb-2">
+        <div class="input-group mb-2 material-row">
+            <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
             <select class="select-material" name="materials[]" required>
                 <option value="">-- Select Material --</option>
                 @foreach ($materials as $materialOption)
@@ -104,6 +124,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#add-material').click(function() {
@@ -120,6 +141,13 @@
             });
 
             $('.select-material').select2();
+
+            // Drag-to-reorder material rows; submit order = row order = sort_order.
+            new Sortable(document.getElementById('materials-list'), {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+            });
         });
     </script>
 </body>

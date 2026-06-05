@@ -30,13 +30,18 @@
     @include('layouts.sidebar')
     <div class="content">
         <div class="container">
+            @php
+                $isSubParent = ($parentType ?? 'offert') === 'sub_offert';
+                $parentEditRoute = $isSubParent ? 'sub-offert.edit' : 'offert.edit';
+                $createQuery = 'offert_id=' . $offertId . ($isSubParent ? '&parent_type=sub_offert' : '');
+            @endphp
             <h1 class="mb-3">Positions List</h1>
-            <a href="{{ route('offert.edit', $offertId) }}" class="btn btn-secondary mb-3">@lang('public.back')</a>
-            <a href="{{ route('position.create', ['index' => 4]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 4</a>
-            <a href="{{ route('position.create', ['index' => 3]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 3</a>
-            <a href="{{ route('position.create', ['index' => 2]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 2</a>
-            <a href="{{ route('position.create', ['index' => 1]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 1</a>
-            <a href="{{ route('position.create', ['index' => 0]) }}?offert_id={{ $offertId }}" class="btn btn-primary float-right mb-3 ml-1">Typ 0</a>
+            <a href="{{ route($parentEditRoute, $offertId) }}" class="btn btn-secondary mb-3">@lang('public.back')</a>
+            <a href="{{ route('position.create', ['index' => 4]) }}?{{ $createQuery }}" class="btn btn-primary float-right mb-3 ml-1">Typ 4</a>
+            <a href="{{ route('position.create', ['index' => 3]) }}?{{ $createQuery }}" class="btn btn-primary float-right mb-3 ml-1">Typ 3</a>
+            <a href="{{ route('position.create', ['index' => 2]) }}?{{ $createQuery }}" class="btn btn-primary float-right mb-3 ml-1">Typ 2</a>
+            <a href="{{ route('position.create', ['index' => 1]) }}?{{ $createQuery }}" class="btn btn-primary float-right mb-3 ml-1">Typ 1</a>
+            <a href="{{ route('position.create', ['index' => 0]) }}?{{ $createQuery }}" class="btn btn-primary float-right mb-3 ml-1">Typ 0</a>
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>

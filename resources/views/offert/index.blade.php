@@ -48,85 +48,34 @@
                                 <th>@lang('public.user')</th>
                                 <th style="text-align: right;">@lang('public.actions')</th>
                             </tr>
+                            @php $f = (array) request('f', []); @endphp
                             <tr class="filter-row" style="background:#f8f9fa;">
-                                <td><input data-col="0" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="1" type="text" placeholder="{{ __('public.date') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="2" type="text" placeholder="{{ __('public.client') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="3" type="text" placeholder="{{ __('public.your_reference') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="4" type="text" placeholder="{{ __('public.object') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[id]" value="{{ $f['id'] ?? '' }}" type="text" placeholder="#" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[date]" value="{{ $f['date'] ?? '' }}" type="text" placeholder="{{ __('public.date') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[client]" value="{{ $f['client'] ?? '' }}" type="text" placeholder="{{ __('public.client') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[client_sign]" value="{{ $f['client_sign'] ?? '' }}" type="text" placeholder="{{ __('public.your_reference') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[object]" value="{{ $f['object'] ?? '' }}" type="text" placeholder="{{ __('public.object') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
                                 <td>
-                                    <select data-col="5" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;">
+                                    @php $statusVal = $f['status'] ?? ''; @endphp
+                                    <select name="f[status]" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;">
                                         <option value="">All</option>
-                                        <option value="Neu">Neu</option>
-                                        <option value="Zusage">Zusage</option>
-                                        <option value="Abszage">Abszage</option>
-                                        <option value="Finished">Finished</option>
+                                        <option value="Neu" {{ $statusVal === 'Neu' ? 'selected' : '' }}>Neu</option>
+                                        <option value="Zusage" {{ $statusVal === 'Zusage' ? 'selected' : '' }}>Zusage</option>
+                                        <option value="Abszage" {{ $statusVal === 'Abszage' ? 'selected' : '' }}>Abszage</option>
+                                        <option value="Finished" {{ $statusVal === 'Finished' ? 'selected' : '' }}>Finished</option>
                                     </select>
                                 </td>
-                                <td><input data-col="6" type="text" placeholder="{{ __('public.type') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
-                                <td><input data-col="7" type="text" placeholder="{{ __('public.user') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[type]" value="{{ $f['type'] ?? '' }}" type="text" placeholder="{{ __('public.type') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
+                                <td><input name="f[user]" value="{{ $f['user'] ?? '' }}" type="text" placeholder="{{ __('public.user') }}" style="width:100%;border:1px solid #dee2e6;border-radius:4px;padding:3px 6px;font-size:12px;"></td>
                                 <td></td>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($offerts as $offert)
-                                <tr>
-                                    <td>
-                                        <strong>{{ $offert->display_number }}</strong>
-                                        @if($offert->isLockedByOther())
-                                            <span title="Being edited by {{ $offert->lockingUser?->username ?? 'another user' }}" style="color:#dc3545; margin-left:4px;"><i class="fas fa-lock" style="font-size:11px;"></i></span>
-                                        @endif
-                                    </td>
-                                    <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
-                                    <td>{{ $offert->client->name }}</td>
-                                    <td>{{ $offert->client_sign }}</td>
-                                    <td>{{ $offert->object }}</td>
-                                    <td>
-                                        @php
-                                            $statusColors = [
-                                                'Neu' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
-                                                'new' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
-                                                'Zusage' => ['bg' => '#dcfce7', 'text' => '#166534'],
-                                                'Abszage' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
-                                                'Finished' => ['bg' => '#f3e8ff', 'text' => '#6b21a8'],
-                                                'finished' => ['bg' => '#f3e8ff', 'text' => '#6b21a8'],
-                                            ];
-                                            $colors = $statusColors[$offert->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151'];
-                                            $label = $offert->status == 'new' ? 'Neu' : ($offert->status == 'finished' ? 'Finished' : $offert->status);
-                                        @endphp
-                                        <span style="background: {{ $colors['bg'] }}; color: {{ $colors['text'] }}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                            {{ $label }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($offert->type == 'client')
-                                            <span style="font-size: 13px;">Klient</span>
-                                        @elseif($offert->type == 'company')
-                                            <span style="font-size: 13px;">Company</span>
-                                        @else
-                                            <span style="font-size: 13px;">{{ $offert->type }}</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $offert->user->username }}</td>
-                                    <td style="white-space: nowrap; text-align: right;">
-                                        @php $lockedByOther = $offert->isLockedByOther(); @endphp
-                                        <div class="btn-group" style="gap: 4px;">
-                                            <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-info btn-sm" title="External PDF" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-export"></i></a>
-                                            <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm" title="{{ __('public.copy') }}" onclick='return confirm("{{ __('public.confirm_copy_offer') }}")'><i class="fa fa-clone"></i></a>
-                                            @if($lockedByOther)
-                                                <span class="btn btn-primary btn-sm disabled" title="Being edited by {{ $offert->lockingUser?->username ?? 'another user' }}" style="opacity:0.45; cursor:not-allowed; pointer-events:none;"><i class="fas fa-pencil"></i></span>
-                                                <span class="btn btn-danger btn-sm disabled" title="Being edited by {{ $offert->lockingUser?->username ?? 'another user' }}" style="opacity:0.45; cursor:not-allowed; pointer-events:none;"><i class="fas fa-trash"></i></span>
-                                            @else
-                                                <a href="{{ route('offert.edit', $offert->id) }}" class="btn btn-primary btn-sm" title="{{ __('public.edit') }}"><i class="fas fa-pencil"></i></a>
-                                                <form action="{{ route('offert.destroy', $offert->id) }}" method="post" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick='return confirm("{{ __('public.confirm_delete_offer') }}")' title="{{ __('public.delete') }}"><i class="fas fa-trash"></i></button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
+                                @include('offert.partials.offer-row', ['offert' => $offert, 'isSub' => false, 'expandAll' => $expandAll ?? false])
+                                @foreach ($offert->subOfferts as $sub)
+                                    @include('offert.partials.offer-row', ['offert' => $sub, 'isSub' => true, 'expandAll' => $expandAll ?? false])
+                                @endforeach
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center py-4 text-muted">
@@ -146,5 +95,27 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        // Expand / collapse a parent offer's sub-offers.
+        document.addEventListener('DOMContentLoaded', function () {
+            function setRotation(icon, expanded) {
+                icon.style.transform = expanded ? 'rotate(90deg)' : 'rotate(0deg)';
+            }
+
+            document.querySelectorAll('.toggle-subs').forEach(function (icon) {
+                const targetClass = icon.getAttribute('data-target');
+                const rows = document.querySelectorAll('tr.' + targetClass);
+                // Reflect the initial (server-rendered) visibility on the caret.
+                const startExpanded = Array.from(rows).some(r => r.style.display !== 'none');
+                setRotation(icon, startExpanded);
+
+                icon.addEventListener('click', function () {
+                    const willExpand = Array.from(rows).some(r => r.style.display === 'none');
+                    rows.forEach(function (r) { r.style.display = willExpand ? '' : 'none'; });
+                    setRotation(icon, willExpand);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

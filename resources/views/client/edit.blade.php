@@ -32,12 +32,22 @@
                                 <div class="form-group">
                                     <label for="number">Number</label>
                                     <input type="text" class="form-control" id="number" name="number"
-                                        value="{{ $client->number }}" required>
+                                        value="{{ old('number', $client->number) }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="address">Address</label>
+                                    <label for="address">@lang('public.address_1')</label>
                                     <input type="text" class="form-control" id="address" name="address"
-                                        value="{{ $client->address }}" required>
+                                        value="{{ old('address', $client->address) }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address_2">@lang('public.address_2')</label>
+                                    <input type="text" class="form-control" id="address_2" name="address_2"
+                                        value="{{ old('address_2', $client->address_2) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address_3">@lang('public.address_3')</label>
+                                    <input type="text" class="form-control" id="address_3" name="address_3"
+                                        value="{{ old('address_3', $client->address_3) }}">
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-3">@lang('public.save')</button>
                                 <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>

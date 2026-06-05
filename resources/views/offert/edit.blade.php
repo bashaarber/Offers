@@ -226,9 +226,21 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label for="client_address">@lang('public.client_address')</label>
+                                        <label for="client_address">@lang('public.address_1')</label>
                                         <input type="text" class="form-control" id="client_address" name="client_address"
                                             value="{{ old('client_address', $offert->client_address ?? ($offert->client->address ?? '')) }}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="client_address_2">@lang('public.address_2')</label>
+                                        <input type="text" class="form-control" id="client_address_2" name="client_address_2"
+                                            value="{{ old('client_address_2', $offert->client_address_2 ?? ($offert->client->address_2 ?? '')) }}">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="client_address_3">@lang('public.address_3')</label>
+                                        <input type="text" class="form-control" id="client_address_3" name="client_address_3"
+                                            value="{{ old('client_address_3', $offert->client_address_3 ?? ($offert->client->address_3 ?? '')) }}">
                                     </div>
                                 </div>
                                 <h6>@lang('public.coefficients_project')</h6>
@@ -236,8 +248,19 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
                                         <label for="difficulty">@lang('public.difficulty_coeff')</label>
-                                        <input type="text" class="form-control" id="difficulty" name="difficulty"
-                                            value="{{ $offert->difficulty }}" required>
+                                        @if (!empty($fromPositionOverview))
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="difficulty" name="difficulty"
+                                                    value="{{ $offert->difficulty }}" required>
+                                                <div class="input-group-append">
+                                                    <button type="button" id="override-difficulty-btn"
+                                                        class="btn btn-outline-secondary">@lang('public.override_all')</button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <input type="text" class="form-control" id="difficulty" name="difficulty"
+                                                value="{{ $offert->difficulty }}" required>
+                                        @endif
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="material">@lang('public.material_coeff')</label>
@@ -302,19 +325,76 @@
             $('.select-users').select2();
         });
 
-        const clientAddressById = @json($clients->mapWithKeys(fn($client) => [$client->id => $client->address ?? ''])->toArray());
+        @php
+            $clientAddressById = $clients->mapWithKeys(fn ($client) => [$client->id => [
+                'a1' => $client->address ?? '',
+                'a2' => $client->address_2 ?? '',
+                'a3' => $client->address_3 ?? '',
+            ]])->toArray();
+        @endphp
+        const clientAddressById = @json($clientAddressById);
 
         function syncClientAddressFromSelection() {
             const clientSelect = document.getElementById('client_id');
-            const addressInput = document.getElementById('client_address');
-            if (!clientSelect || !addressInput) return;
-            const selectedId = clientSelect.value;
-            addressInput.value = selectedId ? (clientAddressById[selectedId] || '') : '';
+            if (!clientSelect) return;
+            const data = clientAddressById[clientSelect.value] || { a1: '', a2: '', a3: '' };
+            const a1 = document.getElementById('client_address');
+            const a2 = document.getElementById('client_address_2');
+            const a3 = document.getElementById('client_address_3');
+            if (a1) a1.value = data.a1 || '';
+            if (a2) a2.value = data.a2 || '';
+            if (a3) a3.value = data.a3 || '';
         }
 
         $(document).on('change', '#client_id', function() {
             syncClientAddressFromSelection();
         });
+
+        // "Alle überschreiben" — push the offert's current Schw. Koeffizient onto every position.
+        (function () {
+            const btn = document.getElementById('override-difficulty-btn');
+            if (!btn) return;
+
+            const confirmMsg   = @json(__('public.confirm_override_difficulty'));
+            const successMsg   = @json(__('public.override_difficulty_success'));
+            const failedMsg    = @json(__('public.override_difficulty_failed'));
+            const overrideUrl  = "{{ route('offert.override-difficulty-all', $offert->id) }}";
+            const autoSaveUrl  = "{{ route('offert.auto-save', $offert->id) }}";
+            const csrfToken    = "{{ csrf_token() }}";
+
+            btn.addEventListener('click', function () {
+                if (!confirm(confirmMsg)) return;
+
+                // Persist the current Schw. Koeffizient value first (in case the user just edited
+                // the input and the debounced autosave hasn't fired yet), then trigger the override.
+                const difficultyInput = document.getElementById('difficulty');
+                const body = new URLSearchParams();
+                body.append('_token', csrfToken);
+                if (difficultyInput) body.append('difficulty', difficultyInput.value);
+
+                btn.disabled = true;
+                fetch(autoSaveUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: body,
+                })
+                .then(() => fetch(overrideUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: new URLSearchParams({ _token: csrfToken }),
+                }))
+                .then(r => r.json())
+                .then(json => {
+                    if (json && json.success) {
+                        alert(successMsg);
+                    } else {
+                        alert(failedMsg);
+                    }
+                })
+                .catch(() => alert(failedMsg))
+                .finally(() => { btn.disabled = false; });
+            });
+        })();
     </script>
 
     @if (empty($fromPositionOverview))

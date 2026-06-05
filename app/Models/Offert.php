@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Offert extends Model
 {
@@ -12,8 +13,10 @@ class Offert extends Model
 
     public const DISPLAY_NUMBER_OFFSET = 599;
     public const DISPLAY_NUMBER_SUFFIX = '-H';
+    public const SUB_DISPLAY_NUMBER_SUFFIX = '-S';
 
     protected $fillable = [
+        'parent_id',
         'type',
         'user_sign',
         'status',
@@ -27,6 +30,8 @@ class Offert extends Model
         'payment_conditions',
         'client_id',
         'client_address',
+        'client_address_2',
+        'client_address_3',
         'difficulty',
         'material',
         'labor_price',
@@ -79,20 +84,40 @@ class Offert extends Model
     {
         return $this->belongsTo(Client::class);
     }
-   
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function subOfferts(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function isSubOffert(): bool
+    {
+        return !empty($this->parent_id);
+    }
+
     public function positions():BelongsToMany
    {
        return $this->belongsToMany(Position::class)->withTimestamps();
    }
 
-    public static function formatDisplayNumber(int $offertId): string
+    public static function formatDisplayNumber(int $offertId, string $suffix = self::DISPLAY_NUMBER_SUFFIX): string
     {
-        return ($offertId + self::DISPLAY_NUMBER_OFFSET) . self::DISPLAY_NUMBER_SUFFIX;
+        return ($offertId + self::DISPLAY_NUMBER_OFFSET) . $suffix;
     }
 
     public function getDisplayNumberAttribute(): string
     {
+        // Sub-offers share their parent's running number but carry the -S suffix.
+        if ($this->isSubOffert()) {
+            return self::formatDisplayNumber((int) $this->parent_id, self::SUB_DISPLAY_NUMBER_SUFFIX);
+        }
+
         return self::formatDisplayNumber((int) $this->id);
     }
-   
+
 }

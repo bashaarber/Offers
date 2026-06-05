@@ -138,4 +138,19 @@ return [
     'save_language'             => 'Sprache Speichern',
     'lang_de'                   => 'Deutsch',
     'lang_en'                   => 'Englisch',
+
+    // --- Sanivor 2.0 ---
+    'address_1'                 => 'Adresse 1',
+    'address_2'                 => 'Adresse 2',
+    'address_3'                 => 'Adresse 3',
+    'sub_offert'                => 'Sub-Offerte',
+    'sub_offerts'               => 'Sub-Offerten',
+    'sub_offerts_subtitle'      => 'Alle Sub-Offerten verwalten und verfolgen',
+    'create_sub_offer'          => 'Sub-Offerte Erstellen',
+    'update_sub_offer'          => 'Sub-Offerte Aktualisieren',
+    'add_sub_offer'             => 'Sub-Offerte hinzufügen',
+    'creating_sub_offer_for'    => 'Sub-Offerte erstellen für',
+    'confirm_delete_offer_with_subs' => 'Dieses Angebot und alle seine Unterangebote wirklich löschen?',
+    'custom'                    => 'Custom',
+    'gis_surcharge'             => 'GIS (+20%)',
 ];

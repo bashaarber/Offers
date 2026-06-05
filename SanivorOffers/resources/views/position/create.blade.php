@@ -335,6 +335,7 @@
                     @csrf
                     <input type="hidden" name="index" id="index" value="{{ $index ?? '' }}">
                     <input type="hidden" name="offert_id" id="offert_id" value="{{ request()->query('offert_id') }}">
+                    <input type="hidden" name="parent_type" id="parent_type" value="{{ $parentType ?? request()->query('parent_type', 'offert') }}">
                     <input type="hidden" name="auto_save" id="auto_save" value="0">
                     <input type="hidden" name="totalProTypPrice" id="totalProTypPriceInput" value="0.00">
                     <input type="hidden" name="discountedTotal" id="discountedTotalInput" value="0.00">

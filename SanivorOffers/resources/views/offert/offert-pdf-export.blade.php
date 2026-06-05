@@ -142,7 +142,24 @@
         return number_format((float) $value, 0, '.', "'");
     };
 
-    $clientAddressLines = preg_split('/\r\n|\r|\n/', (string) ($offert->client->address ?? ''));
+    $gisFactor = $gisFactor ?? 1.0;
+    // GIS surcharge active → suffix the document title and offer number.
+    $gisOn = $gisFactor > 1.0;
+    $gisTitleSuffix  = $gisOn ? ' - GIS' : '';
+    $gisNumberSuffix = $gisOn ? '-GIS' : '';
+
+    // Build the address block from the offer's three addresses, falling back to the client record.
+    $addressParts = [];
+    foreach ([['client_address', 'address'], ['client_address_2', 'address_2'], ['client_address_3', 'address_3']] as [$offCol, $cliCol]) {
+        $val = trim((string) ($offert->{$offCol} ?? ''));
+        if ($val === '') {
+            $val = trim((string) ($offert->client->{$cliCol} ?? ''));
+        }
+        if ($val !== '') {
+            $addressParts[] = $val;
+        }
+    }
+    $clientAddressLines = preg_split('/\r\n|\r|\n/', implode("\n", $addressParts));
     $vomDate = $offert->finish_date ?? $offert->create_date;
 @endphp
 
@@ -176,6 +193,9 @@
     </tr>
 </table>
 
+{{-- Document title --}}
+<div style="font-size:15pt; font-weight:bold; color:#000; margin:2pt 0 6pt;">Angebot Elemente{{ $gisTitleSuffix }}</div>
+
 {{-- Black separator --}}
 <div class="sep-black"></div>
 
@@ -183,7 +203,7 @@
 <table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
         <td style="width:20%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>Angebot Nr.</strong></td>
-        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}</strong></td>
+        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}{{ $gisNumberSuffix }}</strong></td>
         <td style="width:13%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>Objekt:</strong></td>
         <td style="width:37%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>{{ $offert->object }}</strong></td>
     </tr>
@@ -236,12 +256,8 @@
     );
     foreach ($offert->positions as $position) {
         if (!$position->is_optional) {
-            $posBrutto = isset($customPositionPrices[$position->id])
-                ? $customPositionPrices[$position->id]['brutto']
-                : $position->price_brutto;
-            $posNetto  = isset($customPositionPrices[$position->id])
-                ? $customPositionPrices[$position->id]['netto']
-                : $position->price_discount;
+            $posBrutto = ($customPositionPrices[$position->id]['brutto'] ?? $position->price_brutto) * $gisFactor;
+            $posNetto  = ($customPositionPrices[$position->id]['netto'] ?? $position->price_discount) * $gisFactor;
             $totalBrutto   += $posBrutto;
             $totalNetto    += $posNetto;
             $totalDiscount += max($posBrutto - $posNetto, 0);
@@ -323,12 +339,8 @@
 @foreach ($offert->positions as $key => $position)
 @php
     $quantity       = max((float) ($position->quantity ?? 1), 1);
-    $posTotalBrutto = isset($customPositionPrices[$position->id])
-        ? $customPositionPrices[$position->id]['brutto']
-        : (float) ($position->price_brutto ?? 0);
-    $posTotalNetto  = isset($customPositionPrices[$position->id])
-        ? $customPositionPrices[$position->id]['netto']
-        : (float) ($position->price_discount ?? 0);
+    $posTotalBrutto = ($customPositionPrices[$position->id]['brutto'] ?? (float) ($position->price_brutto ?? 0)) * $gisFactor;
+    $posTotalNetto  = ($customPositionPrices[$position->id]['netto'] ?? (float) ($position->price_discount ?? 0)) * $gisFactor;
     $unitBrutto = $quantity > 0 ? $posTotalBrutto / $quantity : 0;
     $unitNetto  = $quantity > 0 ? $posTotalNetto  / $quantity : 0;
 @endphp

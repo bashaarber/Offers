@@ -153,11 +153,17 @@ class OffertController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Offert::with([
-            'client:id,name',
-            'user:id,username',
-            'lockingUser:id,username',
-        ]);
+        $query = Offert::query()
+            ->whereNull('parent_id')
+            ->with([
+                'client:id,name',
+                'user:id,username',
+                'lockingUser:id,username',
+                'subOfferts' => fn ($q) => $q->orderBy('id', 'ASC'),
+                'subOfferts.client:id,name',
+                'subOfferts.user:id,username',
+                'subOfferts.lockingUser:id,username',
+            ]);
 
         \App\Support\ListFilter::apply($query, $request, [
             'id'          => 'offerts.id',
@@ -171,8 +177,9 @@ class OffertController extends Controller
         ]);
 
         $offerts = $query->orderBy('id', 'DESC')->paginate(20)->withQueryString();
+        $expandAll = $request->boolean('expand');
 
-        return view('offert.index', compact('offerts'));
+        return view('offert.index', compact('offerts', 'expandAll'));
     }
 
     public function exportPdf($id){
@@ -187,6 +194,9 @@ class OffertController extends Controller
                 ->filter()
                 ->values()
                 ->all();
+
+            // GIS surcharge: when enabled every position price on the external PDF is raised by 20%.
+            $gisFactor = request()->boolean('gis') ? 1.20 : 1.0;
 
             $offert->load([
                 'client',
@@ -279,7 +289,7 @@ class OffertController extends Controller
                 return Organigram::with(['group_elements.elements'])->get();
             });
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices', 'organigrams'))
+            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices', 'organigrams', 'gisFactor'))
                 ->setOption(['isPhpEnabled' => true]);
             return $pdf->stream();
         } catch (\Throwable $e) {
@@ -297,15 +307,27 @@ class OffertController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $nextOffertId = ((int) Offert::max('id')) + 1;
-        $newOffertNumber = Offert::formatDisplayNumber($nextOffertId);
+        // When creating a sub-offer the parent is passed through; the sub-offer
+        // shares the parent's running number but uses the -S suffix.
+        $parent = null;
+        if ($request->filled('parent_id')) {
+            $parent = Offert::whereNull('parent_id')->find($request->input('parent_id'));
+        }
+
+        if ($parent) {
+            $newOffertNumber = Offert::formatDisplayNumber((int) $parent->id, Offert::SUB_DISPLAY_NUMBER_SUFFIX);
+        } else {
+            $nextOffertId = ((int) Offert::max('id')) + 1;
+            $newOffertNumber = Offert::formatDisplayNumber($nextOffertId);
+        }
+
         $users = User::all();
         $clients = Client::all();
         $coefficients = Coefficient::get();
 
-        return view('offert.create', compact('newOffertNumber', 'users', 'clients', 'coefficients'));
+        return view('offert.create', compact('newOffertNumber', 'users', 'clients', 'coefficients', 'parent'));
     }
 
     /**
@@ -332,11 +354,24 @@ class OffertController extends Controller
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
             'client_address' => 'nullable|string',
+            'client_address_2' => 'nullable|string',
+            'client_address_3' => 'nullable|string',
         ]);
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-        if (empty($formFields['client_address']) && !empty($formFields['client_id'])) {
-            $formFields['client_address'] = Client::where('id', $formFields['client_id'])->value('address');
+        if (!empty($formFields['client_id'])) {
+            $client = Client::find($formFields['client_id']);
+            if ($client) {
+                if (empty($formFields['client_address'])) {
+                    $formFields['client_address'] = $client->address;
+                }
+                if (empty($formFields['client_address_2'])) {
+                    $formFields['client_address_2'] = $client->address_2;
+                }
+                if (empty($formFields['client_address_3'])) {
+                    $formFields['client_address_3'] = $client->address_3;
+                }
+            }
         }
         if ($this->hasDefaultRabattColumn()) {
             $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
@@ -351,6 +386,12 @@ class OffertController extends Controller
 
         if (empty($formFields['finish_date'])) {
             $formFields['finish_date'] = $formFields['create_date'];
+        }
+
+        // Attach as a sub-offer only to an existing top-level offer (no nesting beyond one level).
+        if ($request->filled('parent_id')
+            && Offert::whereNull('parent_id')->whereKey($request->input('parent_id'))->exists()) {
+            $formFields['parent_id'] = (int) $request->input('parent_id');
         }
 
         $offert = Offert::create($formFields);
@@ -516,12 +557,25 @@ class OffertController extends Controller
             'default_rabatt' => 'nullable|numeric|min:0|max:100',
             'client_id' => 'required|exists:clients,id',
             'client_address' => 'nullable|string',
+            'client_address_2' => 'nullable|string',
+            'client_address_3' => 'nullable|string',
         ]);
 
         $formFields['type'] = $request->input('type');
         $formFields['user_id'] = $user->id;
-        if (empty($formFields['client_address']) && !empty($formFields['client_id'])) {
-            $formFields['client_address'] = Client::where('id', $formFields['client_id'])->value('address');
+        if (!empty($formFields['client_id'])) {
+            $client = Client::find($formFields['client_id']);
+            if ($client) {
+                if (empty($formFields['client_address'])) {
+                    $formFields['client_address'] = $client->address;
+                }
+                if (empty($formFields['client_address_2'])) {
+                    $formFields['client_address_2'] = $client->address_2;
+                }
+                if (empty($formFields['client_address_3'])) {
+                    $formFields['client_address_3'] = $client->address_3;
+                }
+            }
         }
         if ($this->hasDefaultRabattColumn()) {
             $coefficientDefaultRabatt = $this->hasCoefficientDefaultRabattColumn()
@@ -585,7 +639,8 @@ class OffertController extends Controller
         $fields = $request->only([
             'user_sign', 'status', 'create_date', 'validity', 'client_sign',
             'finish_date', 'object', 'city', 'service', 'payment_conditions',
-            'difficulty', 'material', 'labor_price', 'default_rabatt', 'client_id', 'client_address', 'type',
+            'difficulty', 'material', 'labor_price', 'default_rabatt', 'client_id', 'client_address',
+            'client_address_2', 'client_address_3', 'type',
         ]);
 
         // Remove empty finish_date — fall back to create_date
@@ -600,8 +655,19 @@ class OffertController extends Controller
             unset($fields['default_rabatt']);
         }
 
-        if (empty($fields['client_address']) && !empty($fields['client_id'])) {
-            $fields['client_address'] = Client::where('id', $fields['client_id'])->value('address');
+        if (!empty($fields['client_id'])) {
+            $client = Client::find($fields['client_id']);
+            if ($client) {
+                if (empty($fields['client_address'])) {
+                    $fields['client_address'] = $client->address;
+                }
+                if (empty($fields['client_address_2'])) {
+                    $fields['client_address_2'] = $client->address_2;
+                }
+                if (empty($fields['client_address_3'])) {
+                    $fields['client_address_3'] = $client->address_3;
+                }
+            }
         }
 
         $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
@@ -658,14 +724,25 @@ class OffertController extends Controller
     public function destroy(string $id)
     {
         $offert = Offert::find($id);
+
+        // Deleting a parent offer also removes its sub-offers (and their positions).
+        foreach ($offert->subOfferts as $sub) {
+            $this->deleteOffertWithPositions($sub);
+        }
+
+        $this->deleteOffertWithPositions($offert);
+
+        return redirect()->route('offert.index');
+    }
+
+    private function deleteOffertWithPositions(Offert $offert): void
+    {
         $positions = $offert->positions;
         $offert->delete();
 
         foreach ($positions as $position) {
             $position->delete();
         }
-
-        return redirect()->route('offert.index');
     }
 
     public function lock(string $id)
