@@ -48,3 +48,13 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Laravel env files (local secrets — must never be committed)
+.env
+.env.backup
+.env.local
+
+# Laravel runtime
+/vendor
+/public/build
+/public/storage
+.phpunit.result.cache
