@@ -32,7 +32,7 @@
                                 <div class="form-group">
                                     <label for="number">Number</label>
                                     <input type="text" class="form-control" id="number" name="number"
-                                        value="{{ $client->number }}" required>
+                                        value="{{ old('number', $client->number) }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="address">@lang('public.address_1')</label>

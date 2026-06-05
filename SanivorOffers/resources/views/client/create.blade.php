@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="number">Number</label>
-                                    <input type="text" class="form-control" id="number" name="number" required>
+                                    <input type="text" class="form-control" id="number" name="number" value="{{ old('number') }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="address">@lang('public.address_1')</label>

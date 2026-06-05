@@ -54,7 +54,7 @@ class ClientController extends Controller
         $formFields = $request->validate([
             'name' => 'required',
             'email' => 'required',
-            'number' => 'required',
+            'number' => 'nullable',
             'address' => 'required',
             'address_2' => 'nullable|string',
             'address_3' => 'nullable|string',
@@ -90,7 +90,7 @@ class ClientController extends Controller
         $formFields = $request->validate([
             'name' => 'required',
             'email' => 'required',
-            'number' => 'required',
+            'number' => 'nullable',
             'address' => 'required',
             'address_2' => 'nullable|string',
             'address_3' => 'nullable|string',
