@@ -143,6 +143,10 @@
     };
 
     $gisFactor = $gisFactor ?? 1.0;
+    // GIS surcharge active → suffix the document title and offer number.
+    $gisOn = $gisFactor > 1.0;
+    $gisTitleSuffix  = $gisOn ? ' - GIS' : '';
+    $gisNumberSuffix = $gisOn ? '-GIS' : '';
 
     // Build the address block from the offer's three addresses, falling back to the client record.
     $addressParts = [];
@@ -189,6 +193,9 @@
     </tr>
 </table>
 
+{{-- Document title --}}
+<div style="font-size:15pt; font-weight:bold; color:#000; margin:2pt 0 6pt;">Angebot Elemente{{ $gisTitleSuffix }}</div>
+
 {{-- Black separator --}}
 <div class="sep-black"></div>
 
@@ -196,7 +203,7 @@
 <table class="w100 pos-table" style="margin-bottom:0;">
     <tr>
         <td style="width:20%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>Angebot Nr.</strong></td>
-        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}</strong></td>
+        <td style="width:30%; font-weight:bold; font-size:10pt; padding:0 6pt;"><strong>{{ $offert->display_number }}{{ $gisNumberSuffix }}</strong></td>
         <td style="width:13%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>Objekt:</strong></td>
         <td style="width:37%; font-weight:bold; font-size:10pt; padding:0 6pt 0 0;"><strong>{{ $offert->object }}</strong></td>
     </tr>
