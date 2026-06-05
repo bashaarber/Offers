@@ -60,6 +60,10 @@ class ClientController extends Controller
             'address_3' => 'nullable|string',
         ]);
 
+        // 'number' is optional; the ConvertEmptyStringsToNull middleware turns a
+        // blank field into null, but the column is NOT NULL — store '' instead.
+        $formFields['number'] = $formFields['number'] ?? '';
+
         Client::create($formFields);
 
         return redirect()->route('client.index');
@@ -95,6 +99,8 @@ class ClientController extends Controller
             'address_2' => 'nullable|string',
             'address_3' => 'nullable|string',
         ]);
+
+        $formFields['number'] = $formFields['number'] ?? '';
 
         $client = Client::find($id);
 
