@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@lang('public.create_offer')</title>
+    <title>@lang('public.create_sub_offer')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <style>
@@ -55,13 +55,38 @@
                             @endif
                         @endisset
 
-                        <form action="{{ route('offert.store') }}" method="POST">
+                        <form action="{{ route('sub-offert.store') }}" method="POST">
                             @csrf
                             @isset($parent)
                                 @if($parent)
                                     <input type="hidden" name="parent_id" value="{{ $parent->id }}">
                                 @endif
                             @endisset
+                            @php
+                                // When creating a nested sub-offert ($parent set), every field is
+                                // pre-filled from the parent so the user only tweaks what changed.
+                                $pParent = $parent ?? null;
+                                $coeff0  = $coefficients->first();
+                                $pfUserSign   = old('user_sign', $pParent->user_sign ?? 'Blerant Kqiku');
+                                $pfType       = old('type', $pParent->type ?? 'client');
+                                $pfStatus     = old('status', $pParent->status ?? 'Neu');
+                                $pfValidity   = old('validity', $pParent->validity ?? ($coeff0->validity ?? ''));
+                                $pfClientSign = old('client_sign', $pParent->client_sign ?? '');
+                                $pfObject     = old('object', $pParent->object ?? '');
+                                $pfCity       = old('city', $pParent->city ?? '');
+                                $pfService    = old('service', $pParent->service ?? ($coeff0->service ?? ''));
+                                $pfPayment    = old('payment_conditions', $pParent->payment_conditions ?? ($coeff0->payment_conditions ?? ''));
+                                // Client (and its addresses) are intentionally NOT prefilled —
+                                // the user must choose or add a client for the new sub-offert.
+                                $pfClientId   = old('client_id');
+                                $pfAddr1      = old('client_address', '');
+                                $pfAddr2      = old('client_address_2', '');
+                                $pfAddr3      = old('client_address_3', '');
+                                $pfDifficulty = old('difficulty', $pParent->difficulty ?? ($coeff0->difficulty ?? ''));
+                                $pfMaterial   = old('material', $pParent->material ?? ($coeff0->material ?? ''));
+                                $pfLabor      = old('labor_price', $pParent->labor_price ?? ($coeff0->labor_price ?? ''));
+                                $pfRabatt     = old('default_rabatt', $pParent->default_rabatt ?? ($coeff0->default_rabatt ?? 20));
+                            @endphp
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="id">@lang('public.offer_number')</label>
@@ -70,21 +95,21 @@
                                 <div class="form-group col-md-3">
                                     <label for="type">@lang('public.offer_type')</label>
                                     <select class="form-control" name="type" required>
-                                        <option value="client">Client</option>
-                                        <option value="company">Company</option>
+                                        <option value="client" @selected($pfType === 'client')>Client</option>
+                                        <option value="company" @selected($pfType === 'company')>Company</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="user_sign">@lang('public.our_reference')</label>
-                                    <input type="text" class="form-control" id="user_sign" name="user_sign" value="Blerant Kqiku" required>
+                                    <input type="text" class="form-control" id="user_sign" name="user_sign" value="{{ $pfUserSign }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="status">@lang('public.status')</label>
                                     <select class="form-control" name="status" required>
-                                        <option value="Neu">Neu - In progress</option>
-                                        <option value="Zusage">Zusage</option>
-                                        <option value="Abszage">Abszage</option>
-                                        <option value="Finished">Finished</option>
+                                        <option value="Neu" @selected($pfStatus === 'Neu')>Neu - In progress</option>
+                                        <option value="Zusage" @selected($pfStatus === 'Zusage')>Zusage</option>
+                                        <option value="Abszage" @selected($pfStatus === 'Abszage')>Abszage</option>
+                                        <option value="Finished" @selected($pfStatus === 'Finished')>Finished</option>
                                     </select>
                                 </div>
                             </div>
@@ -99,12 +124,12 @@
                                     <label for="validity">@lang('public.offer_validity')</label>
                                     @foreach ($coefficients as $coefficient)
                                         <input type="text" class="form-control" id="validity" name="validity"
-                                            value="{{ $coefficient->validity }}" required>
+                                            value="{{ $pfValidity }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="client_sign">@lang('public.your_reference')</label>
                                     <input type="text" class="form-control" id="client_sign" name="client_sign"
-                                        required>
+                                        value="{{ $pfClientSign }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="finish_date">@lang('public.from')</label>
@@ -116,21 +141,21 @@
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="object">@lang('public.object')</label>
-                                    <input type="text" class="form-control" id="object" name="object" required>
+                                    <input type="text" class="form-control" id="object" name="object" value="{{ $pfObject }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="city">@lang('public.city')</label>
-                                    <input type="text" class="form-control" id="city" name="city" required>
+                                    <input type="text" class="form-control" id="city" name="city" value="{{ $pfCity }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="service">@lang('public.delivery')</label>
                                     <input type="text" class="form-control" id="service" name="service"
-                                        value="{{ $coefficient->service }}" required>
+                                        value="{{ $pfService }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="payment_conditions">@lang('public.payment_terms')</label>
                                     <input type="text" class="form-control" id="payment_conditions"
-                                        name="payment_conditions" value="{{ $coefficient->payment_conditions }}"
+                                        name="payment_conditions" value="{{ $pfPayment }}"
                                         required>
                                 </div>
                             </div>
@@ -139,26 +164,26 @@
                                     <label for="clients">@lang('public.client')</label>
                                     <select style="width: 100%" class="select-users form-control" id="client_id" name="client_id" required>
                                         @foreach ($clients as $client)
-                                            <option value="{{ $client->id }}">{{ $client->name ? $client->name : $client->email }}</option>
+                                            <option value="{{ $client->id }}" @selected((string) $pfClientId === (string) $client->id)>{{ $client->name ? $client->name : $client->email }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="client_address">@lang('public.address_1')</label>
                                     <input type="text" class="form-control" id="client_address" name="client_address"
-                                        value="{{ old('client_address') }}">
+                                        value="{{ $pfAddr1 }}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="client_address_2">@lang('public.address_2')</label>
                                     <input type="text" class="form-control" id="client_address_2" name="client_address_2"
-                                        value="{{ old('client_address_2') }}">
+                                        value="{{ $pfAddr2 }}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="client_address_3">@lang('public.address_3')</label>
                                     <input type="text" class="form-control" id="client_address_3" name="client_address_3"
-                                        value="{{ old('client_address_3') }}">
+                                        value="{{ $pfAddr3 }}">
                                 </div>
                             </div>
 
@@ -167,17 +192,17 @@
                                 <div class="form-group col-md-4">
                                     <label for="difficulty">@lang('public.difficulty_coeff')</label>
                                     <input type="text" class="form-control" id="difficulty" name="difficulty"
-                                        value="{{ $coefficient->difficulty }}" required>
+                                        value="{{ $pfDifficulty }}" required>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="material">@lang('public.material_coeff')</label>
                                     <input type="text" class="form-control" id="material" name="material"
-                                        value="{{ $coefficient->material }}" required>
+                                        value="{{ $pfMaterial }}" required>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="labor_price">@lang('public.hourly_rate')</label>
                                     <input type="text" class="form-control" id="labor_price" name="labor_price"
-                                        value="{{ $coefficient->labor_price }}" required>
+                                        value="{{ $pfLabor }}" required>
                                 </div>
                             </div>
                             <h6>@lang('public.default_discount')</h6>
@@ -187,14 +212,14 @@
                                         <label for="default_rabatt">@lang('public.discount_percent_label')</label>
                                         <input type="text" class="form-control rabatt-input" id="default_rabatt"
                                             name="default_rabatt"
-                                            value="{{ old('default_rabatt', $coefficient->default_rabatt ?? 20) }}"
+                                            value="{{ $pfRabatt }}"
                                             inputmode="decimal" placeholder="0.00">
                                     </div>
                                 </div>
                             </div>
                             @endforeach
-                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_offer')</button>
-                            <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                            <button type="submit" class="btn btn-primary mt-3">@lang('public.create_sub_offer')</button>
+                            <a href="{{ route('sub-offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                         </form>
                     </div>
                 </div>
@@ -208,7 +233,7 @@
     <script>
         $(document).ready(function() {
             $('.select-users').select2();
-            // Clear the selection after initialization
+            // Client is never pre-selected — the user must choose or add one.
             $('.select-users').val(null).trigger('change');
         });
 
@@ -250,6 +275,7 @@
 
         // Set input value to today's date
         document.getElementById('create_date').value = today;
+        // Addresses follow the chosen client (empty until one is selected).
         syncClientAddressFromSelection();
     });
     </script>

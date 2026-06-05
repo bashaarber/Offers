@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@lang('public.update_offer')</title>
+    <title>@lang('public.update_sub_offer')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -121,7 +121,7 @@
                     <div class="card">
                         <div class="card-body">
                         <h6>@lang('public.project_information')</h6>
-                            <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
+                            <form id="offert-edit-form" action="{{ route('sub-offert.update', $offert->id) }}" method="post">
                                 @csrf
                                 @method('put')
                                 @if (!empty($fromPositionOverview))
@@ -285,12 +285,12 @@
                                     </div>
                                 </div>
                                 @if (!empty($fromPositionOverview))
-                                    <button type="submit" class="btn btn-info mt-3">@lang('public.update_offer')</button>
+                                    <button type="submit" class="btn btn-info mt-3">@lang('public.update_sub_offer')</button>
                                     <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-3">@lang('public.cancel')</button>
                                 @else
-                                    <a href="{{ route('offert.show', $offert->id) }}"
-                                        class="btn btn-info mt-3">@lang('public.update_offer')</a>
-                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                                    <a href="{{ route('sub-offert.show', $offert->id) }}"
+                                        class="btn btn-info mt-3">@lang('public.update_sub_offer')</a>
+                                    <a href="{{ route('sub-offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                                     <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
                                 @endif
                             </form>
@@ -358,8 +358,8 @@
             const confirmMsg   = @json(__('public.confirm_override_difficulty'));
             const successMsg   = @json(__('public.override_difficulty_success'));
             const failedMsg    = @json(__('public.override_difficulty_failed'));
-            const overrideUrl  = "{{ route('offert.override-difficulty-all', $offert->id) }}";
-            const autoSaveUrl  = "{{ route('offert.auto-save', $offert->id) }}";
+            const overrideUrl  = "{{ route('sub-offert.override-difficulty-all', $offert->id) }}";
+            const autoSaveUrl  = "{{ route('sub-offert.auto-save', $offert->id) }}";
             const csrfToken    = "{{ csrf_token() }}";
 
             btn.addEventListener('click', function () {
@@ -401,7 +401,7 @@
         <script>
             // Auto-save offert header fields on change/blur
             (function () {
-            const autoSaveUrl = "{{ route('offert.auto-save', $offert->id) }}";
+            const autoSaveUrl = "{{ route('sub-offert.auto-save', $offert->id) }}";
             const csrfToken   = "{{ csrf_token() }}";
             const statusEl    = document.getElementById('autosave-status');
             let saveTimer     = null;

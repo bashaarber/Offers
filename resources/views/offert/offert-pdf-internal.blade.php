@@ -134,7 +134,18 @@
         return number_format((float) $value, 0, '.', "'");
     };
 
-    $clientAddressLines = preg_split('/\r\n|\r|\n/', (string) ($offert->client->address ?? ''));
+    // Build the address block from the offer's three addresses, falling back to the client record.
+    $addressParts = [];
+    foreach ([['client_address', 'address'], ['client_address_2', 'address_2'], ['client_address_3', 'address_3']] as [$offCol, $cliCol]) {
+        $val = trim((string) ($offert->{$offCol} ?? ''));
+        if ($val === '') {
+            $val = trim((string) ($offert->client->{$cliCol} ?? ''));
+        }
+        if ($val !== '') {
+            $addressParts[] = $val;
+        }
+    }
+    $clientAddressLines = preg_split('/\r\n|\r|\n/', implode("\n", $addressParts));
     $vomDateInternal    = $offert->finish_date ?? $offert->create_date;
 @endphp
 
@@ -413,13 +424,12 @@
             $orderedGroupElements[$key_name] = $value;
         }
     }
+    $organigrams = $organigrams ?? \Illuminate\Support\Facades\Cache::remember('organigrams_tree', 600, function () {
+        return \App\Models\Organigram::with(['group_elements.elements'])->get();
+    });
+    $organigramSortMaps = \App\Support\OrganigramDisplayOrder::buildSortMaps($organigrams);
     foreach ($orderedGroupElements as $orgName => $groups) {
-        ksort($groups, SORT_NATURAL | SORT_FLAG_CASE);
-        foreach ($groups as $groupName => $elements) {
-            usort($elements, fn($a, $b) => strnatcasecmp($a['element_name'], $b['element_name']));
-            $groups[$groupName] = $elements;
-        }
-        $orderedGroupElements[$orgName] = $groups;
+        $orderedGroupElements[$orgName] = \App\Support\OrganigramDisplayOrder::sortGroupsAndElements($groups, $orgName, $organigramSortMaps);
     }
 @endphp
 

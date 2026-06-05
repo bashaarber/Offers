@@ -8,13 +8,18 @@
     }
 </style>
 
+@php
+    $isSubParent = ($parentType ?? 'offert') === 'sub_offert';
+    $parentEditRoute = $isSubParent ? 'sub-offert.edit' : 'offert.edit';
+    $parentPdfRoute  = $isSubParent ? 'sub-offert.pdf'  : 'offert.pdf';
+@endphp
 <div id="position-sidebar-template" style="display:none;">
     <div class="position-sidebar-section">
         <hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;">
         <div style="padding:2px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);">
             @lang('public.general_parameters')
         </div>
-        <a href="{{ route('offert.edit', ['offert' => $offertId, 'from_position' => 1, 'return_url' => url()->full()]) }}"
+        <a href="{{ route($parentEditRoute, [$offertId, 'from_position' => 1, 'return_url' => url()->full()]) }}"
             data-overview-popup="true"
             onclick="return window.openOffertOverviewPopup ? window.openOffertOverviewPopup(this) : true;"
             class="btn btn-sm btn-primary mt-1"
@@ -51,6 +56,7 @@
                             <form action="{{ route('position.copy', $pos->id) }}" method="post" style="margin:0;">
                                 @csrf
                                 <input type="hidden" name="offert_id" value="{{ $offertId }}">
+                                <input type="hidden" name="parent_type" value="{{ $parentType ?? 'offert' }}">
                                 <button type="submit" class="btn btn-secondary btn-sm"
                                     style="padding:1px 5px;font-size:10px;">
                                     <i class="fa-solid fa-copy"></i>
@@ -115,7 +121,7 @@
     <a href="javascript:void(0);" class="custom-external-pdf-link" onclick="window.openCustomPdfModal && window.openCustomPdfModal();">
         <i class="fa-solid fa-file-pdf"></i><span>@lang('public.custom_external_pdf')</span>
     </a>
-    <a href="{{ route('offert.pdf', $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
+    <a href="{{ route($parentPdfRoute, $offertId) }}" class="external-pdf-link" target="_blank" rel="noopener noreferrer">
         <i class="fa-solid fa-file-export"></i><span>@lang('public.external_pdf')</span>
     </a>
 </div>
@@ -130,13 +136,22 @@
         </div>
         <div style="padding:16px;color:#111827;font-size:13px;">
             <div style="margin-bottom:10px;color:#475569;">@lang('public.select_organigrams')</div>
-            <div id="custom-pdf-organigrams-list" style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;">
+            <div id="custom-pdf-organigrams-list" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto;">
                 @foreach ($organigrams ?? [] as $org)
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;">
                         <input type="checkbox" class="custom-pdf-org-checkbox" value="{{ $org->id }}" checked>
                         <span>{{ $org->name }}</span>
                     </label>
                 @endforeach
+            </div>
+
+            {{-- Custom section: GIS surcharge --}}
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb;">
+                <div style="margin-bottom:8px;font-weight:600;color:#475569;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">@lang('public.custom')</div>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;">
+                    <input type="checkbox" id="custom-pdf-gis-checkbox">
+                    <span>@lang('public.gis_surcharge')</span>
+                </label>
             </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid #e5e7eb;background:#f8fafc;">
@@ -357,6 +372,7 @@
 
         window.addNewPos = function() {
             const offertId = '{{ $offertId }}';
+            const parentType = '{{ $parentType ?? 'offert' }}';
             const csrfToken = (document.querySelector('meta[name="csrf-token"]') || document.querySelector('input[name="_token"]'))?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value;
 
             const doCreate = function() {
@@ -364,7 +380,8 @@
                 form.method = 'POST';
                 form.action = '{{ route("position.createEmpty") }}';
                 form.innerHTML = `<input type="hidden" name="_token" value="${csrfToken}">
-                                  <input type="hidden" name="offert_id" value="${offertId}">`;
+                                  <input type="hidden" name="offert_id" value="${offertId}">
+                                  <input type="hidden" name="parent_type" value="${parentType}">`;
                 document.body.appendChild(form);
                 form.submit();
             };
@@ -403,8 +420,12 @@
                 alert('{{ __('public.select_one_organigram') }}');
                 return;
             }
-            const params = checked.map(id => 'organigrams[]=' + encodeURIComponent(id)).join('&');
-            const baseUrl = '{{ route("offert.pdf", $offertId) }}';
+            let params = checked.map(id => 'organigrams[]=' + encodeURIComponent(id)).join('&');
+            const gisCheckbox = document.getElementById('custom-pdf-gis-checkbox');
+            if (gisCheckbox && gisCheckbox.checked) {
+                params += '&gis=1';
+            }
+            const baseUrl = '{{ route($parentPdfRoute, $offertId) }}';
             const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + params;
             window.closeCustomPdfModal();
             if (typeof window.openExternalPdfAfterSave === 'function') {
