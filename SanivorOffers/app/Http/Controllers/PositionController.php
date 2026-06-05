@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coefficient;
 use App\Models\Offert;
+use App\Models\SubOffert;
 use App\Models\Element;
 use App\Models\Position;
 use App\Models\Organigram;
@@ -24,6 +25,79 @@ class PositionController extends Controller
 
         $normalized = str_replace(',', '.', (string) $value);
         return is_numeric($normalized) ? (float) $normalized : $default;
+    }
+
+    /**
+     * The position editor is shared by Offert and SubOffert. These helpers resolve
+     * which parent a position belongs to so links, queries and redirects target the
+     * correct module.
+     *
+     * @return array{kind:string,model:?\Illuminate\Database\Eloquent\Model,id:int,index:string}
+     */
+    private function parentForPosition(Position $position): array
+    {
+        if (!empty($position->sub_offert_id)) {
+            return [
+                'kind'  => 'sub_offert',
+                'model' => SubOffert::with('lockingUser')->find($position->sub_offert_id),
+                'id'    => (int) $position->sub_offert_id,
+                'index' => 'sub-offert.index',
+            ];
+        }
+
+        $offertId = DB::table('offert_position')->where('position_id', $position->id)->value('offert_id');
+        return [
+            'kind'  => 'offert',
+            'model' => Offert::with('lockingUser')->find($offertId),
+            'id'    => (int) $offertId,
+            'index' => 'offert.index',
+        ];
+    }
+
+    /** Resolve the parent from request input for creation flows. */
+    private function parentFromRequest(Request $request): array
+    {
+        $isSub = $request->input('parent_type') === 'sub_offert' || $request->filled('sub_offert_id');
+        if ($isSub) {
+            $id = (int) ($request->input('sub_offert_id') ?: $request->input('offert_id'));
+            return [
+                'kind'  => 'sub_offert',
+                'model' => SubOffert::find($id),
+                'id'    => $id,
+                'index' => 'sub-offert.index',
+            ];
+        }
+
+        $id = (int) $request->input('offert_id');
+        return [
+            'kind'  => 'offert',
+            'model' => Offert::find($id),
+            'id'    => $id,
+            'index' => 'offert.index',
+        ];
+    }
+
+    /** Attach a freshly created position to its parent (offert pivot or sub_offert_id). */
+    private function attachPositionToParent(Position $position, array $parent): void
+    {
+        if ($parent['kind'] === 'sub_offert') {
+            $position->sub_offert_id = $parent['id'];
+            $position->save();
+        } else {
+            $position->offerts()->attach($parent['model']);
+        }
+    }
+
+    /** Base query for all positions belonging to a parent. */
+    private function positionsForParent(array $parent)
+    {
+        if ($parent['kind'] === 'sub_offert') {
+            return Position::where('sub_offert_id', $parent['id']);
+        }
+
+        return Position::join('offert_position', 'positions.id', '=', 'offert_position.position_id')
+            ->where('offert_position.offert_id', $parent['id'])
+            ->select('positions.*');
     }
 
     /**
@@ -132,30 +206,36 @@ class PositionController extends Controller
      */
     public function index(Request $request)
     {
-        $offertId = $request->input('offert_id');
+        $parent = $this->parentFromRequest($request);
+        $offertId = $parent['id'];
+        $parentType = $parent['kind'];
 
-        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
+        $positions = $this->positionsForParent($parent)
+            ->orderBy('positions.position_number', 'ASC')
+            ->get();
 
-        return view('position.index', compact('positions', 'offertId'));
+        return view('position.index', compact('positions', 'offertId', 'parentType'));
     }
 
     public function copy(Request $request, $id)
     {
         $position = Position::findOrFail($id);
-        $offert = Offert::findOrFail($request->input('offert_id'));
+        $parent = $this->parentFromRequest($request);
+        abort_if(!$parent['model'], 404);
 
-        $latestPositionNumber = (int) $offert->positions()->max('position_number');
+        $latestPositionNumber = (int) $parent['model']->positions()->max('position_number');
 
         $newPosition = $position->replicate()->fill([
             'position_number' => $latestPositionNumber + 1,
         ]);
+        // replicate() carries sub_offert_id from the source; attachPositionToParent
+        // (re)sets the correct linkage for the target parent.
+        $newPosition->sub_offert_id = null;
         $newPosition->save();
 
         $newPosition->group_elements()->sync($position->group_elements->pluck('id')->toArray());
         $newPosition->organigrams()->sync($position->organigrams->pluck('id')->toArray());
-        $newPosition->offerts()->attach($offert);
+        $this->attachPositionToParent($newPosition, $parent);
 
         $supportsElementOptionalPivot = $this->hasElementPivotOptionalColumn();
         foreach ($position->elements()->withPivot('quantity')->get() as $element) {
@@ -183,8 +263,8 @@ class PositionController extends Controller
 
     public function createEmpty(Request $request)
     {
-        $offertId = $request->input('offert_id');
-        $offert = Offert::find($offertId);
+        $parent = $this->parentFromRequest($request);
+        $offert = $parent['model'];
 
         if (!$offert) {
             abort(404);
@@ -213,7 +293,7 @@ class PositionController extends Controller
             'profit_total'    => 0,
         ]);
 
-        $position->offerts()->attach($offert);
+        $this->attachPositionToParent($position, $parent);
 
         return redirect()->route('position.edit', $position->id);
     }
@@ -223,18 +303,20 @@ class PositionController extends Controller
      */
     public function create(Request $request, $index)
     {
-        $offertId = $request->input('offert_id');
-        $offert = Offert::with('lockingUser')->find($offertId);
+        $parent = $this->parentFromRequest($request);
+        $offertId = $parent['id'];
+        $parentType = $parent['kind'];
+        $offert = $parent['model'];
 
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
 
-            return redirect()->route('offert.index')
+            return redirect()->route($parent['index'])
                 ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
         }
-        $positions = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
+        $positions = $this->positionsForParent($parent)
+            ->orderBy('positions.position_number', 'ASC')
+            ->get();
 
         $organigrams = Cache::remember('organigrams_tree', 600, function () {
             return Organigram::with(['group_elements.elements'])->get();
@@ -286,7 +368,8 @@ class PositionController extends Controller
         return view('position.create', compact(
             'positions', 'organigrams', 'elements', 'index', 'offert',
             'nextPositionNumber', 'rahmeElementIds', 'externeWasserElementIds',
-            'allElementsData', 'materialCoeff', 'difficultyCoeff', 'inLaborPrice'
+            'allElementsData', 'materialCoeff', 'difficultyCoeff', 'inLaborPrice',
+            'parentType'
         ));
     }
 
@@ -296,10 +379,17 @@ class PositionController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        $offertId = $request->input('offert_id');
-        $latestOffert = $offertId
-            ? Offert::find($offertId)
-            : Offert::where('user_id', $user->id)->latest()->first();
+        $parent = $this->parentFromRequest($request);
+        $latestOffert = $parent['model']
+            ?: Offert::where('user_id', $user->id)->latest()->first();
+        if (!$parent['model'] && $latestOffert) {
+            $parent = [
+                'kind'  => 'offert',
+                'model' => $latestOffert,
+                'id'    => $latestOffert->id,
+                'index' => 'offert.index',
+            ];
+        }
         $description = $request->input('description');
         $description2 = $request->input('description2');
         $blocktype = $request->input('blocktype');
@@ -413,7 +503,7 @@ class PositionController extends Controller
             }
         }
 
-        $position->offerts()->attach($latestOffert);
+        $this->attachPositionToParent($position, $parent);
         $position->group_elements()->attach($groupElementIds);
         $position->organigrams()->attach($organigramIds);
 
@@ -433,25 +523,24 @@ class PositionController extends Controller
      */
     public function edit(Request $request, string $id)
     {
-        // Single JOIN query: load position + offert_id in one roundtrip instead of two
         $position = Position::find($id);
-        $offertId = DB::table('offert_position')
-            ->where('position_id', $id)
-            ->value('offert_id');
-        $offert = Offert::with('lockingUser')->find($offertId);
+
+        // The editor is shared: resolve whether this position belongs to an Offert
+        // (offert_position pivot) or a SubOffert (positions.sub_offert_id).
+        $parent = $this->parentForPosition($position);
+        $offertId = $parent['id'];
+        $parentType = $parent['kind'];
+        $offert = $parent['model'];
 
         if ($offert && $offert->isLockedByOther()) {
             $who = $offert->lockingUser?->username ?? 'another user';
 
-            return redirect()->route('offert.index')
+            return redirect()->route($parent['index'])
                 ->with('lock_error', "Offer #{$offertId} is currently being edited by \"{$who}\". Please try again later.");
         }
 
-        // Replace whereHas (subquery) with a direct JOIN — faster on PostgreSQL
-        $positions = Position::join('offert_position', 'positions.id', '=', 'offert_position.position_id')
-            ->where('offert_position.offert_id', $offertId)
+        $positions = $this->positionsForParent($parent)
             ->orderBy('positions.position_number', 'ASC')
-            ->select('positions.*')
             ->get();
 
         // Cache the heavy tree queries (organigrams + all elements with materials).
@@ -536,7 +625,7 @@ class PositionController extends Controller
             'elements', 'offert', 'elementPivots', 'rahmeElementIds',
             'externeWasserElementIds', 'positionMaterialsMap',
             'difficultyCoeff', 'materialCoeff',
-            'unselectedElementsData', 'inLaborPrice'
+            'unselectedElementsData', 'inLaborPrice', 'parentType'
         ));
     }
 
@@ -694,11 +783,9 @@ class PositionController extends Controller
     public function destroy(string $id)
     {
         $position = Position::find($id);
-        $offertId = $position->offerts()->first()->id;
+        $parent = $this->parentForPosition($position);
 
-        $positionCount = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->count();
+        $positionCount = (clone $this->positionsForParent($parent))->count();
 
         if ($positionCount <= 1) {
             return redirect()->back()->with('error', 'Cannot delete the only remaining position.');
@@ -706,24 +793,22 @@ class PositionController extends Controller
 
         $position->delete();
 
-        // Re-number remaining positions for this offert sequentially (1, 2, 3, …)
-        $remaining = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->orderBy('position_number', 'ASC')->get();
+        // Re-number remaining positions for this parent sequentially (1, 2, 3, …)
+        $remaining = $this->positionsForParent($parent)
+            ->orderBy('positions.position_number', 'ASC')
+            ->get();
 
         foreach ($remaining as $i => $pos) {
             $pos->update(['position_number' => $i + 1]);
         }
 
-        // Redirect to the latest position related to the offert_id
-        $latestPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-            $query->where('id', $offertId);
-        })->latest()->first();
+        // Redirect to the latest position related to the parent
+        $latestPosition = $this->positionsForParent($parent)->latest('positions.id')->first();
 
         if ($latestPosition) {
             return redirect()->route('position.edit', $latestPosition->id);
         } else {
-            return redirect()->route('offert.index');
+            return redirect()->route($parent['index']);
         }
     }
 
@@ -744,35 +829,53 @@ class PositionController extends Controller
     {
         try {
             $data = $request->all();
-            $offertId = $data['offert_id'];
-            $offert = Offert::find($offertId);
-            
+
+            // Prefer the linkage of the existing position (its sub_offert_id reliably
+            // identifies a sub-offert position) over the ambiguous offert_id payload.
+            $existingForParent = isset($data['position_id'])
+                ? Position::find((int) $data['position_id'])
+                : null;
+            $parent = $existingForParent
+                ? $this->parentForPosition($existingForParent)
+                : $this->parentFromRequest($request);
+
+            $offertId = $parent['id'];
+            $offert = $parent['model'];
+
             if (!$offert) {
                 return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
             }
+            $isSubParent = $parent['kind'] === 'sub_offert';
 
             $requestedIndex = (int) ($data['index'] ?? 0);
             $requestedPositionNumber = $requestedIndex + 1;
 
             $requestedPositionId = isset($data['position_id']) ? (int) $data['position_id'] : null;
 
+            // Parent-scope closure: offert (pivot) or sub-offert (column).
+            $scopeToParent = function ($query) use ($isSubParent, $offertId) {
+                if ($isSubParent) {
+                    $query->where('sub_offert_id', $offertId);
+                } else {
+                    $query->whereHas('offerts', function ($q) use ($offertId) {
+                        $q->where('id', $offertId);
+                    });
+                }
+            };
+
             // Prefer explicit position ID from the client to avoid cross-position overwrites.
             $existingPosition = null;
             if ($requestedPositionId) {
                 $existingPosition = Position::where('id', $requestedPositionId)
-                    ->whereHas('offerts', function ($query) use ($offertId) {
-                        $query->where('id', $offertId);
-                    })
+                    ->where($scopeToParent)
                     ->first();
             }
 
             // Fallback for older clients that don't send position_id yet.
             if (!$existingPosition) {
-                $existingPosition = Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })
-                ->where('position_number', $requestedPositionNumber)
-                ->first();
+                $existingPosition = Position::where($scopeToParent)
+                    ->where('position_number', $requestedPositionNumber)
+                    ->first();
             }
 
             if ($existingPosition) {
@@ -801,10 +904,8 @@ class PositionController extends Controller
                     'profit_total' => $data['profit_total'] ?? 0,
                 ]);
             } else {
-                // Create new position with the next sequential number for this offert.
-                $maxPositionNumber = (int) Position::whereHas('offerts', function ($query) use ($offertId) {
-                    $query->where('id', $offertId);
-                })->max('position_number');
+                // Create new position with the next sequential number for this parent.
+                $maxPositionNumber = (int) Position::where($scopeToParent)->max('position_number');
                 $positionNumber = $maxPositionNumber + 1;
 
                 $position = Position::create([
@@ -831,7 +932,7 @@ class PositionController extends Controller
                     'profit_total' => $data['profit_total'] ?? 0,
                 ]);
 
-                $position->offerts()->attach($offert);
+                $this->attachPositionToParent($position, $parent);
             }
 
             // Sync relationships

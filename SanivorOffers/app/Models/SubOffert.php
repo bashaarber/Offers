@@ -4,16 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Offert extends Model
+/**
+ * Sub Offert — a fully standalone document module, parallel to Offert but with
+ * its own table, numbering and navigation. Numbers use the -S suffix on the
+ * record's OWN id sequence (first sub offert = 600-S). A nested sub-of-sub
+ * shares its root ancestor's number (they are told apart by client).
+ */
+class SubOffert extends Model
 {
     use HasFactory;
 
     public const DISPLAY_NUMBER_OFFSET = 599;
-    public const DISPLAY_NUMBER_SUFFIX = '-H';
-    public const SUB_DISPLAY_NUMBER_SUFFIX = '-S';
+    public const DISPLAY_NUMBER_SUFFIX = '-S';
 
     protected $fillable = [
         'parent_id',
@@ -100,24 +104,39 @@ class Offert extends Model
         return !empty($this->parent_id);
     }
 
-    public function positions():BelongsToMany
-   {
-       return $this->belongsToMany(Position::class)->withTimestamps();
-   }
-
-    public static function formatDisplayNumber(int $offertId, string $suffix = self::DISPLAY_NUMBER_SUFFIX): string
+    /** Positions belong to a sub-offert via positions.sub_offert_id (shared editor). */
+    public function positions(): HasMany
     {
-        return ($offertId + self::DISPLAY_NUMBER_OFFSET) . $suffix;
+        return $this->hasMany(Position::class, 'sub_offert_id');
+    }
+
+    public static function formatDisplayNumber(int $id, string $suffix = self::DISPLAY_NUMBER_SUFFIX): string
+    {
+        return ($id + self::DISPLAY_NUMBER_OFFSET) . $suffix;
+    }
+
+    /**
+     * Walk up the parent chain so nested sub-offerts share the root's running
+     * number. Falls back to the record's own id when it is a top-level record.
+     */
+    public function rootId(): int
+    {
+        $node = $this;
+        $guard = 0;
+        while (!empty($node->parent_id) && $guard < 20) {
+            $next = $node->relationLoaded('parent') ? $node->parent : self::find($node->parent_id);
+            if (! $next) {
+                break;
+            }
+            $node = $next;
+            $guard++;
+        }
+
+        return (int) ($node->id ?? $this->id);
     }
 
     public function getDisplayNumberAttribute(): string
     {
-        // Sub-offers share their parent's running number but carry the -S suffix.
-        if ($this->isSubOffert()) {
-            return self::formatDisplayNumber((int) $this->parent_id, self::SUB_DISPLAY_NUMBER_SUFFIX);
-        }
-
-        return self::formatDisplayNumber((int) $this->id);
+        return self::formatDisplayNumber($this->rootId());
     }
-
 }

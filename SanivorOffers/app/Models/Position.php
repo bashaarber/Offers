@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Schema;
 
@@ -56,11 +57,18 @@ class Position extends Model
         'position_number',
         'is_optional',
         'difficulty',
+        'sub_offert_id',
     ];
-   
+
     public function offerts():BelongsToMany
     {
         return $this->belongsToMany(Offert::class)->withTimestamps();
+    }
+
+    /** A position may instead belong to a SubOffert (shared editor). */
+    public function subOffert(): BelongsTo
+    {
+        return $this->belongsTo(SubOffert::class, 'sub_offert_id');
     }
 
     public function organigrams():BelongsToMany

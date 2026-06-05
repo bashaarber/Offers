@@ -14,6 +14,8 @@ class Client extends Model
         'email',
         'number',
         'address',
+        'address_2',
+        'address_3',
         'archived'
     ];
 

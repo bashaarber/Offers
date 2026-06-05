@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Client;
-use App\Models\Offert;
+use App\Models\SubOffert;
 use App\Models\Coefficient;
 use App\Models\Organigram;
 use App\Models\Position;
@@ -15,7 +15,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
 
-class OffertController extends Controller
+/**
+ * Standalone Sub Offert module — parallel to OffertController but backed by the
+ * sub_offerts table. Positions are shared with the offert editor and linked via
+ * positions.sub_offert_id.
+ */
+class SubOffertController extends Controller
 {
     private function resolveSafeReturnUrl(?string $returnUrl): ?string
     {
@@ -39,8 +44,8 @@ class OffertController extends Controller
 
     private function hasDefaultRabattColumn(): bool
     {
-        return Cache::remember('schema_offerts_has_default_rabatt', 86400, function () {
-            return Schema::hasColumn('offerts', 'default_rabatt');
+        return Cache::remember('schema_sub_offerts_has_default_rabatt', 86400, function () {
+            return Schema::hasColumn('sub_offerts', 'default_rabatt');
         });
     }
 
@@ -52,16 +57,15 @@ class OffertController extends Controller
     }
 
     /**
-     * Recompute every position's stored price snapshot using the offert's CURRENT
-     * Material-Koeffizient. Each position keeps its own Schw.Koeffizient (difficulty).
-     * Mirrors the JS calc in resources/views/position/edit.blade.php.
+     * Recompute every position's stored price snapshot using the sub-offert's CURRENT
+     * Material-Koeffizient. Mirrors the offert flow.
      */
-    private function recomputePositionsForMaterialCoefficient(Offert $offert): void
+    private function recomputePositionsForMaterialCoefficient(SubOffert $subOffert): void
     {
-        $materialCoeff = (float) ($offert->material ?: 1);
+        $materialCoeff = (float) ($subOffert->material ?: 1);
         $coefficient   = Coefficient::first();
         $inLaborPrice  = (float) ($coefficient->in_labor_price ?? 60);
-        $offertDifficulty = (float) ($offert->difficulty ?: 1);
+        $offertDifficulty = (float) ($subOffert->difficulty ?: 1);
 
         $organigrams = Cache::remember('organigrams_tree', 600, function () {
             return Organigram::with(['group_elements.elements'])->get();
@@ -79,7 +83,7 @@ class OffertController extends Controller
 
         $supportsOptional = Schema::hasColumn('element_position', 'is_optional');
 
-        foreach ($offert->positions as $position) {
+        foreach ($subOffert->positions as $position) {
             $diffCoeff = max((float) ($position->difficulty ?: $offertDifficulty), 0.001);
 
             $elements = $position->elements()->with('materials')->get();
@@ -148,12 +152,9 @@ class OffertController extends Controller
         }
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = Offert::query()
+        $query = SubOffert::query()
             ->whereNull('parent_id')
             ->with([
                 'client:id,name',
@@ -166,27 +167,27 @@ class OffertController extends Controller
             ]);
 
         \App\Support\ListFilter::apply($query, $request, [
-            'id'          => 'offerts.id',
-            'date'        => 'offerts.create_date',
+            'id'          => 'sub_offerts.id',
+            'date'        => 'sub_offerts.create_date',
             'client'      => ['relation' => 'client', 'column' => 'name'],
-            'client_sign' => 'offerts.client_sign',
-            'object'      => 'offerts.object',
-            'status'      => 'offerts.status',
-            'type'        => 'offerts.type',
+            'client_sign' => 'sub_offerts.client_sign',
+            'object'      => 'sub_offerts.object',
+            'status'      => 'sub_offerts.status',
+            'type'        => 'sub_offerts.type',
             'user'        => ['relation' => 'user', 'column' => 'username'],
         ]);
 
         $offerts = $query->orderBy('id', 'DESC')->paginate(20)->withQueryString();
         $expandAll = $request->boolean('expand');
 
-        return view('offert.index', compact('offerts', 'expandAll'));
+        return view('sub_offert.index', compact('offerts', 'expandAll'));
     }
 
     public function exportPdf($id){
         try {
-            $offert = Offert::find($id);
+            $offert = SubOffert::find($id);
             if (!$offert) {
-                abort(404, 'Offert #' . $id . ' not found.');
+                abort(404, 'Sub Offert #' . $id . ' not found.');
             }
 
             $selectedOrganigramIds = collect(request()->query('organigrams', []))
@@ -211,8 +212,6 @@ class OffertController extends Controller
                 'positions.elementsForPdf.group_elements.organigrams',
             ]);
 
-            // When a custom organigram filter is active, recompute per-position prices
-            // using only the elements that belong to the selected organigrams.
             $customPositionPrices = [];
             if (!empty($selectedOrganigramIds)) {
                 $materialCoeff   = (float) ($offert->material ?: 1);
@@ -220,7 +219,6 @@ class OffertController extends Controller
 
                 $positionIds = $offert->positions->pluck('id')->toArray();
 
-                // Single join query: all PositionMaterial rows + material price columns
                 $pmRows = \App\Models\PositionMaterial::whereIn('position_id', $positionIds)
                     ->join('materials', 'materials.id', '=', 'position_materials.material_id')
                     ->select(
@@ -234,7 +232,6 @@ class OffertController extends Controller
                     ->groupBy(fn ($pm) => $pm->position_id . '_' . $pm->element_id);
 
                 foreach ($offert->positions as $position) {
-                    // Collect element IDs that touch at least one selected organigram
                     $filteredElementIds = $position->elementsForPdf
                         ->filter(function ($element) use ($selectedOrganigramIds) {
                             foreach ($element->group_elements as $ge) {
@@ -289,50 +286,43 @@ class OffertController extends Controller
                 return Organigram::with(['group_elements.elements'])->get();
             });
 
-            $pdf = Pdf::loadView('offert.offert-pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices', 'organigrams', 'gisFactor'))
+            $pdf = Pdf::loadView('sub_offert.pdf-export', compact('offert', 'selectedOrganigramIds', 'customPositionPrices', 'organigrams', 'gisFactor'))
                 ->setOption(['isPhpEnabled' => true]);
             return $pdf->stream();
         } catch (\Throwable $e) {
-            Log::error('External PDF generation failed', [
-                'offert_id' => $id,
+            Log::error('Sub Offert external PDF generation failed', [
+                'sub_offert_id' => $id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             return response('PDF generation failed: ' . $e->getMessage(), 500);
         }
-        // return $pdf->download('invoice.pdf');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Request $request)
     {
-        // When creating a sub-offer the parent is passed through; the sub-offer
-        // shares the parent's running number but uses the -S suffix.
+        // When creating a nested sub-offert the parent is passed through; the
+        // child shares the parent's running number but keeps the -S suffix.
         $parent = null;
         if ($request->filled('parent_id')) {
-            $parent = Offert::whereNull('parent_id')->find($request->input('parent_id'));
+            $parent = SubOffert::find($request->input('parent_id'));
         }
 
         if ($parent) {
-            $newOffertNumber = Offert::formatDisplayNumber((int) $parent->id, Offert::SUB_DISPLAY_NUMBER_SUFFIX);
+            $newOffertNumber = SubOffert::formatDisplayNumber($parent->rootId());
         } else {
-            $nextOffertId = ((int) Offert::max('id')) + 1;
-            $newOffertNumber = Offert::formatDisplayNumber($nextOffertId);
+            $nextOffertId = ((int) SubOffert::max('id')) + 1;
+            $newOffertNumber = SubOffert::formatDisplayNumber($nextOffertId);
         }
 
         $users = User::all();
         $clients = Client::all();
         $coefficients = Coefficient::get();
 
-        return view('offert.create', compact('newOffertNumber', 'users', 'clients', 'coefficients', 'parent'));
+        return view('sub_offert.create', compact('newOffertNumber', 'users', 'clients', 'coefficients', 'parent'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -388,17 +378,28 @@ class OffertController extends Controller
             $formFields['finish_date'] = $formFields['create_date'];
         }
 
-        // Attach as a sub-offer only to an existing top-level offer (no nesting beyond one level).
+        // Nested sub-offert: attach to an existing sub-offert parent.
         if ($request->filled('parent_id')
-            && Offert::whereNull('parent_id')->whereKey($request->input('parent_id'))->exists()) {
+            && SubOffert::whereKey($request->input('parent_id'))->exists()) {
             $formFields['parent_id'] = (int) $request->input('parent_id');
         }
 
-        $offert = Offert::create($formFields);
+        $subOffert = SubOffert::create($formFields);
 
-        // Always create a real Pos. 1 so the offer is never left with zero positions.
-        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
+        // Nested sub-offert: copy all positions (with materials/elements) from the parent
+        // so it starts as a full clone the user can then adjust.
+        if (!empty($formFields['parent_id'])) {
+            $parent = SubOffert::find($formFields['parent_id']);
+            $firstPosition = $parent ? $this->copyPositionsFromTo($parent, $subOffert) : null;
+            if ($firstPosition) {
+                return redirect()->route('position.edit', $firstPosition->id);
+            }
+        }
+
+        // Otherwise create a real Pos. 1 so the sub-offert is never left with zero positions.
+        $defaultDiscount = (float) ($subOffert->default_rabatt ?? 0);
         $position = \App\Models\Position::create([
+            'sub_offert_id'   => $subOffert->id,
             'description'     => '',
             'position_number' => 1,
             'quantity'        => 1,
@@ -414,19 +415,63 @@ class OffertController extends Controller
             'costo_total'     => 0,
             'profit_total'    => 0,
         ]);
-        $position->offerts()->attach($offert);
 
         return redirect()->route('position.edit', $position->id);
     }
 
     /**
-     * Display the specified resource.
+     * Replicate every position of $source (incl. materials, organigrams, group
+     * elements and element pivots) onto $target. Returns the first new position.
      */
+    private function copyPositionsFromTo(SubOffert $source, SubOffert $target): ?Position
+    {
+        $first = null;
+
+        foreach ($source->positions()->orderBy('position_number', 'ASC')->get() as $position) {
+            $new_position = $position->replicate();
+            $new_position->sub_offert_id = $target->id;
+            $new_position->save();
+
+            if (!$first) {
+                $first = $new_position;
+            }
+
+            $positionMaterials = PositionMaterial::where('position_id', $position->id)->get();
+            foreach ($positionMaterials as $material) {
+                $exists = PositionMaterial::where([
+                    'element_id'  => $material->element_id,
+                    'material_id' => $material->material_id,
+                    'position_id' => $new_position->id,
+                ])->exists();
+
+                if (!$exists) {
+                    PositionMaterial::create([
+                        'position_id' => $new_position->id,
+                        'element_id'  => $material->element_id,
+                        'material_id' => $material->material_id,
+                        'quantity'    => $material->quantity,
+                    ]);
+                }
+            }
+
+            foreach ($position->organigrams as $organigram) {
+                $new_position->organigrams()->attach($organigram->id);
+            }
+            foreach ($position->group_elements as $group_element) {
+                $new_position->group_elements()->attach($group_element->id);
+            }
+            foreach ($position->elements as $element) {
+                $new_position->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
+            }
+        }
+
+        return $first;
+    }
 
     public function show(string $id)
     {
-        $offert = Offert::findOrFail($id);
-        $firstPosition = $offert->positions()
+        $subOffert = SubOffert::findOrFail($id);
+        $firstPosition = $subOffert->positions()
             ->orderBy('position_number', 'ASC')
             ->select('positions.id')
             ->first();
@@ -435,9 +480,9 @@ class OffertController extends Controller
             return redirect()->route('position.edit', $firstPosition->id);
         }
 
-        // No positions yet — create a real Pos. 1 instead of using the create form.
-        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
+        $defaultDiscount = (float) ($subOffert->default_rabatt ?? 0);
         $position = \App\Models\Position::create([
+            'sub_offert_id'   => $subOffert->id,
             'description'     => '',
             'position_number' => 1,
             'quantity'        => 1,
@@ -453,87 +498,75 @@ class OffertController extends Controller
             'costo_total'     => 0,
             'profit_total'    => 0,
         ]);
-        $position->offerts()->attach($offert);
 
         return redirect()->route('position.edit', $position->id);
     }
 
-    public function copy($offert_id)
+    public function copy($sub_offert_id)
     {
         $user = auth()->user();
         $timestamp = time();
         $currentDate = gmdate('Y-m-d', $timestamp);
-        $offert = Offert::findOrFail($offert_id);
+        $subOffert = SubOffert::findOrFail($sub_offert_id);
 
-        $new_offert = $offert->replicate()->fill([
+        $new_offert = $subOffert->replicate()->fill([
             'user_id' => $user->id,
             'create_date' => $currentDate,
         ]);
 
         $new_offert->save();
 
-    // Copy positions
-    foreach ($offert->positions as $position) {
-        $new_position = $position->replicate();
-        $new_position->save();
+        // Copy positions
+        foreach ($subOffert->positions as $position) {
+            $new_position = $position->replicate();
+            $new_position->sub_offert_id = $new_offert->id;
+            $new_position->save();
 
-        // Attach the new position to the new Offert
-        $new_offert->positions()->attach($new_position->id);
+            $positionMaterials = PositionMaterial::where('position_id', $position->id)->get();
+            foreach ($positionMaterials as $material) {
+                $existingRecord = PositionMaterial::where([
+                    'element_id' => $material->element_id,
+                    'material_id' => $material->material_id,
+                    'position_id' => $new_position->id,
+                ])->first();
 
-         // Copy the values from PositionMaterial table based on the previous position IDs
-         $positionMaterials = PositionMaterial::where('position_id', $position->id)->get();
-         foreach ($positionMaterials as $material) {
-             // Check if a record with the same element_id, material_id, and position_id already exists
-             $existingRecord = PositionMaterial::where([
-                 'element_id' => $material->element_id,
-                 'material_id' => $material->material_id,
-                 'position_id' => $new_position->id,
-             ])->first();
- 
-             // If no record exists, create a new one
-             if (!$existingRecord) {
-                 PositionMaterial::create([
-                     'position_id' => $new_position->id,
-                     'element_id' => $material->element_id,
-                     'material_id' => $material->material_id,
-                     'quantity' => $material->quantity,
-                 ]);
-             }
-         }
+                if (!$existingRecord) {
+                    PositionMaterial::create([
+                        'position_id' => $new_position->id,
+                        'element_id' => $material->element_id,
+                        'material_id' => $material->material_id,
+                        'quantity' => $material->quantity,
+                    ]);
+                }
+            }
 
-        // Attach the existing relationships to the new position
-        foreach ($position->organigrams as $organigram) {
-            $new_position->organigrams()->attach($organigram->id);
+            foreach ($position->organigrams as $organigram) {
+                $new_position->organigrams()->attach($organigram->id);
+            }
+
+            foreach ($position->group_elements as $group_element) {
+                $new_position->group_elements()->attach($group_element->id);
+            }
+
+            foreach ($position->elements as $element) {
+                $new_position->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
+            }
         }
 
-        foreach ($position->group_elements as $group_element) {
-            $new_position->group_elements()->attach($group_element->id);
-        }
-
-        foreach ($position->elements as $element) {
-            $new_position->elements()->attach($element->id, ['quantity' => $element->pivot->quantity]);
-        }
-    }
-        return redirect()->route('offert.index');
+        return redirect()->route('sub-offert.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Request $request, string $id)
     {
-        $offert = Offert::find($id);
+        $offert = SubOffert::find($id);
         $clients = Client::all();
         $fromPositionOverview = $request->boolean('from_position');
         $returnUrl = $this->resolveSafeReturnUrl($request->input('return_url'));
         $embeddedOverview = $request->boolean('embed');
 
-        return view('offert.edit', compact('offert', 'clients', 'fromPositionOverview', 'returnUrl', 'embeddedOverview'));
+        return view('sub_offert.edit', compact('offert', 'clients', 'fromPositionOverview', 'returnUrl', 'embeddedOverview'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $user = auth()->user();
@@ -592,15 +625,15 @@ class OffertController extends Controller
             $formFields['finish_date'] = $formFields['create_date'];
         }
 
-        $offert = Offert::find($id);
-        $oldRabatt = (float) ($offert->default_rabatt ?? 0);
-        $oldMaterial = (float) ($offert->material ?? 0);
-        $offert->update($formFields);
+        $subOffert = SubOffert::find($id);
+        $oldRabatt = (float) ($subOffert->default_rabatt ?? 0);
+        $oldMaterial = (float) ($subOffert->material ?? 0);
+        $subOffert->update($formFields);
 
         if ($this->hasDefaultRabattColumn() && isset($formFields['default_rabatt'])) {
             $newRabatt = (float) $formFields['default_rabatt'];
             if ($oldRabatt !== $newRabatt) {
-                foreach ($offert->positions as $position) {
+                foreach ($subOffert->positions as $position) {
                     $position->update([
                         'discount'       => $newRabatt,
                         'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
@@ -609,12 +642,10 @@ class OffertController extends Controller
             }
         }
 
-        // Schw.Koeffizient (difficulty) intentionally does NOT propagate to existing
-        // positions — each position keeps its own value; new positions inherit from the offert.
         if (isset($formFields['material'])) {
             $newMaterial = (float) $formFields['material'];
             if ($oldMaterial !== $newMaterial) {
-                $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
+                $this->recomputePositionsForMaterialCoefficient($subOffert->fresh('positions'));
             }
         }
 
@@ -622,18 +653,15 @@ class OffertController extends Controller
             return redirect()->to($returnUrl);
         }
 
-        return redirect()->route('offert.index');
+        return redirect()->route('sub-offert.index');
     }
 
-    /**
-     * Auto-save offert header fields via AJAX (no redirect).
-     */
     public function autoSave(Request $request, string $id)
     {
-        $offert = Offert::find($id);
+        $subOffert = SubOffert::find($id);
 
-        if (!$offert) {
-            return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+        if (!$subOffert) {
+            return response()->json(['success' => false, 'message' => 'Sub Offert not found'], 404);
         }
 
         $fields = $request->only([
@@ -643,13 +671,12 @@ class OffertController extends Controller
             'client_address_2', 'client_address_3', 'type',
         ]);
 
-        // Remove empty finish_date — fall back to create_date
         if (empty($fields['finish_date']) && !empty($fields['create_date'])) {
             $fields['finish_date'] = $fields['create_date'];
         }
 
-        $oldRabatt = (float) ($offert->default_rabatt ?? 0);
-        $oldMaterial = (float) ($offert->material ?? 0);
+        $oldRabatt = (float) ($subOffert->default_rabatt ?? 0);
+        $oldMaterial = (float) ($subOffert->material ?? 0);
 
         if (!$this->hasDefaultRabattColumn()) {
             unset($fields['default_rabatt']);
@@ -670,12 +697,12 @@ class OffertController extends Controller
             }
         }
 
-        $offert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
+        $subOffert->update(array_filter($fields, fn($v) => $v !== null && $v !== ''));
 
         if ($this->hasDefaultRabattColumn() && isset($fields['default_rabatt']) && $fields['default_rabatt'] !== null) {
             $newRabatt = (float) $fields['default_rabatt'];
             if ($oldRabatt !== $newRabatt) {
-                foreach ($offert->positions as $position) {
+                foreach ($subOffert->positions as $position) {
                     $position->update([
                         'discount'       => $newRabatt,
                         'price_discount' => round($position->price_brutto * (1 - $newRabatt / 100), 2),
@@ -684,61 +711,51 @@ class OffertController extends Controller
             }
         }
 
-        // Schw.Koeffizient (difficulty) intentionally does NOT propagate to existing
-        // positions — each position keeps its own value; new positions inherit from the offert.
         if (isset($fields['material']) && $fields['material'] !== null && $fields['material'] !== '') {
             $newMaterial = (float) $fields['material'];
             if ($oldMaterial !== $newMaterial) {
-                $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
+                $this->recomputePositionsForMaterialCoefficient($subOffert->fresh('positions'));
             }
         }
 
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Manual action triggered by the "Alle überschreiben" button next to
-     * Schw. Koeffizient — copies the offert's current difficulty onto every
-     * position and refreshes the stored price snapshots.
-     */
     public function overrideDifficultyAll(string $id)
     {
-        $offert = Offert::find($id);
-        if (!$offert) {
-            return response()->json(['success' => false, 'message' => 'Offert not found'], 404);
+        $subOffert = SubOffert::find($id);
+        if (!$subOffert) {
+            return response()->json(['success' => false, 'message' => 'Sub Offert not found'], 404);
         }
 
-        $newDifficulty = (float) ($offert->difficulty ?: 1);
-        foreach ($offert->positions as $position) {
+        $newDifficulty = (float) ($subOffert->difficulty ?: 1);
+        foreach ($subOffert->positions as $position) {
             $position->update(['difficulty' => $newDifficulty]);
         }
 
-        $this->recomputePositionsForMaterialCoefficient($offert->fresh('positions'));
+        $this->recomputePositionsForMaterialCoefficient($subOffert->fresh('positions'));
 
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $offert = Offert::find($id);
+        $subOffert = SubOffert::find($id);
 
-        // Deleting a parent offer also removes its sub-offers (and their positions).
-        foreach ($offert->subOfferts as $sub) {
-            $this->deleteOffertWithPositions($sub);
+        // Deleting a parent sub-offert also removes its nested sub-offerts (and positions).
+        foreach ($subOffert->subOfferts as $sub) {
+            $this->deleteSubOffertWithPositions($sub);
         }
 
-        $this->deleteOffertWithPositions($offert);
+        $this->deleteSubOffertWithPositions($subOffert);
 
-        return redirect()->route('offert.index');
+        return redirect()->route('sub-offert.index');
     }
 
-    private function deleteOffertWithPositions(Offert $offert): void
+    private function deleteSubOffertWithPositions(SubOffert $subOffert): void
     {
-        $positions = $offert->positions;
-        $offert->delete();
+        $positions = $subOffert->positions;
+        $subOffert->delete();
 
         foreach ($positions as $position) {
             $position->delete();
@@ -747,26 +764,26 @@ class OffertController extends Controller
 
     public function lock(string $id)
     {
-        $offert = Offert::find($id);
-        if (! $offert) {
+        $subOffert = SubOffert::find($id);
+        if (! $subOffert) {
             return response()->json(['success' => false], 404);
         }
-        if ($offert->isLockedByOther()) {
+        if ($subOffert->isLockedByOther()) {
             return response()->json([
                 'success' => false,
-                'locked_by' => $offert->lockingUser?->username ?? 'another user',
+                'locked_by' => $subOffert->lockingUser?->username ?? 'another user',
             ], 423);
         }
-        $offert->acquireLock();
+        $subOffert->acquireLock();
 
         return response()->json(['success' => true]);
     }
 
     public function unlock(string $id)
     {
-        $offert = Offert::find($id);
-        if ($offert) {
-            $offert->releaseLock();
+        $subOffert = SubOffert::find($id);
+        if ($subOffert) {
+            $subOffert->releaseLock();
         }
 
         return response()->json(['success' => true]);

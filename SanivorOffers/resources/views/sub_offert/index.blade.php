@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>@lang('public.offers')</title>
+    <title>@lang('public.sub_offerts')</title>
 </head>
 
 <body>
@@ -15,10 +15,10 @@
             {{-- Page Header --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 style="font-weight: 700; color: #1a1d23; margin-bottom: 4px;">@lang('public.offers')</h3>
-                    <p class="text-muted mb-0" style="font-size: 14px;">@lang('public.offers_subtitle')</p>
+                    <h3 style="font-weight: 700; color: #1a1d23; margin-bottom: 4px;">@lang('public.sub_offerts')</h3>
+                    <p class="text-muted mb-0" style="font-size: 14px;">@lang('public.sub_offerts_subtitle')</p>
                 </div>
-                <a href="{{ route('offert.create') }}" class="btn btn-primary">
+                <a href="{{ route('sub-offert.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus mr-1"></i> @lang('public.new_offer')
                 </a>
             </div>
@@ -72,9 +72,9 @@
                         </thead>
                         <tbody>
                             @forelse ($offerts as $offert)
-                                @include('offert.partials.offer-row', ['offert' => $offert, 'isSub' => false, 'expandAll' => $expandAll ?? false])
+                                @include('sub_offert.partials.offer-row', ['offert' => $offert, 'isSub' => false, 'expandAll' => $expandAll ?? false])
                                 @foreach ($offert->subOfferts as $sub)
-                                    @include('offert.partials.offer-row', ['offert' => $sub, 'isSub' => true, 'expandAll' => $expandAll ?? false])
+                                    @include('sub_offert.partials.offer-row', ['offert' => $sub, 'isSub' => true, 'expandAll' => $expandAll ?? false])
                                 @endforeach
                             @empty
                                 <tr>

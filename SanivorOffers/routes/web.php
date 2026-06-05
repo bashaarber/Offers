@@ -11,6 +11,7 @@ use App\Http\Controllers\OffertController;
 use App\Http\Controllers\OrganigramController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubOffertController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +113,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/offert/{id}/override-difficulty-all', [OffertController::class, 'overrideDifficultyAll'])->name('offert.override-difficulty-all');
     Route::post('/offert/{id}/lock', [OffertController::class, 'lock'])->name('offert.lock');
     Route::post('/offert/{id}/unlock', [OffertController::class, 'unlock'])->name('offert.unlock');
+
+    // Sub Offert — standalone module parallel to Offert.
+    Route::resource('sub-offert', SubOffertController::class)->except(['index', 'copy']);
+    Route::get('/sub-offert', [SubOffertController::class, 'index'])->name('sub-offert.index');
+    Route::get('/sub-offert/{sub_offert_id}/copy', [SubOffertController::class, 'copy'])->name('sub-offert.copy');
+    Route::get('/sub-pdf-export/{id}', [SubOffertController::class, 'exportPdf'])->name('sub-offert.pdf');
+    Route::post('/sub-offert/{id}/auto-save', [SubOffertController::class, 'autoSave'])->name('sub-offert.auto-save');
+    Route::post('/sub-offert/{id}/override-difficulty-all', [SubOffertController::class, 'overrideDifficultyAll'])->name('sub-offert.override-difficulty-all');
+    Route::post('/sub-offert/{id}/lock', [SubOffertController::class, 'lock'])->name('sub-offert.lock');
+    Route::post('/sub-offert/{id}/unlock', [SubOffertController::class, 'unlock'])->name('sub-offert.unlock');
 
     Route::resource('position', PositionController::class)->except('create');
     Route::post('/position/create-empty', [PositionController::class, 'createEmpty'])->name('position.createEmpty');

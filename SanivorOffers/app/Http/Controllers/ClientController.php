@@ -56,6 +56,8 @@ class ClientController extends Controller
             'email' => 'required',
             'number' => 'required',
             'address' => 'required',
+            'address_2' => 'nullable|string',
+            'address_3' => 'nullable|string',
         ]);
 
         Client::create($formFields);
@@ -90,6 +92,8 @@ class ClientController extends Controller
             'email' => 'required',
             'number' => 'required',
             'address' => 'required',
+            'address_2' => 'nullable|string',
+            'address_3' => 'nullable|string',
         ]);
 
         $client = Client::find($id);

@@ -134,7 +134,18 @@
         return number_format((float) $value, 0, '.', "'");
     };
 
-    $clientAddressLines = preg_split('/\r\n|\r|\n/', (string) ($offert->client->address ?? ''));
+    // Build the address block from the offer's three addresses, falling back to the client record.
+    $addressParts = [];
+    foreach ([['client_address', 'address'], ['client_address_2', 'address_2'], ['client_address_3', 'address_3']] as [$offCol, $cliCol]) {
+        $val = trim((string) ($offert->{$offCol} ?? ''));
+        if ($val === '') {
+            $val = trim((string) ($offert->client->{$cliCol} ?? ''));
+        }
+        if ($val !== '') {
+            $addressParts[] = $val;
+        }
+    }
+    $clientAddressLines = preg_split('/\r\n|\r|\n/', implode("\n", $addressParts));
     $vomDateInternal    = $offert->finish_date ?? $offert->create_date;
 @endphp
 

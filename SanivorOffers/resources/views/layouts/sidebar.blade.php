@@ -273,8 +273,11 @@
     <div class="sidebar-scrollable">
         <div class="sidebar-section">
             <div class="sidebar-section-label">Main</div>
-            <a href="{{ url('/offert') }}" class="{{ request()->is('offert*') ? 'active' : '' }}">
+            <a href="{{ url('/offert') }}" class="{{ request()->is('offert') || request()->is('offert/*') ? 'active' : '' }}">
                 <i class="fa-solid fa-file-invoice"></i><span>@lang('public.offert')</span>
+            </a>
+            <a href="{{ url('/sub-offert') }}" class="{{ request()->is('sub-offert') || request()->is('sub-offert/*') ? 'active' : '' }}">
+                <i class="fa-solid fa-code-branch"></i><span>@lang('public.sub_offert')</span>
             </a>
         </div>
 
@@ -285,6 +288,7 @@
                     $showSettingsManagementNav = request()->routeIs(
                         'dashboard',
                         'offert.index',
+                        'sub-offert.index',
                         'profile.edit',
                         'material_piece.*',
                         'material.*',
