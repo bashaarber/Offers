@@ -176,6 +176,9 @@
                         {{ $line }}<br>
                     @endif
                 @endforeach
+                @if(!empty($offert->teil_objekt))
+                    <strong>{{ $offert->teil_objekt }}</strong><br>
+                @endif
             </div>
         </td>
     </tr>
