@@ -349,7 +349,6 @@
                                     <a href="{{ route('offert.show', $offert->id) }}"
                                         class="btn btn-info mt-3">@lang('public.update_offer')</a>
                                     <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
-                                    <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
                                 @endif
                             </form>
                         @endif
@@ -466,6 +465,8 @@
             let saveTimer     = null;
 
             function showStatus(msg, color) {
+                // Visible autosave indicator removed by request; autosave still runs silently.
+                if (!statusEl) return;
                 statusEl.textContent = msg;
                 statusEl.style.color = color;
             }
@@ -508,13 +509,13 @@
                     .then(json => {
                         if (json.success) {
                             showStatus('Saved ✓', '#16a34a');
-                            setTimeout(() => { statusEl.textContent = ''; }, 2000);
+                            setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 2000);
                         } else {
-                            statusEl.textContent = '';
+                            if (statusEl) statusEl.textContent = '';
                         }
                     })
                     .catch(() => {
-                        statusEl.textContent = '';
+                        if (statusEl) statusEl.textContent = '';
                     });
                 }, 600); // 600 ms debounce
             }
