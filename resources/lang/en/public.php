@@ -153,4 +153,15 @@ return [
     'confirm_delete_offer_with_subs' => 'Delete this offer and all its sub-offers?',
     'custom'                    => 'Custom',
     'gis_surcharge'             => 'GIS (+20%)',
+
+    // --- Gross offer (parent/child within Offert) ---
+    'gross_offer'               => 'Gross Offer',
+    'gross_offer_hint'          => 'A Gross offer is a parent that has no positions of its own — you add child offers to it from the list.',
+    'teil_objekt'               => 'Part-Object',
+    'teil_objekt_placeholder'   => 'e.g. Haus A',
+    'add_child'                 => 'Add child offer',
+    'creating_child_for'        => 'Creating child offer for',
+    'child_of'                  => 'Child of',
+    'child_inherits_note'       => 'All other fields (object, city, client, coefficients) are inherited from the parent offer. Only the Part-Object can be changed here.',
+    'edit_positions'            => 'Edit positions',
 ];

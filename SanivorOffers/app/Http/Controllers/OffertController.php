@@ -200,6 +200,7 @@ class OffertController extends Controller
 
             $offert->load([
                 'client',
+                'parent.client', // child offers inherit the header (Objekt/Ort/client/address) from the parent
                 'positions' => function ($query) use ($selectedOrganigramIds) {
                     $query->orderBy('position_number', 'ASC');
                     if (!empty($selectedOrganigramIds)) {
@@ -309,15 +310,16 @@ class OffertController extends Controller
      */
     public function create(Request $request)
     {
-        // When creating a sub-offer the parent is passed through; the sub-offer
-        // shares the parent's running number but uses the -S suffix.
+        // When creating a child offer the Gross parent is passed through; the child
+        // extends the parent's running number with its sibling index (e.g. 633-H-2).
         $parent = null;
         if ($request->filled('parent_id')) {
             $parent = Offert::whereNull('parent_id')->find($request->input('parent_id'));
         }
 
         if ($parent) {
-            $newOffertNumber = Offert::formatDisplayNumber((int) $parent->id, Offert::SUB_DISPLAY_NUMBER_SUFFIX);
+            $childIndex = Offert::where('parent_id', $parent->id)->count() + 1;
+            $newOffertNumber = Offert::formatDisplayNumber((int) $parent->id) . '-' . $childIndex;
         } else {
             $nextOffertId = ((int) Offert::max('id')) + 1;
             $newOffertNumber = Offert::formatDisplayNumber($nextOffertId);
@@ -333,9 +335,58 @@ class OffertController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /**
+     * Create the default Pos. 1 so an offer is never left with zero positions.
+     */
+    private function createDefaultPosition(float $defaultDiscount): \App\Models\Position
+    {
+        return \App\Models\Position::create([
+            'description'     => '',
+            'position_number' => 1,
+            'quantity'        => 1,
+            'price_brutto'    => 0,
+            'price_discount'  => 0,
+            'discount'        => $defaultDiscount,
+            'material_brutto' => 0,
+            'zeit_brutto'     => 0,
+            'material_costo'  => 0,
+            'material_profit' => 0,
+            'ziet_costo'      => 0,
+            'ziet_profit'     => 0,
+            'costo_total'     => 0,
+            'profit_total'    => 0,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $user = auth()->user();
+
+        // --- Child offer: inherit the whole header from the Gross parent; only the
+        // Teil-Objekt is set here. Children then follow the normal position flow. ---
+        if ($request->filled('parent_id')
+            && ($parent = Offert::whereNull('parent_id')->find($request->input('parent_id')))) {
+
+            $request->validate(['teil_objekt' => 'nullable|string']);
+
+            $childFields = $parent->only([
+                'type', 'user_sign', 'status', 'create_date', 'validity', 'client_sign',
+                'finish_date', 'object', 'city', 'service', 'payment_conditions',
+                'client_id', 'client_address', 'client_address_2', 'client_address_3',
+                'difficulty', 'material', 'labor_price', 'default_rabatt',
+            ]);
+            $childFields['parent_id']   = $parent->id;
+            $childFields['is_gross']    = false;
+            $childFields['teil_objekt'] = $request->input('teil_objekt');
+            $childFields['user_id']     = $user->id;
+
+            $child = Offert::create($childFields);
+
+            $position = $this->createDefaultPosition((float) ($child->default_rabatt ?? 0));
+            $position->offerts()->attach($child);
+
+            return redirect()->route('position.edit', $position->id);
+        }
 
         $formFields = $request->validate([
             'user_sign' => 'required',
@@ -388,32 +439,20 @@ class OffertController extends Controller
             $formFields['finish_date'] = $formFields['create_date'];
         }
 
-        // Attach as a sub-offer only to an existing top-level offer (no nesting beyond one level).
-        if ($request->filled('parent_id')
-            && Offert::whereNull('parent_id')->whereKey($request->input('parent_id'))->exists()) {
-            $formFields['parent_id'] = (int) $request->input('parent_id');
-        }
+        // A Gross offer is a parent shell: it holds the shared header and the child
+        // offers carry the positions. (Only set at create time.)
+        $formFields['is_gross'] = $request->boolean('is_gross');
 
         $offert = Offert::create($formFields);
 
-        // Always create a real Pos. 1 so the offer is never left with zero positions.
-        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
-        $position = \App\Models\Position::create([
-            'description'     => '',
-            'position_number' => 1,
-            'quantity'        => 1,
-            'price_brutto'    => 0,
-            'price_discount'  => 0,
-            'discount'        => $defaultDiscount,
-            'material_brutto' => 0,
-            'zeit_brutto'     => 0,
-            'material_costo'  => 0,
-            'material_profit' => 0,
-            'ziet_costo'      => 0,
-            'ziet_profit'     => 0,
-            'costo_total'     => 0,
-            'profit_total'    => 0,
-        ]);
+        // A Gross parent has no positions of its own — send the user back to the list
+        // where they can add child offers.
+        if ($offert->is_gross) {
+            return redirect()->route('offert.index');
+        }
+
+        // Normal offer: start with a real Pos. 1 and open the position editor.
+        $position = $this->createDefaultPosition((float) ($offert->default_rabatt ?? 0));
         $position->offerts()->attach($offert);
 
         return redirect()->route('position.edit', $position->id);
@@ -426,6 +465,12 @@ class OffertController extends Controller
     public function show(string $id)
     {
         $offert = Offert::findOrFail($id);
+
+        // A Gross parent has no positions of its own.
+        if ($offert->is_gross) {
+            return redirect()->route('offert.index');
+        }
+
         $firstPosition = $offert->positions()
             ->orderBy('position_number', 'ASC')
             ->select('positions.id')
@@ -436,23 +481,7 @@ class OffertController extends Controller
         }
 
         // No positions yet — create a real Pos. 1 instead of using the create form.
-        $defaultDiscount = (float) ($offert->default_rabatt ?? 0);
-        $position = \App\Models\Position::create([
-            'description'     => '',
-            'position_number' => 1,
-            'quantity'        => 1,
-            'price_brutto'    => 0,
-            'price_discount'  => 0,
-            'discount'        => $defaultDiscount,
-            'material_brutto' => 0,
-            'zeit_brutto'     => 0,
-            'material_costo'  => 0,
-            'material_profit' => 0,
-            'ziet_costo'      => 0,
-            'ziet_profit'     => 0,
-            'costo_total'     => 0,
-            'profit_total'    => 0,
-        ]);
+        $position = $this->createDefaultPosition((float) ($offert->default_rabatt ?? 0));
         $position->offerts()->attach($offert);
 
         return redirect()->route('position.edit', $position->id);
@@ -539,6 +568,20 @@ class OffertController extends Controller
         $user = auth()->user();
         $fromPositionOverview = $request->boolean('from_position');
         $returnUrl = $this->resolveSafeReturnUrl($request->input('return_url'));
+
+        // Child offer: only Teil-Objekt is editable here; the rest of the header is
+        // inherited from the Gross parent (edit the parent to change those).
+        $existing = Offert::find($id);
+        if ($existing && $existing->isSubOffert()) {
+            $request->validate(['teil_objekt' => 'nullable|string']);
+            $existing->update(['teil_objekt' => $request->input('teil_objekt')]);
+
+            if ($fromPositionOverview && $returnUrl) {
+                return redirect()->to($returnUrl);
+            }
+
+            return redirect()->route('offert.index');
+        }
 
         $formFields = $request->validate([
             'user_sign' => 'required',

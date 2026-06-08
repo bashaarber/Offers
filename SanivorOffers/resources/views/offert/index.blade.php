@@ -74,7 +74,7 @@
                             @forelse ($offerts as $offert)
                                 @include('offert.partials.offer-row', ['offert' => $offert, 'isSub' => false, 'expandAll' => $expandAll ?? false])
                                 @foreach ($offert->subOfferts as $sub)
-                                    @include('offert.partials.offer-row', ['offert' => $sub, 'isSub' => true, 'expandAll' => $expandAll ?? false])
+                                    @include('offert.partials.offer-row', ['offert' => $sub, 'isSub' => true, 'parentOffert' => $offert, 'expandAll' => $expandAll ?? false])
                                 @endforeach
                             @empty
                                 <tr>

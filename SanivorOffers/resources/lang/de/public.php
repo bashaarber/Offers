@@ -153,4 +153,15 @@ return [
     'confirm_delete_offer_with_subs' => 'Dieses Angebot und alle seine Unterangebote wirklich löschen?',
     'custom'                    => 'Custom',
     'gis_surcharge'             => 'GIS (+20%)',
+
+    // --- Gross-Angebot (Eltern/Kind innerhalb Offerte) ---
+    'gross_offer'               => 'Gross-Angebot',
+    'gross_offer_hint'          => 'Ein Gross-Angebot ist ein übergeordnetes Angebot ohne eigene Positionen — die Kind-Angebote fügen Sie aus der Liste hinzu.',
+    'teil_objekt'               => 'Teil-Objekt',
+    'teil_objekt_placeholder'   => 'z.B. Haus A',
+    'add_child'                 => 'Kind-Angebot hinzufügen',
+    'creating_child_for'        => 'Kind-Angebot erstellen für',
+    'child_of'                  => 'Kind von',
+    'child_inherits_note'       => 'Alle übrigen Felder (Objekt, Ort, Kunde, Koeffizienten) werden vom übergeordneten Angebot übernommen. Nur das Teil-Objekt kann hier geändert werden.',
+    'edit_positions'            => 'Positionen bearbeiten',
 ];

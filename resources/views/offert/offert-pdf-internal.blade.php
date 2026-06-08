@@ -134,12 +134,16 @@
         return number_format((float) $value, 0, '.', "'");
     };
 
-    // Build the address block from the offer's three addresses, falling back to the client record.
+    // For a child offer the shared header (Objekt, Ort, client + addresses) lives on the
+    // parent and is inherited live — only Teil-Objekt is the child's own.
+    $headerSource = ($offert->isSubOffert() && $offert->parent) ? $offert->parent : $offert;
+
+    // Build the address block from the header source's three addresses, falling back to its client record.
     $addressParts = [];
     foreach ([['client_address', 'address'], ['client_address_2', 'address_2'], ['client_address_3', 'address_3']] as [$offCol, $cliCol]) {
-        $val = trim((string) ($offert->{$offCol} ?? ''));
+        $val = trim((string) ($headerSource->{$offCol} ?? ''));
         if ($val === '') {
-            $val = trim((string) ($offert->client->{$cliCol} ?? ''));
+            $val = trim((string) ($headerSource->client->{$cliCol} ?? ''));
         }
         if ($val !== '') {
             $addressParts[] = $val;
@@ -170,7 +174,7 @@
         </td>
         <td style="width:32%; vertical-align:top; padding-top:64pt; padding-left:0; text-align:right;">
             <div style="display:inline-block; text-align:left;">
-                <strong>{{ $offert->client->name ?? '' }}</strong><br>
+                <strong>{{ $headerSource->client->name ?? '' }}</strong><br>
                 @foreach($clientAddressLines as $line)
                     @if(trim($line) !== '')
                         {{ $line }}<br>
@@ -190,13 +194,13 @@
         <td style="width:20%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Angebot Nr.</strong></td>
         <td style="width:30%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->display_number }}</strong></td>
         <td style="width:18%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>Objekt:</strong></td>
-        <td style="width:32%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $offert->object }}</strong></td>
+        <td style="width:32%; font-weight:bold; font-size:12pt; padding:6pt 6pt;"><strong>{{ $headerSource->object }}</strong></td>
     </tr>
     <tr>
         <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>Datum</strong></td>
         <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
         <td style="padding:2pt 6pt 16pt;"></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong></td>
+        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $headerSource->city }}</strong>@if(!empty($offert->teil_objekt))<br><strong>{{ $offert->teil_objekt }}</strong>@endif</td>
     </tr>
 </table>
 

@@ -277,7 +277,7 @@
                 <i class="fa-solid fa-file-invoice"></i><span>@lang('public.offert')</span>
             </a>
             <a href="{{ url('/sub-offert') }}" class="{{ request()->is('sub-offert') || request()->is('sub-offert/*') ? 'active' : '' }}">
-                <i class="fa-solid fa-code-branch"></i><span>@lang('public.sub_offert')</span>
+                <i class="fa-solid fa-file-invoice"></i><span>@lang('public.sub_offert')</span>
             </a>
         </div>
 

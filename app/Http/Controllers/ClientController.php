@@ -9,6 +9,33 @@ use Illuminate\Http\Request;
 class ClientController extends Controller
 {
     /**
+     * Validate a return URL so it can only point back into this app
+     * (used to send the user back to the same paginated/filtered list).
+     */
+    private function safeReturnUrl(?string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+        $appUrl = rtrim(url('/'), '/');
+        $candidate = trim($url);
+        if (str_starts_with($candidate, $appUrl . '/') || $candidate === $appUrl) {
+            return $candidate;
+        }
+        if (str_starts_with($candidate, '/')) {
+            return url($candidate);
+        }
+        return null;
+    }
+
+    private function redirectBack(Request $request)
+    {
+        return redirect()->to(
+            $this->safeReturnUrl($request->input('return_url')) ?? route('client.index')
+        );
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -106,36 +133,36 @@ class ClientController extends Controller
 
         $client->update($formFields);
 
-        return redirect()->route('client.index');
+        return $this->redirectBack($request);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $client = Client::find($id);
         $client->delete();
-        return redirect()->route('client.index');
+        return $this->redirectBack($request);
     }
 
     /**
      * Archive a client.
      */
-    public function archive(string $id)
+    public function archive(Request $request, string $id)
     {
         $client = Client::find($id);
         $client->update(['archived' => true]);
-        return redirect()->route('client.index');
+        return $this->redirectBack($request);
     }
 
     /**
      * Unarchive a client.
      */
-    public function unarchive(string $id)
+    public function unarchive(Request $request, string $id)
     {
         $client = Client::find($id);
         $client->update(['archived' => false]);
-        return redirect()->route('client.index');
+        return $this->redirectBack($request);
     }
 }
