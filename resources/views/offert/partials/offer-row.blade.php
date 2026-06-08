@@ -1,6 +1,8 @@
 @php
     $isSub = $isSub ?? false;
     $expandAll = $expandAll ?? false;
+    $parentOffert = $parentOffert ?? null;
+    $isGross = !$isSub && $offert->is_gross;
     $lockedByOther = $offert->isLockedByOther();
     $subCount = $isSub ? 0 : $offert->subOfferts->count();
 
@@ -36,7 +38,16 @@
     <td>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/y') }}</td>
     <td>{{ $offert->client->name }}</td>
     <td>{{ $offert->client_sign }}</td>
-    <td>{{ $offert->object }}</td>
+    <td>
+        @if($isSub)
+            {{ $parentOffert?->object ?? $offert->object }}
+            @if($offert->teil_objekt)
+                <div style="font-weight:700;">{{ $offert->teil_objekt }}</div>
+            @endif
+        @else
+            {{ $offert->object }}
+        @endif
+    </td>
     <td>
         <span style="background: {{ $colors['bg'] }}; color: {{ $colors['text'] }}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
             {{ $label }}
@@ -54,6 +65,9 @@
     <td>{{ $offert->user->username }}</td>
     <td style="white-space: nowrap; text-align: right;">
         <div class="btn-group" style="gap: 4px;">
+            @if($isGross)
+                <a href="{{ route('offert.create', ['parent_id' => $offert->id]) }}" class="btn btn-success btn-sm" title="@lang('public.add_child')"><i class="fa-solid fa-plus"></i></a>
+            @endif
             <a href="{{ route('offert.pdf', $offert->id) }}" class="btn btn-info btn-sm" title="External PDF" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-file-export"></i></a>
             <a href="{{ route('offert.copy', $offert->id) }}" class="btn btn-secondary btn-sm" title="{{ __('public.copy') }}" onclick='return confirm("{{ __('public.confirm_copy_offer') }}")'><i class="fa fa-clone"></i></a>
             @if($lockedByOther)

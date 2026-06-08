@@ -461,9 +461,13 @@
                 <div style="border-top:0.5pt solid #ccc; margin:3pt 0;"></div>
             @endif
             <span style="font-size:7.5pt;">
-                Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
-                SIA 181. (Fraunhofer Institut Stuttgart)<br>
-                MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
+                @if($gisOn)
+                    GIS-Elemente
+                @else
+                    Rahmenprofile, Metallteile und Befestigungen grundiert, Wand-Boden und Decke schallentkoppelt nach
+                    SIA 181. (Fraunhofer Institut Stuttgart)<br>
+                    MPA gepr&uuml;ft, Brandschutzpr&uuml;fung und El 120 MPA erf&uuml;llt (VKF) Nr. 22523
+                @endif
             </span>
         </td>
     </tr>

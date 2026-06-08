@@ -694,9 +694,37 @@
                 updateTotalProTypPrice();
             });
 
+            // Recompute every material's unit price when the Schw.Koeffizient (difficulty)
+            // changes. The labor part of each unit price is total_arbeit / difficultyCoeff,
+            // so the brutto/discounted totals must be rebuilt from the new per-material prices.
+            // total_arbeit == zeit_cost (see MaterialController), so we read it from the
+            // hidden .zeit-cost metric.
+            function recomputeMaterialPricesForDifficulty() {
+                const diffCoeff = getDifficultyCoeff();
+                $('.price-details').each(function() {
+                    const $cell = $(this);
+                    const priceOut = parseFloat($cell.find('.material-price-out .price-out').text()) || 0;
+                    const totalArbeit = parseFloat($cell.find('.material-zeit-cost .zeit-cost').text()) || 0;
+                    const newCalc = priceOut * materialCoeff + (diffCoeff > 0 ? totalArbeit / diffCoeff : 0);
+
+                    $cell.attr('data-material-price', newCalc);
+                    $cell.data('material-price', newCalc);
+                    // Direct child .price-in is the visible unit price (hidden metrics are deeper)
+                    $cell.children('.price-in').first().text(newCalc.toFixed(2));
+
+                    const $row = $cell.closest('tr');
+                    const qtyRaw = ($row.find('.quantity-input').val() || '').toString().replace(',', '.');
+                    const qty = parseFloat(qtyRaw) || 0;
+                    $row.find('.total').text((newCalc * qty).toFixed(2));
+                });
+            }
+            window.recomputeMaterialPricesForDifficulty = recomputeMaterialPricesForDifficulty;
+
             const difficultyInput = document.getElementById('difficulty-input');
             if (difficultyInput) {
                 difficultyInput.addEventListener('input', function() {
+                    recomputeMaterialPricesForDifficulty();
+                    updateTotalMaterialsPrice();
                     updateTotalProTypPrice();
                 });
             }
@@ -807,6 +835,9 @@
                     const elementMaterialsTable = document.getElementById(`element-materials-wrap-${elementId}`);
                     if (elementMaterialsTable) {
                         elementMaterialsTable.style.display = this.checked ? 'block' : 'none';
+                        // A table built on-demand uses the server's saved difficulty; realign it
+                        // with the current Schw.Koeffizient before summing totals.
+                        recomputeMaterialPricesForDifficulty();
                         const elementPrice = calculateTotalMaterialsPrice(elementId);
                         if (this.checked) {
                             runningTotalMaterialsPrice += elementPrice;

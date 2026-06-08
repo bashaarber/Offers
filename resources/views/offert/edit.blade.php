@@ -121,6 +121,64 @@
                     <div class="card">
                         <div class="card-body">
                         <h6>@lang('public.project_information')</h6>
+
+                        @if ($offert->isSubOffert())
+                            {{-- Child offer: header inherited from the Gross parent (read-only);
+                                 only Teil-Objekt is editable here. --}}
+                            @php $parent = $offert->parent; @endphp
+                            <div class="alert alert-info" style="border-radius:8px;">
+                                <i class="fa-solid fa-sitemap"></i>
+                                @lang('public.child_of') <strong>{{ $parent?->display_number }}</strong>
+                                @if($parent?->object) — {{ $parent->object }} @endif
+                            </div>
+                            <form action="{{ route('offert.update', $offert->id) }}" method="post">
+                                @csrf
+                                @method('put')
+                                @if (!empty($fromPositionOverview))
+                                    <input type="hidden" name="from_position" value="1">
+                                    <input type="hidden" name="return_url" value="{{ $returnUrl }}">
+                                    @if (!empty($embeddedOverview))
+                                        <input type="hidden" name="embed" value="1">
+                                    @endif
+                                @endif
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.offer_number')</label>
+                                        <input type="text" class="form-control" value="{{ $offert->display_number }}" disabled>
+                                    </div>
+                                    <div class="form-group col-md-9">
+                                        <label>@lang('public.object')</label>
+                                        <input type="text" class="form-control" value="{{ $parent?->object }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teil_objekt">@lang('public.teil_objekt')</label>
+                                        <input type="text" class="form-control" id="teil_objekt" name="teil_objekt"
+                                            value="{{ $offert->teil_objekt }}" placeholder="@lang('public.teil_objekt_placeholder')">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.city')</label>
+                                        <input type="text" class="form-control" value="{{ $parent?->city }}" disabled>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.client')</label>
+                                        <input type="text" class="form-control" value="{{ $parent?->client->name ?? '' }}" disabled>
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-3">
+                                    <i class="fa-solid fa-circle-info"></i> @lang('public.child_inherits_note')
+                                </p>
+                                @if (!empty($fromPositionOverview))
+                                    <button type="submit" class="btn btn-info mt-1">@lang('public.save')</button>
+                                    <button type="button" id="abbrechen-btn" class="btn btn-secondary mt-1">@lang('public.cancel')</button>
+                                @else
+                                    <button type="submit" class="btn btn-info mt-1">@lang('public.save')</button>
+                                    <a href="{{ route('offert.show', $offert->id) }}" class="btn btn-primary mt-1">@lang('public.edit_positions')</a>
+                                    <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-1">@lang('public.back')</a>
+                                @endif
+                            </form>
+                        @else
                             <form id="offert-edit-form" action="{{ route('offert.update', $offert->id) }}" method="post">
                                 @csrf
                                 @method('put')
@@ -294,6 +352,7 @@
                                     <span id="autosave-status" class="ms-3 text-muted small" style="line-height:38px;"></span>
                                 @endif
                             </form>
+                        @endif
                         </div>
                         {{-- @foreach ($offert->positions as $position)
                             <br>

@@ -17,6 +17,8 @@ class Offert extends Model
 
     protected $fillable = [
         'parent_id',
+        'is_gross',
+        'teil_objekt',
         'type',
         'user_sign',
         'status',
@@ -43,6 +45,7 @@ class Offert extends Model
 
     protected $casts = [
         'locked_at' => 'datetime',
+        'is_gross'  => 'boolean',
     ];
 
     public function user()
@@ -100,6 +103,26 @@ class Offert extends Model
         return !empty($this->parent_id);
     }
 
+    public function isGross(): bool
+    {
+        return (bool) $this->is_gross;
+    }
+
+    /**
+     * 1-based position of this child among its siblings (ordered by id).
+     * Used to build the {parent}-{n} display number (e.g. 633-H-2).
+     */
+    public function childIndex(): int
+    {
+        if (!$this->isSubOffert()) {
+            return 0;
+        }
+
+        return static::where('parent_id', $this->parent_id)
+            ->where('id', '<=', $this->id)
+            ->count();
+    }
+
     public function positions():BelongsToMany
    {
        return $this->belongsToMany(Position::class)->withTimestamps();
@@ -112,9 +135,10 @@ class Offert extends Model
 
     public function getDisplayNumberAttribute(): string
     {
-        // Sub-offers share their parent's running number but carry the -S suffix.
+        // Child offers extend the parent's running number with their sibling index,
+        // e.g. parent 633-H -> children 633-H-1, 633-H-2, ...
         if ($this->isSubOffert()) {
-            return self::formatDisplayNumber((int) $this->parent_id, self::SUB_DISPLAY_NUMBER_SUFFIX);
+            return self::formatDisplayNumber((int) $this->parent_id) . '-' . $this->childIndex();
         }
 
         return self::formatDisplayNumber((int) $this->id);

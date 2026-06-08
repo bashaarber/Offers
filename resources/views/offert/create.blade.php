@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@lang('public.create_offer')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <style>
     h6 {
@@ -33,6 +34,19 @@
         -webkit-appearance: none;
         margin: 0;
     }
+
+    .gross-toggle-card {
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        background: #eef2ff;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+    }
+
+    .gross-toggle-card .form-check-label {
+        font-weight: 600;
+        color: #3730a3;
+    }
 </style>
 
 <body>
@@ -45,23 +59,71 @@
                     <div class="card-body">
                         <h6>@lang('public.project_information')</h6>
 
-                        @isset($parent)
-                            @if($parent)
-                                <div class="alert alert-info" style="border-radius:8px;">
-                                    <i class="fa-solid fa-code-branch"></i>
-                                    @lang('public.creating_sub_offer_for') <strong>{{ $parent->display_number }}</strong>
-                                    @if($parent->object) — {{ $parent->object }} @endif
-                                </div>
-                            @endif
-                        @endisset
+                        @php $isChild = isset($parent) && $parent; @endphp
 
-                        <form action="{{ route('offert.store') }}" method="POST">
-                            @csrf
-                            @isset($parent)
-                                @if($parent)
-                                    <input type="hidden" name="parent_id" value="{{ $parent->id }}">
-                                @endif
-                            @endisset
+                        @if ($isChild)
+                            {{-- ============================ CHILD OFFER ============================ --}}
+                            <div class="alert alert-info" style="border-radius:8px;">
+                                <i class="fa-solid fa-sitemap"></i>
+                                @lang('public.creating_child_for') <strong>{{ $parent->display_number }}</strong>
+                                @if($parent->object) — {{ $parent->object }} @endif
+                            </div>
+
+                            <form action="{{ route('offert.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="parent_id" value="{{ $parent->id }}">
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.offer_number')</label>
+                                        <input type="text" class="form-control" value="{{ $newOffertNumber }}" disabled>
+                                    </div>
+                                    <div class="form-group col-md-9">
+                                        <label>@lang('public.object')</label>
+                                        <input type="text" class="form-control" value="{{ $parent->object }}" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teil_objekt">@lang('public.teil_objekt')</label>
+                                        <input type="text" class="form-control" id="teil_objekt" name="teil_objekt"
+                                            value="{{ old('teil_objekt') }}" placeholder="@lang('public.teil_objekt_placeholder')" autofocus>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.city')</label>
+                                        <input type="text" class="form-control" value="{{ $parent->city }}" disabled>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>@lang('public.client')</label>
+                                        <input type="text" class="form-control" value="{{ $parent->client->name ?? '' }}" disabled>
+                                    </div>
+                                </div>
+
+                                <p class="text-muted small mb-3">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    @lang('public.child_inherits_note')
+                                </p>
+
+                                <button type="submit" class="btn btn-primary mt-1">@lang('public.create_offer')</button>
+                                <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-1">@lang('public.back')</a>
+                            </form>
+                        @else
+                            {{-- ======================= NORMAL / GROSS OFFER ======================= --}}
+                            <form action="{{ route('offert.store') }}" method="POST">
+                                @csrf
+
+                                <div class="gross-toggle-card">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="1" id="is_gross" name="is_gross">
+                                        <label class="form-check-label" for="is_gross">
+                                            <i class="fa-solid fa-sitemap"></i> @lang('public.gross_offer')
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">@lang('public.gross_offer_hint')</small>
+                                </div>
+
+                            @foreach ($coefficients as $coefficient)
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="id">@lang('public.offer_number')</label>
@@ -97,9 +159,8 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="validity">@lang('public.offer_validity')</label>
-                                    @foreach ($coefficients as $coefficient)
-                                        <input type="text" class="form-control" id="validity" name="validity"
-                                            value="{{ $coefficient->validity }}" required>
+                                    <input type="text" class="form-control" id="validity" name="validity"
+                                        value="{{ $coefficient->validity }}" required>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="client_sign">@lang('public.your_reference')</label>
@@ -195,7 +256,8 @@
                             @endforeach
                             <button type="submit" class="btn btn-primary mt-3">@lang('public.create_offer')</button>
                             <a href="{{ route('offert.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
-                        </form>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -238,20 +300,19 @@
         });
 
         document.addEventListener("DOMContentLoaded", function() {
-        // Get today's date
-        var today = new Date();
+            // Get today's date
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var yyyy = today.getFullYear();
+            today = yyyy + '-' + mm + '-' + dd;
 
-        // Format date as YYYY-MM-DD
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-        var yyyy = today.getFullYear();
+            // Set input value to today's date (only present on the normal/Gross form)
+            var createDateEl = document.getElementById('create_date');
+            if (createDateEl) createDateEl.value = today;
 
-        today = yyyy + '-' + mm + '-' + dd;
-
-        // Set input value to today's date
-        document.getElementById('create_date').value = today;
-        syncClientAddressFromSelection();
-    });
+            syncClientAddressFromSelection();
+        });
     </script>
 </body>
 </html>
