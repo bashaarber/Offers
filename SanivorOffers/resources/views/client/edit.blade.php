@@ -19,6 +19,7 @@
                             <form action="{{ route('client.update', $client->id) }}" method="post">
                                 @csrf
                                 @method('put')
+                                <input type="hidden" name="return_url" value="{{ request('return_url') }}">
                                 <div class="form-group">
                                     <label for="name">Name</label>
                                     <input type="text" class="form-control" id="name" name="name"
@@ -50,7 +51,7 @@
                                         value="{{ old('address_3', $client->address_3) }}">
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-3">@lang('public.save')</button>
-                                <a href="{{ route('client.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
+                                <a href="{{ request('return_url') ?: route('client.index') }}" class="btn btn-secondary mt-3">@lang('public.back')</a>
                             </form>
                         </div>
                     </div>
