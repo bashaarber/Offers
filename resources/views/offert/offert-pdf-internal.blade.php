@@ -176,9 +176,6 @@
                         {{ $line }}<br>
                     @endif
                 @endforeach
-                @if(!empty($offert->teil_objekt))
-                    <strong>{{ $offert->teil_objekt }}</strong><br>
-                @endif
             </div>
         </td>
     </tr>
@@ -199,7 +196,7 @@
         <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>Datum</strong></td>
         <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ \Carbon\Carbon::parse($offert->create_date)->format('d/m/Y') }}</strong></td>
         <td style="padding:2pt 6pt 16pt;"></td>
-        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong></td>
+        <td style="font-weight:bold; font-size:12pt; padding:2pt 6pt 16pt;"><strong>{{ $offert->city }}</strong>@if(!empty($offert->teil_objekt))<br><strong>{{ $offert->teil_objekt }}</strong>@endif</td>
     </tr>
 </table>
 
