@@ -200,6 +200,7 @@ class OffertController extends Controller
 
             $offert->load([
                 'client',
+                'parent.client', // child offers inherit the header (Objekt/Ort/client/address) from the parent
                 'positions' => function ($query) use ($selectedOrganigramIds) {
                     $query->orderBy('position_number', 'ASC');
                     if (!empty($selectedOrganigramIds)) {
